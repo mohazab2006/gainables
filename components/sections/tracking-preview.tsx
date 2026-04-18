@@ -56,7 +56,7 @@ export function TrackingPreviewSection({
   );
 
   return (
-    <section ref={root} className="bg-background px-6 py-24 md:px-12 md:py-28 lg:px-20">
+    <section id="ride" ref={root} className="bg-background px-6 py-24 md:px-12 md:py-28 lg:px-20">
       <div className="container-shell grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         <div data-track-reveal className="rounded-[2rem] border border-border bg-surface p-8 md:p-10">
           <div className="flex flex-wrap items-start justify-between gap-4">
