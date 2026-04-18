@@ -22,7 +22,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# claude code
 .claude/
+
+# lockfiles (pnpm is the source of truth)
 package-lock.json
 
 # typescript

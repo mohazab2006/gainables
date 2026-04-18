@@ -25,8 +25,6 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
     { lead: [], supporting: [], community: [] },
   );
 
-  const stripItems = sponsors.length ? [...sponsors, ...sponsors] : sponsors;
-
   return (
     <section id="sponsors" className="bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20">
       <div className="container-shell">
@@ -46,9 +44,9 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
         {sponsors.length ? (
           <div ref={stripRef} className="marquee-mask mt-12 overflow-hidden border-y border-border py-6">
             <div data-marquee-track className="flex w-max items-center gap-12 will-change-transform">
-              {stripItems.map((sponsor, idx) => (
+              {sponsors.map((sponsor) => (
                 <span
-                  key={`${sponsor.id}-${idx}`}
+                  key={sponsor.id}
                   className="flex shrink-0 items-center gap-3 font-display text-2xl tracking-tight text-muted-foreground"
                 >
                   {sponsor.logoUrl ? (
