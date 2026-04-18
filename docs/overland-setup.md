@@ -2,6 +2,8 @@
 
 Use this on ride day for the lead rider.
 
+The admin overview now generates the final deep link automatically once `NEXT_PUBLIC_SUPABASE_URL` and `RIDER_TOKEN` are set.
+
 1. Install Overland GPS Tracker on the rider's iPhone.
 2. Open the deep link below on the device:
 

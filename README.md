@@ -18,8 +18,9 @@ Next.js 16.2.4 campaign site for Gainables' Ottawa to Montreal Ride for Mental H
 3. Set `ADMIN_ALLOWED_EMAILS` to the comma-separated admin allowlist.
 4. Add `NEXT_PUBLIC_MAPBOX_TOKEN` if you want the branded live map instead of the fallback tracker panel.
 5. Add `RIDER_TOKEN` before generating the Overland setup link for the lead rider.
-6. Run `pnpm install`.
-7. Run `pnpm dev`.
+6. Optionally add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to send signup confirmations.
+7. Run `pnpm install`.
+8. Run `pnpm dev`.
 
 ## Required environment variables
 
@@ -30,6 +31,8 @@ Next.js 16.2.4 campaign site for Gainables' Ottawa to Montreal Ride for Mental H
 - `NEXT_PUBLIC_MAPBOX_TOKEN`: public token for the `/track` map.
 - `ADMIN_ALLOWED_EMAILS`: comma-separated allowlist for admin access.
 - `RIDER_TOKEN`: bearer token validated by `supabase/functions/ingest-position`.
+- `RESEND_API_KEY`: optional API key for signup confirmation emails.
+- `RESEND_FROM_EMAIL`: optional sender for Resend email delivery. Defaults to `onboarding@resend.dev`.
 
 ## Database and functions
 
@@ -53,6 +56,7 @@ supabase secrets set \
 
 - Overland setup and rider link format: [docs/overland-setup.md](./docs/overland-setup.md)
 - Deployment and support workflow: [docs/ride-day-runbook.md](./docs/ride-day-runbook.md)
+- Subscriber export and follow-up: use `/admin/subscribers`
 
 ## Useful commands
 

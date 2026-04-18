@@ -5,12 +5,13 @@ const rootDir = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  cacheComponents: true,
   turbopack: {
     root: rootDir,
   },
   images: {
     unoptimized: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

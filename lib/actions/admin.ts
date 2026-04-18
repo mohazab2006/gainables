@@ -2,9 +2,10 @@
 
 import { randomUUID } from "node:crypto";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { CACHE_TAGS, PUBLIC_CACHE_TAGS } from "@/lib/cache-tags";
 import { adminJsonContentSections, adminScalarContentSections } from "@/lib/admin/content-sections";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -25,6 +26,14 @@ function toNumber(value: FormDataEntryValue | null, fallback = 0) {
 function toNullableString(value: FormDataEntryValue | null) {
   const text = String(value ?? "").trim();
   return text.length ? text : null;
+}
+
+function refreshPublicSite() {
+  PUBLIC_CACHE_TAGS.forEach((tag) => updateTag(tag));
+  revalidatePath("/");
+  revalidatePath("/donate");
+  revalidatePath("/track");
+  revalidatePath("/updates");
 }
 
 async function uploadSponsorLogo(file: File) {
@@ -97,10 +106,8 @@ export async function upsertSiteContentSection(formData: FormData) {
     redirectWithMessage(path, "error", "Unsupported content key.");
   }
 
-  revalidatePath("/");
-  revalidatePath("/donate");
-  revalidatePath("/track");
-  revalidatePath("/updates");
+  updateTag(CACHE_TAGS.siteContent);
+  refreshPublicSite();
   revalidatePath("/admin/content");
   redirectWithMessage(path, "success", `Saved ${key.replaceAll("_", " ")}.`);
 }
@@ -130,8 +137,8 @@ export async function createSponsor(formData: FormData) {
     redirectWithMessage("/admin/sponsors", "error", message);
   }
 
-  revalidatePath("/");
-  revalidatePath("/track");
+  updateTag(CACHE_TAGS.sponsors);
+  refreshPublicSite();
   revalidatePath("/admin/sponsors");
   redirectWithMessage("/admin/sponsors", "success", "Sponsor created.");
 }
@@ -166,8 +173,8 @@ export async function updateSponsor(formData: FormData) {
     redirectWithMessage("/admin/sponsors", "error", message);
   }
 
-  revalidatePath("/");
-  revalidatePath("/track");
+  updateTag(CACHE_TAGS.sponsors);
+  refreshPublicSite();
   revalidatePath("/admin/sponsors");
   redirectWithMessage("/admin/sponsors", "success", "Sponsor updated.");
 }
@@ -183,8 +190,8 @@ export async function deleteSponsor(formData: FormData) {
     redirectWithMessage("/admin/sponsors", "error", `Unable to delete sponsor: ${error.message}`);
   }
 
-  revalidatePath("/");
-  revalidatePath("/track");
+  updateTag(CACHE_TAGS.sponsors);
+  refreshPublicSite();
   revalidatePath("/admin/sponsors");
   redirectWithMessage("/admin/sponsors", "success", "Sponsor deleted.");
 }
@@ -207,8 +214,8 @@ export async function createRideUpdate(formData: FormData) {
     redirectWithMessage("/admin/updates", "error", `Unable to create update: ${error.message}`);
   }
 
-  revalidatePath("/track");
-  revalidatePath("/updates");
+  updateTag(CACHE_TAGS.rideUpdates);
+  refreshPublicSite();
   revalidatePath("/admin/updates");
   redirectWithMessage("/admin/updates", "success", "Ride update posted.");
 }
@@ -235,8 +242,8 @@ export async function updateRideUpdate(formData: FormData) {
     redirectWithMessage("/admin/updates", "error", `Unable to update ride entry: ${error.message}`);
   }
 
-  revalidatePath("/track");
-  revalidatePath("/updates");
+  updateTag(CACHE_TAGS.rideUpdates);
+  refreshPublicSite();
   revalidatePath("/admin/updates");
   redirectWithMessage("/admin/updates", "success", "Ride update saved.");
 }
@@ -252,8 +259,8 @@ export async function deleteRideUpdate(formData: FormData) {
     redirectWithMessage("/admin/updates", "error", `Unable to delete ride update: ${error.message}`);
   }
 
-  revalidatePath("/track");
-  revalidatePath("/updates");
+  updateTag(CACHE_TAGS.rideUpdates);
+  refreshPublicSite();
   revalidatePath("/admin/updates");
   redirectWithMessage("/admin/updates", "success", "Ride update deleted.");
 }
@@ -273,7 +280,8 @@ export async function createFaq(formData: FormData) {
     redirectWithMessage("/admin/faqs", "error", `Unable to create FAQ: ${error.message}`);
   }
 
-  revalidatePath("/");
+  updateTag(CACHE_TAGS.faqs);
+  refreshPublicSite();
   revalidatePath("/admin/faqs");
   redirectWithMessage("/admin/faqs", "success", "FAQ created.");
 }
@@ -297,7 +305,8 @@ export async function updateFaq(formData: FormData) {
     redirectWithMessage("/admin/faqs", "error", `Unable to update FAQ: ${error.message}`);
   }
 
-  revalidatePath("/");
+  updateTag(CACHE_TAGS.faqs);
+  refreshPublicSite();
   revalidatePath("/admin/faqs");
   redirectWithMessage("/admin/faqs", "success", "FAQ updated.");
 }
@@ -313,7 +322,8 @@ export async function deleteFaq(formData: FormData) {
     redirectWithMessage("/admin/faqs", "error", `Unable to delete FAQ: ${error.message}`);
   }
 
-  revalidatePath("/");
+  updateTag(CACHE_TAGS.faqs);
+  refreshPublicSite();
   revalidatePath("/admin/faqs");
   redirectWithMessage("/admin/faqs", "success", "FAQ deleted.");
 }

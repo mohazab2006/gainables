@@ -18,7 +18,7 @@ export async function signInAdmin(formData: FormData) {
   await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/admin`,
+      emailRedirectTo: `${origin}/auth/callback?next=/admin`,
     },
   });
 

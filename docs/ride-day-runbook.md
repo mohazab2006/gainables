@@ -17,6 +17,7 @@ supabase secrets list
 ```
 
 5. Confirm `/track` renders the Mapbox map and not the fallback-only panel.
+6. Confirm `/admin/subscribers` loads so campaign signups can be exported after launch.
 
 ## Rider onboarding
 
@@ -48,3 +49,4 @@ supabase secrets list
 1. Set `tracker_status` to `finished` in `/admin/content`.
 2. Publish a final update with the finish message.
 3. Confirm `/track` shows the completed state and preserved trail.
+4. Export `/admin/subscribers` to CSV for post-ride follow-up.

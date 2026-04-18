@@ -23,7 +23,7 @@ export async function getAdminState() {
   }
 
   return {
-    title: "Configuration ready for auth wiring",
-    description: "Environment variables are present. Finish the auth flow and CRUD pages to enable the live admin dashboard.",
+    title: "Configuration ready",
+    description: "Environment variables are present. Magic-link auth, CRUD pages, and tracker operations are ready once Supabase is connected.",
   };
 }

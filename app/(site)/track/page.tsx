@@ -8,8 +8,6 @@ import { getRidePositions, getRideUpdates, getSiteContent, getSponsors } from "@
 import { getTrackerReadiness } from "@/lib/env";
 import { getRouteGeoJson } from "@/lib/route-geojson";
 
-export const revalidate = 15;
-
 export const metadata: Metadata = {
   title: "Live tracker",
   description:

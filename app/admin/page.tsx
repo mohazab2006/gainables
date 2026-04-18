@@ -5,7 +5,7 @@ import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { getAdminState } from "@/lib/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { signInAdmin, signOutAdmin } from "@/lib/actions/admin-auth";
-import { getTrackerReadiness, hasSupabaseEnv } from "@/lib/env";
+import { getOverlandSetupLink, getTrackerReadiness, hasSupabaseEnv } from "@/lib/env";
 
 type AdminPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -18,6 +18,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const readiness = getTrackerReadiness();
   const message = typeof params.message === "string" ? params.message : null;
   const type = typeof params.type === "string" ? params.type : null;
+  const overlandSetupLink = getOverlandSetupLink();
 
   return (
     <main className="min-h-screen bg-background px-6 pb-24 pt-36 md:px-12 lg:px-20">
@@ -104,6 +105,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             title="Production readiness is surfaced here before ride day."
             description="This dashboard now calls out the exact environment dependencies behind the live tracker stack so deployment gaps are visible before you hand the link to the rider or supporters."
           />
+        </div>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <section className="rounded-[2rem] border border-border bg-background p-8">
+            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Rider setup link</p>
+            <h2 className="mt-4 text-2xl font-medium tracking-tight">Send this to the lead rider once the secrets are live.</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
+              The deep link preloads the ingest endpoint, rider token, and device ID into Overland so the rider only has to confirm permissions and tap start.
+            </p>
+            <textarea
+              readOnly
+              value={overlandSetupLink ?? "Set NEXT_PUBLIC_SUPABASE_URL and RIDER_TOKEN to generate the final Overland setup link."}
+              className="mt-5 min-h-36 w-full rounded-[1.25rem] border border-border bg-secondary/40 px-4 py-4 font-mono text-xs outline-none"
+            />
+          </section>
+          <section className="rounded-[2rem] border border-border bg-secondary/50 p-8">
+            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Subscriber ops</p>
+            <h2 className="mt-4 text-2xl font-medium tracking-tight">Campaign signups are now visible in admin.</h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              Review the current list, export CSV for follow-up, and confirm the email capture flow is storing records after you connect Supabase.
+            </p>
+            <div className="mt-6">
+              <Link
+                href="/admin/subscribers"
+                className="inline-flex rounded-full border border-border bg-background px-5 py-3 text-sm font-medium transition hover:border-foreground"
+              >
+                Open subscribers
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </main>

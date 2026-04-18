@@ -14,15 +14,18 @@ const socials = [
   { href: "mailto:hello@gainables.com", label: "Email", icon: Mail },
 ];
 
+const COPYRIGHT_YEAR = 2026;
+
 export function Footer() {
   return (
-    <footer className="grain-bg relative overflow-hidden bg-foreground px-6 pt-20 pb-10 text-background md:px-12 md:pt-24 lg:px-20">
+    <footer className="grain-bg relative overflow-hidden bg-foreground px-6 pb-10 pt-20 text-background md:px-12 md:pt-24 lg:px-20">
       <div className="container-shell">
         <div className="flex flex-col gap-12 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-6">
             <p className="ring-token border-white/15 bg-white/10 text-white/75">Presented by Gainables</p>
             <h2 className="max-w-2xl font-display text-5xl leading-[0.98] tracking-[-0.025em] md:text-7xl">
-              Ride for Mental Health.<br />
+              Ride for Mental Health.
+              <br />
               <span className="display-italic text-accent">Ottawa to Montreal.</span>
             </h2>
             <p className="max-w-xl text-base leading-7 text-background/70">
@@ -57,7 +60,9 @@ export function Footer() {
         </div>
 
         <div className="mt-16 grid gap-6 border-t border-white/10 pt-8 md:grid-cols-[1.4fr_1fr_1fr]">
-          <p className="text-xs uppercase tracking-[0.24em] text-background/55">© {new Date().getFullYear()} Gainables — All rights reserved</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-background/55">
+            © {COPYRIGHT_YEAR} Gainables - All rights reserved
+          </p>
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-background/70">
             {links.map((link) => (
               <Link key={link.href} href={link.href} className="transition hover:text-background">

@@ -1,5 +1,8 @@
 import "server-only";
 
+import { cacheTag } from "next/cache";
+
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   fallbackFaqs,
@@ -14,16 +17,24 @@ import {
   type SiteContent,
   type Sponsor,
 } from "@/lib/fallback-content";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { mapRidePosition, mapRideUpdate } from "@/lib/track";
 
 export async function getSiteContent(): Promise<SiteContent> {
+  return getCachedSiteContent();
+}
+
+async function getCachedSiteContent(): Promise<SiteContent> {
+  "use cache";
+  cacheTag(CACHE_TAGS.siteContent);
+
   if (!hasSupabaseEnv()) {
     return fallbackSiteContent;
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase.from("site_content").select("key, value");
 
     if (error || !data?.length) {
@@ -56,12 +67,19 @@ export async function getSiteContent(): Promise<SiteContent> {
 }
 
 export async function getSponsors(): Promise<Sponsor[]> {
+  return getCachedSponsors();
+}
+
+async function getCachedSponsors(): Promise<Sponsor[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.sponsors);
+
   if (!hasSupabaseEnv()) {
     return fallbackSponsors.filter((sponsor) => sponsor.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("sponsors")
       .select("id, name, tier, logo_url, link, sort_order, visible, tagline")
@@ -88,12 +106,19 @@ export async function getSponsors(): Promise<Sponsor[]> {
 }
 
 export async function getAllSponsors(): Promise<Sponsor[]> {
-  if (!hasSupabaseEnv()) {
-    return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
-  }
+  return getCachedAllSponsors();
+}
+
+async function getCachedAllSponsors(): Promise<Sponsor[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.sponsors);
 
   try {
-    const supabase = await createSupabaseServerClient();
+    if (!hasSupabaseEnv()) {
+      return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("sponsors")
       .select("id, name, tier, logo_url, link, sort_order, visible, tagline")
@@ -119,12 +144,19 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
 }
 
 export async function getRideUpdates(): Promise<RideUpdate[]> {
+  return getCachedRideUpdates();
+}
+
+async function getCachedRideUpdates(): Promise<RideUpdate[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.rideUpdates);
+
   if (!hasSupabaseEnv()) {
     return [...fallbackRideUpdates].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("ride_updates")
       .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng")
@@ -148,12 +180,19 @@ export async function getLatestRideUpdate(): Promise<RideUpdate> {
 }
 
 export async function getRidePositions(limit = 80): Promise<RidePosition[]> {
+  return getCachedRidePositions(limit);
+}
+
+async function getCachedRidePositions(limit = 80): Promise<RidePosition[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.ridePositions);
+
   if (!hasSupabaseEnv()) {
     return [...fallbackRidePositions].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).slice(-limit);
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("ride_positions")
       .select("id, recorded_at, lon, lat, accuracy_m, speed_mps, battery_pct, source, raw")
@@ -178,12 +217,19 @@ export async function getLatestRidePosition(): Promise<RidePosition | null> {
 }
 
 export async function getFaqs(): Promise<FaqItem[]> {
+  return getCachedFaqs();
+}
+
+async function getCachedFaqs(): Promise<FaqItem[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.faqs);
+
   if (!hasSupabaseEnv()) {
     return fallbackFaqs.filter((faq) => faq.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("faqs")
       .select("id, question, answer, sort_order, visible")
@@ -207,12 +253,19 @@ export async function getFaqs(): Promise<FaqItem[]> {
 }
 
 export async function getAllFaqs(): Promise<FaqItem[]> {
-  if (!hasSupabaseEnv()) {
-    return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
-  }
+  return getCachedAllFaqs();
+}
+
+async function getCachedAllFaqs(): Promise<FaqItem[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.faqs);
 
   try {
-    const supabase = await createSupabaseServerClient();
+    if (!hasSupabaseEnv()) {
+      return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("faqs")
       .select("id, question, answer, sort_order, visible")
@@ -231,6 +284,48 @@ export async function getAllFaqs(): Promise<FaqItem[]> {
     }));
   } catch {
     return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+}
+
+export type SubscriberRecord = {
+  id: string;
+  email: string;
+  source: string | null;
+  createdAt: string;
+};
+
+export async function getSubscribers(limit = 200): Promise<SubscriberRecord[]> {
+  return getCachedSubscribers(limit);
+}
+
+async function getCachedSubscribers(limit = 200): Promise<SubscriberRecord[]> {
+  "use cache";
+  cacheTag(CACHE_TAGS.subscribers);
+
+  if (!hasSupabaseEnv()) {
+    return [];
+  }
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("subscribers")
+      .select("id, email, source, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map((row) => ({
+      id: row.id,
+      email: row.email,
+      source: row.source,
+      createdAt: row.created_at,
+    }));
+  } catch {
+    return [];
   }
 }
 

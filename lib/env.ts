@@ -6,6 +6,22 @@ export function getSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
+export function getOverlandSetupLink(deviceId = "lead-rider") {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const riderToken = process.env.RIDER_TOKEN;
+
+  if (!supabaseUrl || !riderToken) {
+    return null;
+  }
+
+  const url = new URL("overland://setup");
+  url.searchParams.set("url", `${supabaseUrl}/functions/v1/ingest-position`);
+  url.searchParams.set("token", riderToken);
+  url.searchParams.set("device_id", deviceId);
+  url.searchParams.set("unique_id", "yes");
+  return url.toString();
+}
+
 export function hasSupabaseEnv() {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && getSupabasePublishableKey());
 }
