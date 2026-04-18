@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { connection } from "next/server";
+
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createFaq, deleteFaq, updateFaq } from "@/lib/actions/admin";
 import { getAdminSession } from "@/lib/admin/auth";
@@ -10,6 +12,7 @@ type AdminFaqsPageProps = {
 };
 
 export default async function AdminFaqsPage({ searchParams }: AdminFaqsPageProps) {
+  await connection();
   const params = searchParams ? await searchParams : {};
   const faqs = await getAllFaqs();
   const session = await getAdminSession();

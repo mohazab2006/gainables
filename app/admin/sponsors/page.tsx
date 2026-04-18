@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { connection } from "next/server";
+
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createSponsor, deleteSponsor, updateSponsor } from "@/lib/actions/admin";
 import { getAdminSession } from "@/lib/admin/auth";
@@ -12,6 +14,7 @@ type AdminSponsorsPageProps = {
 const sponsorTiers = ["lead", "supporting", "community"] as const;
 
 export default async function AdminSponsorsPage({ searchParams }: AdminSponsorsPageProps) {
+  await connection();
   const params = searchParams ? await searchParams : {};
   const sponsors = await getAllSponsors();
   const session = await getAdminSession();

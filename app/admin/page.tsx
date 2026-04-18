@@ -1,5 +1,6 @@
 import { TrackerReadiness } from "@/components/operations/tracker-readiness";
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { getAdminState } from "@/lib/admin";
@@ -12,6 +13,7 @@ type AdminPageProps = {
 };
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
+  await connection();
   const params = searchParams ? await searchParams : {};
   const adminState = await getAdminState();
   const session = await getAdminSession();

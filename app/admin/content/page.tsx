@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { upsertSiteContentSection } from "@/lib/actions/admin";
 import { getAdminSession } from "@/lib/admin/auth";
@@ -9,6 +11,7 @@ type AdminContentPageProps = {
 };
 
 export default async function AdminContentPage({ searchParams }: AdminContentPageProps) {
+  await connection();
   const params = searchParams ? await searchParams : {};
   const content = await getSiteContent();
   const session = await getAdminSession();

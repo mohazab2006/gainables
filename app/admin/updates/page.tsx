@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { connection } from "next/server";
+
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createRideUpdate, deleteRideUpdate, updateRideUpdate } from "@/lib/actions/admin";
 import { getAdminSession } from "@/lib/admin/auth";
@@ -10,6 +12,7 @@ type AdminUpdatesPageProps = {
 };
 
 export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPageProps) {
+  await connection();
   const params = searchParams ? await searchParams : {};
   const updates = await getRideUpdates();
   const session = await getAdminSession();

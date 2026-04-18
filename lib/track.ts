@@ -75,8 +75,12 @@ export function getTrackerSnapshot(route: RouteContent, update: RideUpdate) {
   };
 }
 
-export function formatCountdown(rideDate: string, now = new Date()) {
-  const diffMs = new Date(rideDate).getTime() - now.getTime();
+export function formatCountdown(rideDate: string, nowMs?: number | null) {
+  if (nowMs === undefined || nowMs === null) {
+    return "Tracker activates on ride day";
+  }
+
+  const diffMs = new Date(rideDate).getTime() - nowMs;
   if (diffMs <= 0) {
     return "Tracker activates on ride day";
   }
@@ -93,12 +97,16 @@ export function formatCountdown(rideDate: string, now = new Date()) {
   return `${hours}h ${minutes}m until rollout`;
 }
 
-export function deriveSignalStatus(position: RidePosition | null, now = new Date()) {
+export function deriveSignalStatus(position: RidePosition | null, nowMs?: number | null) {
   if (!position) {
     return "Manual updates only";
   }
 
-  const ageMinutes = (now.getTime() - new Date(position.recordedAt).getTime()) / 60000;
+  if (nowMs === undefined || nowMs === null) {
+    return "Syncing signal";
+  }
+
+  const ageMinutes = (nowMs - new Date(position.recordedAt).getTime()) / 60000;
   if (ageMinutes <= 3) {
     return "Live signal";
   }
@@ -125,9 +133,9 @@ export function deriveTrackerState({
     return "live" as const;
   }
 
-  if (!latestPosition && new Date(rideDate).getTime() > Date.now()) {
+  if (!latestPosition) {
     return "pre_ride" as const;
   }
 
-  return latestPosition ? ("live" as const) : ("pre_ride" as const);
+  return "live" as const;
 }

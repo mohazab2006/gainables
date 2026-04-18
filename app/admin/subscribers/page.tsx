@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
 import { getAdminSession } from "@/lib/admin/auth";
 import { getSubscribers } from "@/lib/content";
 
 export default async function AdminSubscribersPage() {
+  await connection();
   const session = await getAdminSession();
   const canView = session.status === "authorized";
   const subscribers = canView ? await getSubscribers() : [];

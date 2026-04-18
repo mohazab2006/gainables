@@ -45,9 +45,16 @@ export function TrackerShell({
 }: TrackerShellProps) {
   const [updates, setUpdates] = useState(initialUpdates);
   const [positions, setPositions] = useState(initialPositions);
+  const [nowMs, setNowMs] = useState<number | null>(null);
   const latestUpdate = updates[0] ?? null;
   const latestPosition = positions.at(-1) ?? null;
   const experienceState = deriveTrackerState({ trackerStatus, rideDate, latestPosition });
+
+  useEffect(() => {
+    setNowMs(Date.now());
+    const interval = window.setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   const fallbackCoordinates = latestUpdate
     ? { lat: latestUpdate.lat, lng: latestUpdate.lng }
@@ -129,6 +136,7 @@ export function TrackerShell({
       <section className="mt-6 grid gap-6 xl:grid-cols-[0.72fr_1.28fr]">
         <StatusCard
           latestPosition={latestPosition}
+          nowMs={nowMs}
           rideDate={rideDate}
           route={route}
           state={experienceState}
@@ -217,7 +225,7 @@ export function TrackerShell({
                 <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Ride signal</p>
                 <h2 className="mt-4 text-3xl font-medium tracking-tight md:text-4xl">
                   {experienceState === "pre_ride"
-                    ? formatCountdown(rideDate)
+                    ? formatCountdown(rideDate, nowMs)
                     : experienceState === "finished"
                       ? "Ride complete. Thanks for backing the campaign."
                       : "Latest manual updates and ride telemetry."}

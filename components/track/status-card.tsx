@@ -3,6 +3,7 @@ import { deriveSignalStatus, formatCountdown, formatRideUpdateDate, getTrackerSn
 
 export function StatusCard({
   latestPosition,
+  nowMs,
   rideDate,
   route,
   state,
@@ -10,6 +11,7 @@ export function StatusCard({
   update,
 }: {
   latestPosition: RidePosition | null;
+  nowMs: number | null;
   rideDate: string;
   route: RouteContent;
   state: "pre_ride" | "live" | "finished";
@@ -38,7 +40,7 @@ export function StatusCard({
       {state === "pre_ride" ? (
         <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
           <p className="text-sm uppercase tracking-[0.2em] text-background/55">Activation</p>
-          <p className="mt-3 text-4xl font-medium tracking-tight">{formatCountdown(rideDate)}</p>
+          <p className="mt-3 text-4xl font-medium tracking-tight">{formatCountdown(rideDate, nowMs)}</p>
           <p className="mt-4 max-w-xl text-sm leading-7 text-background/72">
             The map is showing the planned route now. Once the rider starts Overland and the first position lands in Supabase, the page switches into live telemetry automatically.
           </p>
@@ -67,7 +69,7 @@ export function StatusCard({
       ) : null}
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
-        <Badge label="Signal" value={deriveSignalStatus(latestPosition)} />
+        <Badge label="Signal" value={deriveSignalStatus(latestPosition, nowMs)} />
         <Badge label="Telemetry" value={batteryLabel} />
         <Badge label="Speed" value={speedLabel} />
         <Badge

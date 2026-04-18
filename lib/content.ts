@@ -1,8 +1,5 @@
 import "server-only";
 
-import { cacheTag } from "next/cache";
-
-import { CACHE_TAGS } from "@/lib/cache-tags";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   fallbackFaqs,
@@ -26,9 +23,6 @@ export async function getSiteContent(): Promise<SiteContent> {
 }
 
 async function getCachedSiteContent(): Promise<SiteContent> {
-  "use cache";
-  cacheTag(CACHE_TAGS.siteContent);
-
   if (!hasSupabaseEnv()) {
     return fallbackSiteContent;
   }
@@ -71,9 +65,6 @@ export async function getSponsors(): Promise<Sponsor[]> {
 }
 
 async function getCachedSponsors(): Promise<Sponsor[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.sponsors);
-
   if (!hasSupabaseEnv()) {
     return fallbackSponsors.filter((sponsor) => sponsor.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
@@ -110,9 +101,6 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
 }
 
 async function getCachedAllSponsors(): Promise<Sponsor[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.sponsors);
-
   try {
     if (!hasSupabaseEnv()) {
       return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -148,9 +136,6 @@ export async function getRideUpdates(): Promise<RideUpdate[]> {
 }
 
 async function getCachedRideUpdates(): Promise<RideUpdate[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.rideUpdates);
-
   if (!hasSupabaseEnv()) {
     return [...fallbackRideUpdates].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
@@ -184,9 +169,6 @@ export async function getRidePositions(limit = 80): Promise<RidePosition[]> {
 }
 
 async function getCachedRidePositions(limit = 80): Promise<RidePosition[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.ridePositions);
-
   if (!hasSupabaseEnv()) {
     return [...fallbackRidePositions].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).slice(-limit);
   }
@@ -221,9 +203,6 @@ export async function getFaqs(): Promise<FaqItem[]> {
 }
 
 async function getCachedFaqs(): Promise<FaqItem[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.faqs);
-
   if (!hasSupabaseEnv()) {
     return fallbackFaqs.filter((faq) => faq.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
@@ -257,9 +236,6 @@ export async function getAllFaqs(): Promise<FaqItem[]> {
 }
 
 async function getCachedAllFaqs(): Promise<FaqItem[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.faqs);
-
   try {
     if (!hasSupabaseEnv()) {
       return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -299,9 +275,6 @@ export async function getSubscribers(limit = 200): Promise<SubscriberRecord[]> {
 }
 
 async function getCachedSubscribers(limit = 200): Promise<SubscriberRecord[]> {
-  "use cache";
-  cacheTag(CACHE_TAGS.subscribers);
-
   if (!hasSupabaseEnv()) {
     return [];
   }
