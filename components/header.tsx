@@ -53,14 +53,12 @@ export function Header() {
           className={`relative flex items-center justify-between rounded-full pl-5 pr-2 py-2 transition-all duration-300 ${
           isScrolled
             ? "border border-border bg-background/85 shadow-[0_18px_50px_rgba(14,14,12,0.07)] backdrop-blur-lg"
-            : "border border-white/15 bg-white/5 backdrop-blur-md"
+            : "border border-border/60 bg-background/70 backdrop-blur-md"
         }`}
       >
         <Link
           href="/"
-          className={`font-display text-xl tracking-tight transition-colors duration-300 ${
-            isScrolled ? "text-foreground" : "text-white"
-          }`}
+          className="font-display text-xl tracking-tight text-foreground transition-colors duration-300"
         >
           Gainables
         </Link>
@@ -70,9 +68,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className={`text-sm transition-colors ${
-                isScrolled ? "text-muted-foreground hover:text-foreground" : "text-white/80 hover:text-white"
-              }`}
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>
@@ -82,11 +78,7 @@ export function Header() {
         <div className="hidden items-center gap-3 md:flex">
           <Link
             href="/donate"
-            className={`group inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-300 ${
-              isScrolled
-                ? "bg-foreground text-background hover:-translate-y-0.5"
-                : "bg-accent text-foreground hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(200,226,92,0.5)]"
-            }`}
+            className="group inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(14,14,12,0.18)]"
           >
             Donate
             <ArrowUpRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -96,9 +88,7 @@ export function Header() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((v) => !v)}
-          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden ${
-            isScrolled ? "text-foreground hover:bg-secondary" : "text-white hover:bg-white/10"
-          }`}
+          className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary md:hidden"
           aria-label="Toggle menu"
         >
           {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
