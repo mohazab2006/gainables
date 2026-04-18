@@ -1,9 +1,7 @@
-import { type NextRequest } from "next/server";
-
 import { getAdminSession } from "@/lib/admin/auth";
 import { getSubscribers } from "@/lib/content";
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   const session = await getAdminSession();
 
   if (session.status !== "authorized") {

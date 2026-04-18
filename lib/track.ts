@@ -118,11 +118,9 @@ export function deriveSignalStatus(position: RidePosition | null, nowMs?: number
 
 export function deriveTrackerState({
   trackerStatus,
-  rideDate,
   latestPosition,
 }: {
   trackerStatus: TrackerStatus;
-  rideDate: string;
   latestPosition: RidePosition | null;
 }) {
   if (trackerStatus === "finished") {

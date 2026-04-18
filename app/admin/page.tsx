@@ -2,24 +2,24 @@ import { TrackerReadiness } from "@/components/operations/tracker-readiness";
 import Link from "next/link";
 import { connection } from "next/server";
 
+import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { getAdminState } from "@/lib/admin";
 import { getAdminSession } from "@/lib/admin/auth";
+import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { signInAdmin, signOutAdmin } from "@/lib/actions/admin-auth";
 import { getOverlandSetupLink, getTrackerReadiness, hasSupabaseEnv } from "@/lib/env";
 
 type AdminPageProps = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: AdminSearchParams;
 };
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   await connection();
-  const params = searchParams ? await searchParams : {};
   const adminState = await getAdminState();
   const session = await getAdminSession();
   const readiness = getTrackerReadiness();
-  const message = typeof params.message === "string" ? params.message : null;
-  const type = typeof params.type === "string" ? params.type : null;
+  const { message, type } = await resolveAdminFlashState(searchParams);
   const overlandSetupLink = getOverlandSetupLink();
 
   return (
@@ -31,15 +31,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           Manage live site content, sponsor records, FAQs, and ride-day updates from one place. Admin writes use
           Supabase directly and invalidate the public pages after each save.
         </p>
-        {message ? (
-          <div
-            className={`mt-8 rounded-[1.5rem] border px-5 py-4 text-sm ${
-              type === "error" ? "border-destructive/30 bg-destructive/5 text-destructive" : "border-border bg-secondary/60 text-foreground"
-            }`}
-          >
-            {message}
-          </div>
-        ) : null}
+        <AdminFlashBanner message={message} type={type} className="mt-8" />
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           <div className="rounded-[2rem] border border-border bg-secondary/60 p-8">
             <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Auth status</p>

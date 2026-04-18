@@ -24,7 +24,6 @@ const subscribeSchema = z.object({
 const RATE_LIMIT_WINDOW_MS = 30_000;
 
 declare global {
-  // eslint-disable-next-line no-var
   var __subscribeRateLimit__: Map<string, number> | undefined;
 }
 

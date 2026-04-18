@@ -1,23 +1,23 @@
 import { connection } from "next/server";
 
+import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
+import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { upsertSiteContentSection } from "@/lib/actions/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { adminJsonContentSections, adminScalarContentSections } from "@/lib/admin/content-sections";
 import { getSiteContent } from "@/lib/content";
 
 type AdminContentPageProps = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: AdminSearchParams;
 };
 
 export default async function AdminContentPage({ searchParams }: AdminContentPageProps) {
   await connection();
-  const params = searchParams ? await searchParams : {};
   const content = await getSiteContent();
   const session = await getAdminSession();
   const canEdit = session.status === "authorized";
-  const message = typeof params.message === "string" ? params.message : null;
-  const type = typeof params.type === "string" ? params.type : null;
+  const { message, type } = await resolveAdminFlashState(searchParams);
 
   const jsonValues = {
     hero: content.hero,
@@ -50,15 +50,7 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
             JSON sections map directly to the `site_content` table. Save a block and the public pages will revalidate
             immediately.
           </p>
-          {message ? (
-            <div
-              className={`mt-6 rounded-[1.25rem] border px-5 py-4 text-sm ${
-                type === "error" ? "border-destructive/30 bg-destructive/5 text-destructive" : "border-border bg-background text-foreground"
-              }`}
-            >
-              {message}
-            </div>
-          ) : null}
+          <AdminFlashBanner message={message} type={type} className="mt-6" />
           {!canEdit ? (
             <div className="mt-6 rounded-[1.25rem] border border-border bg-background p-5 text-sm text-muted-foreground">
               Sign in with an allowlisted admin account to save changes from this screen.

@@ -45,13 +45,12 @@ export function TrackerShell({
 }: TrackerShellProps) {
   const [updates, setUpdates] = useState(initialUpdates);
   const [positions, setPositions] = useState(initialPositions);
-  const [nowMs, setNowMs] = useState<number | null>(null);
+  const [nowMs, setNowMs] = useState<number | null>(() => Date.now());
   const latestUpdate = updates[0] ?? null;
   const latestPosition = positions.at(-1) ?? null;
-  const experienceState = deriveTrackerState({ trackerStatus, rideDate, latestPosition });
+  const experienceState = deriveTrackerState({ trackerStatus, latestPosition });
 
   useEffect(() => {
-    setNowMs(Date.now());
     const interval = window.setInterval(() => setNowMs(Date.now()), 60_000);
     return () => window.clearInterval(interval);
   }, []);
@@ -116,7 +115,7 @@ export function TrackerShell({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [refreshPositions, refreshUpdates]);
+  }, []);
 
   const checkpoints = route.checkpoints;
 

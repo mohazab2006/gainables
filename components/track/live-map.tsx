@@ -88,7 +88,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
 
         map.addSource("trail", {
           type: "geojson",
-          data: buildTrailFeature(positions),
+          data: buildTrailFeature([]),
         });
 
         map.addLayer({
@@ -132,9 +132,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
           },
         });
 
-        const startPoint: [number, number] = latestPosition
-          ? [latestPosition.lon, latestPosition.lat]
-          : [route.mapCenter.lng, route.mapCenter.lat];
+        const startPoint: [number, number] = [route.mapCenter.lng, route.mapCenter.lat];
 
         markerRef.current = new mapboxgl.Marker({ color: "#111111", scale: 1.1 }).setLngLat(startPoint).addTo(map);
 
@@ -154,7 +152,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
       instanceRef.current = null;
       followRef.current = true;
     };
-  }, [checkpoints, latestPosition, mapboxToken, route.mapCenter.lat, route.mapCenter.lng, route.mapCenter.zoom, routeFeature]);
+  }, [checkpoints, mapboxToken, route.mapCenter.lat, route.mapCenter.lng, route.mapCenter.zoom, routeFeature]);
 
   useEffect(() => {
     if (!instanceRef.current) {
