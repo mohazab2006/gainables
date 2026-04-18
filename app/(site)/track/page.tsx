@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { TrackerReadiness } from "@/components/operations/tracker-readiness";
@@ -8,6 +9,12 @@ import { getTrackerReadiness } from "@/lib/env";
 import { getRouteGeoJson } from "@/lib/route-geojson";
 
 export const revalidate = 15;
+
+export const metadata: Metadata = {
+  title: "Live tracker",
+  description:
+    "Watch the Ottawa to Montreal ride progress with live positions, checkpoint status, and ride-day updates.",
+};
 
 export default async function TrackPage() {
   const readiness = getTrackerReadiness();

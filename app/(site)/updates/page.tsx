@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getRideUpdates, getSiteContent } from "@/lib/content";
+
+export const metadata: Metadata = {
+  title: "Updates",
+  description:
+    "Read campaign updates, checkpoint notes, and media references from the Ride for Mental Health build-up and ride day.",
+};
 
 export default async function UpdatesPage() {
   const [content, updates] = await Promise.all([getSiteContent(), getRideUpdates()]);

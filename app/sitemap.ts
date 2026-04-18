@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 
+import { getSiteUrl } from "@/lib/env";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gainables.example";
+  const baseUrl = getSiteUrl();
 
   return ["", "/donate", "/track", "/updates"].map((path) => ({
     url: `${baseUrl}${path}`,

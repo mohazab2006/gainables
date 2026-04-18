@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getSiteContent } from "@/lib/content";
+
+export const metadata: Metadata = {
+  title: "Donate",
+  description:
+    "Support Ride for Mental Health and help turn the Ottawa to Montreal campaign into direct mental health impact.",
+};
 
 export default async function DonatePage() {
   const content = await getSiteContent();

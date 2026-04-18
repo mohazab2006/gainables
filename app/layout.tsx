@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 
+import { getSiteUrl } from "@/lib/env";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -10,8 +12,10 @@ const inter = Inter({
   display: "swap",
 });
 
+const metadataBase = new URL(getSiteUrl());
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gainables.example"),
+  metadataBase,
   title: {
     default: "Ride for Mental Health | Gainables",
     template: "%s | Ride for Mental Health",
@@ -32,12 +36,22 @@ export const metadata: Metadata = {
     description:
       "Follow the Ottawa to Montreal route, support the fundraiser, and stay current with live ride updates.",
     type: "website",
+    url: metadataBase,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Ride for Mental Health by Gainables",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ride for Mental Health | Gainables",
     description:
       "Support the fundraiser, track the route, and stay close to the campaign as riders move from Ottawa to Montreal.",
+    images: ["/opengraph-image"],
   },
 };
 
