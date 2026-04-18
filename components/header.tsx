@@ -42,14 +42,15 @@ export function Header() {
   );
 
   return (
-    <header
-      ref={headerRef}
-      data-scrolled={isScrolled}
-      data-hidden={isHidden}
-      className="fixed left-1/2 top-4 z-50 w-[94%] max-w-5xl -translate-x-1/2 transition-[transform,opacity] duration-500 will-change-transform data-[hidden=true]:-translate-y-[180%] data-[hidden=true]:opacity-0"
-    >
-      <div
-        className={`relative flex items-center justify-between rounded-full pl-5 pr-2 py-2 transition-all duration-300 ${
+    <div className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-3">
+      <header
+        ref={headerRef}
+        data-scrolled={isScrolled}
+        data-hidden={isHidden}
+        className="pointer-events-auto w-full max-w-5xl will-change-transform transition-[transform,opacity] duration-500 data-[hidden=true]:-translate-y-[180%] data-[hidden=true]:opacity-0"
+      >
+        <div
+          className={`relative flex items-center justify-between rounded-full pl-5 pr-2 py-2 transition-all duration-300 ${
           isScrolled
             ? "border border-border bg-background/85 shadow-[0_18px_50px_rgba(14,14,12,0.07)] backdrop-blur-lg"
             : "border border-white/15 bg-white/5 backdrop-blur-md"
@@ -128,6 +129,7 @@ export function Header() {
           </nav>
         </div>
       ) : null}
-    </header>
+      </header>
+    </div>
   );
 }
