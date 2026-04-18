@@ -171,7 +171,7 @@ export function HeroSection({ hero, stats }: HeroSectionProps) {
                     <Link
                       data-hero-cta
                       href={hero.primaryCta.href}
-                      className="group inline-flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(200,226,92,0.45)]"
+                      className="group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(200,226,92,0.45)]"
                     >
                       {hero.primaryCta.label}
                       <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -179,7 +179,7 @@ export function HeroSection({ hero, stats }: HeroSectionProps) {
                     <Link
                       data-hero-cta
                       href={hero.secondaryCta.href}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-medium text-white backdrop-blur transition hover:bg-white/15"
+                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-medium text-white backdrop-blur transition hover:bg-white/15"
                     >
                       {hero.secondaryCta.label}
                     </Link>

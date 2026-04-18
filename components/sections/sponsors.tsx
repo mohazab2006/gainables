@@ -6,24 +6,24 @@ import { useMarquee } from "@/hooks/use-marquee";
 import { useReveal } from "@/hooks/use-reveal";
 import type { Sponsor } from "@/lib/fallback-content";
 
-const tierLabels: Record<Sponsor["tier"], string> = {
-  lead: "Lead partners",
-  supporting: "Supporting sponsors",
-  community: "Community backers",
+// Used only to order logos internally — the tier itself is no longer
+// surfaced in the UI. Lead partners read first-left, community last.
+const tierWeight: Record<Sponsor["tier"], number> = {
+  lead: 0,
+  supporting: 1,
+  community: 2,
 };
 
 export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
   const headRef = useReveal<HTMLDivElement>();
-  const tierRef = useReveal<HTMLDivElement>({ y: 40, stagger: 0.1 });
+  const gridRef = useReveal<HTMLDivElement>({ y: 32, stagger: 0.06 });
   const stripRef = useMarquee<HTMLDivElement>({ speed: 50 });
 
-  const grouped = sponsors.reduce<Record<Sponsor["tier"], Sponsor[]>>(
-    (acc, sponsor) => {
-      acc[sponsor.tier].push(sponsor);
-      return acc;
-    },
-    { lead: [], supporting: [], community: [] },
-  );
+  const ordered = [...sponsors].sort((a, b) => {
+    const tierDelta = tierWeight[a.tier] - tierWeight[b.tier];
+    if (tierDelta !== 0) return tierDelta;
+    return a.sortOrder - b.sortOrder;
+  });
 
   return (
     <section id="sponsors" className="bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20">
@@ -36,8 +36,7 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
             </h2>
           </div>
           <p data-reveal className="max-w-md text-base leading-7 text-muted-foreground">
-            Sponsor tiers stay editable so this page can evolve as more partners join. Logos and links come from
-            structured records.
+            The partners powering this ride — together they make every kilometre possible.
           </p>
         </div>
 
@@ -60,51 +59,36 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
           </div>
         ) : null}
 
-        <div ref={tierRef} className="mt-14 space-y-8">
-          {(Object.keys(grouped) as Sponsor["tier"][]).map((tier) =>
-            grouped[tier].length ? (
-              <div
-                key={tier}
+        {ordered.length ? (
+          <div
+            ref={gridRef}
+            className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-[2rem] border border-border bg-border sm:grid-cols-3 lg:grid-cols-4"
+          >
+            {ordered.map((sponsor) => (
+              <Link
+                key={sponsor.id}
+                href={sponsor.link}
+                target="_blank"
+                rel="noreferrer"
                 data-reveal
-                className="rounded-[2rem] border border-border bg-surface p-8 transition hover:shadow-[0_30px_120px_rgba(14,14,12,0.06)]"
+                aria-label={sponsor.name}
+                className="group relative flex aspect-[4/3] items-center justify-center bg-surface p-6 transition-colors duration-300 hover:bg-background"
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`h-2.5 w-2.5 rounded-full ${
-                        tier === "lead" ? "bg-accent" : tier === "supporting" ? "bg-foreground" : "bg-muted-foreground"
-                      }`}
-                    />
-                    <h3 className="font-display text-2xl tracking-tight">{tierLabels[tier]}</h3>
-                  </div>
-                  <span className="eyebrow">{grouped[tier].length} partners</span>
-                </div>
-                <div className="mt-7 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {grouped[tier].map((sponsor) => (
-                    <Link
-                      key={sponsor.id}
-                      href={sponsor.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex h-full flex-col rounded-2xl border border-border bg-background p-6 transition hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-[0_20px_60px_rgba(14,14,12,0.06)]"
-                    >
-                      {sponsor.logoUrl ? (
-                        <img
-                          src={sponsor.logoUrl}
-                          alt={`${sponsor.name} logo`}
-                          className="h-10 w-auto object-contain grayscale transition group-hover:grayscale-0"
-                        />
-                      ) : (
-                        <div className="font-display text-2xl tracking-tight">{sponsor.name}</div>
-                      )}
-                      <p className="mt-4 text-sm leading-7 text-muted-foreground">{sponsor.tagline}</p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ) : null,
-          )}
-        </div>
+                {sponsor.logoUrl ? (
+                  <img
+                    src={sponsor.logoUrl}
+                    alt={`${sponsor.name} logo`}
+                    className="max-h-20 w-auto max-w-[75%] object-contain opacity-80 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0"
+                  />
+                ) : (
+                  <span className="px-2 text-center font-display text-2xl leading-tight tracking-tight text-foreground/70 transition-colors duration-300 group-hover:text-foreground md:text-3xl">
+                    {sponsor.name}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { connection } from "next/server";
 
-import { getAdminSession } from "@/lib/admin/auth";
+import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { getSubscribers } from "@/lib/content";
 
 export default async function AdminSubscribersPage() {
   await connection();
-  const session = await getAdminSession();
-  const canView = session.status === "authorized";
-  const subscribers = canView ? await getSubscribers() : [];
+  await requireAuthorizedAdmin();
+  const canView = true;
+  const subscribers = await getSubscribers();
 
   return (
     <main className="px-6 py-10 md:px-12 lg:px-20">

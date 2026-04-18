@@ -4,7 +4,7 @@ import { AdminField, adminFieldClassName } from "@/components/admin/field";
 import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createSponsor, deleteSponsor, updateSponsor } from "@/lib/actions/admin";
-import { getAdminSession } from "@/lib/admin/auth";
+import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { getAllSponsors } from "@/lib/content";
 
@@ -16,9 +16,9 @@ const sponsorTiers = ["lead", "supporting", "community"] as const;
 
 export default async function AdminSponsorsPage({ searchParams }: AdminSponsorsPageProps) {
   await connection();
+  await requireAuthorizedAdmin();
   const sponsors = await getAllSponsors();
-  const session = await getAdminSession();
-  const canEdit = session.status === "authorized";
+  const canEdit = true;
   const { message, type } = await resolveAdminFlashState(searchParams);
 
   return (

@@ -310,7 +310,7 @@ export const fallbackSponsors: Sponsor[] = [
     name: "Gainables",
     tier: "lead",
     logoUrl: null,
-    link: "https://gainables.com",
+    link: "https://gainables.ca",
     tagline: "Campaign lead and community-first organizer.",
     visible: true,
     sortOrder: 1,

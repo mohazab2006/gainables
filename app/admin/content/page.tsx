@@ -4,7 +4,7 @@ import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { upsertSiteContentSection } from "@/lib/actions/admin";
-import { getAdminSession } from "@/lib/admin/auth";
+import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { adminJsonContentSections, adminScalarContentSections } from "@/lib/admin/content-sections";
 import { getSiteContent } from "@/lib/content";
 
@@ -14,9 +14,9 @@ type AdminContentPageProps = {
 
 export default async function AdminContentPage({ searchParams }: AdminContentPageProps) {
   await connection();
+  await requireAuthorizedAdmin();
   const content = await getSiteContent();
-  const session = await getAdminSession();
-  const canEdit = session.status === "authorized";
+  const canEdit = true;
   const { message, type } = await resolveAdminFlashState(searchParams);
 
   const jsonValues = {

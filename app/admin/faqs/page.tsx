@@ -4,7 +4,7 @@ import { AdminField, adminFieldClassName } from "@/components/admin/field";
 import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createFaq, deleteFaq, updateFaq } from "@/lib/actions/admin";
-import { getAdminSession } from "@/lib/admin/auth";
+import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { getAllFaqs } from "@/lib/content";
 
@@ -14,9 +14,9 @@ type AdminFaqsPageProps = {
 
 export default async function AdminFaqsPage({ searchParams }: AdminFaqsPageProps) {
   await connection();
+  await requireAuthorizedAdmin();
   const faqs = await getAllFaqs();
-  const session = await getAdminSession();
-  const canEdit = session.status === "authorized";
+  const canEdit = true;
   const { message, type } = await resolveAdminFlashState(searchParams);
 
   return (

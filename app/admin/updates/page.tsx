@@ -4,7 +4,7 @@ import { AdminField, adminFieldClassName } from "@/components/admin/field";
 import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createRideUpdate, deleteRideUpdate, updateRideUpdate } from "@/lib/actions/admin";
-import { getAdminSession } from "@/lib/admin/auth";
+import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
 import { getRideUpdates } from "@/lib/content";
 
@@ -14,9 +14,9 @@ type AdminUpdatesPageProps = {
 
 export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPageProps) {
   await connection();
+  await requireAuthorizedAdmin();
   const updates = await getRideUpdates();
-  const session = await getAdminSession();
-  const canEdit = session.status === "authorized";
+  const canEdit = true;
   const { message, type } = await resolveAdminFlashState(searchParams);
 
   return (
