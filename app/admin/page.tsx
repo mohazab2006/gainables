@@ -1,10 +1,11 @@
+import { TrackerReadiness } from "@/components/operations/tracker-readiness";
 import Link from "next/link";
 
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { getAdminState } from "@/lib/admin";
 import { getAdminSession } from "@/lib/admin/auth";
 import { signInAdmin, signOutAdmin } from "@/lib/actions/admin-auth";
-import { hasSupabaseEnv } from "@/lib/env";
+import { getTrackerReadiness, hasSupabaseEnv } from "@/lib/env";
 
 type AdminPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -14,6 +15,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const params = searchParams ? await searchParams : {};
   const adminState = await getAdminState();
   const session = await getAdminSession();
+  const readiness = getTrackerReadiness();
   const message = typeof params.message === "string" ? params.message : null;
   const type = typeof params.type === "string" ? params.type : null;
 
@@ -69,8 +71,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-sm uppercase tracking-[0.24em] text-background/60">Operations</p>
             <div className="mt-5 space-y-3 text-sm leading-7 text-background/75">
               <p>1. Configure Supabase and run `supabase/migrations/0001_init.sql`.</p>
-              <p>2. Set `ADMIN_ALLOWED_EMAILS` and sign in with a magic link.</p>
-              <p>3. Use the edit screens to publish content and sponsor changes.</p>
+              <p>2. Set `ADMIN_ALLOWED_EMAILS`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_MAPBOX_TOKEN`, and `RIDER_TOKEN`.</p>
+              <p>3. Deploy the ingest function, send the rider setup link, then use the edit screens to publish content and ride-day updates.</p>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -87,8 +89,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               >
                 Open editors
               </Link>
+              <Link
+                href="/track"
+                className="inline-flex rounded-full border border-background/20 px-6 py-3 text-sm font-medium text-background transition hover:bg-background/10"
+              >
+                Open tracker
+              </Link>
             </div>
           </div>
+        </div>
+        <div className="mt-6">
+          <TrackerReadiness
+            items={readiness}
+            title="Production readiness is surfaced here before ride day."
+            description="This dashboard now calls out the exact environment dependencies behind the live tracker stack so deployment gaps are visible before you hand the link to the rider or supporters."
+          />
         </div>
       </div>
     </main>
