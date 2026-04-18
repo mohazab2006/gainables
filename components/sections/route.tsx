@@ -27,8 +27,9 @@ export function RouteSection({ about, route }: { about: AboutContent; route: Rou
                 <div>
                   <p className="text-sm uppercase tracking-[0.18em] text-background/55">{checkpoint.stage}</p>
                   <p className="mt-1 text-lg font-medium">{checkpoint.name}</p>
+                  {checkpoint.note ? <p className="mt-1 text-sm text-background/60">{checkpoint.note}</p> : null}
                 </div>
-                <span className="text-sm text-background/65">{checkpoint.distance}</span>
+                <span className="text-sm text-background/65">{checkpoint.distanceLabel}</span>
               </div>
             ))}
           </div>

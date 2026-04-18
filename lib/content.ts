@@ -10,6 +10,7 @@ import {
   type FaqItem,
   type RidePosition,
   type RideUpdate,
+  type RouteContent,
   type SiteContent,
   type Sponsor,
 } from "@/lib/fallback-content";
@@ -37,7 +38,7 @@ export async function getSiteContent(): Promise<SiteContent> {
       stats: readValue(map, "stats", fallbackSiteContent.stats),
       whyItMatters: readValue(map, "why_it_matters", fallbackSiteContent.whyItMatters),
       about: readValue(map, "about", fallbackSiteContent.about),
-      route: readValue(map, "route", fallbackSiteContent.route),
+      route: normalizeRouteContent(readValue(map, "route", fallbackSiteContent.route), fallbackSiteContent.route),
       pillars: readValue(map, "pillars", fallbackSiteContent.pillars),
       gallery: readValue(map, "gallery", fallbackSiteContent.gallery),
       causePartner: readValue(map, "cause_partner", fallbackSiteContent.causePartner),
@@ -235,4 +236,57 @@ export async function getAllFaqs(): Promise<FaqItem[]> {
 
 function readValue<T>(map: Map<string, unknown>, key: string, fallback: T): T {
   return (map.get(key) as T | undefined) ?? fallback;
+}
+
+function normalizeRouteContent(input: unknown, fallback: RouteContent): RouteContent {
+  if (!input || typeof input !== "object") {
+    return fallback;
+  }
+
+  type LegacyCheckpoint = Partial<RouteContent["checkpoints"][number]> & {
+    distance?: string;
+  };
+
+  const route = input as Partial<RouteContent> & {
+    checkpoints?: LegacyCheckpoint[];
+  };
+
+  const fallbackCheckpoints = fallback.checkpoints;
+  const checkpoints = Array.isArray(route.checkpoints)
+    ? route.checkpoints.map((checkpoint, index) => {
+        const fallbackCheckpoint = fallbackCheckpoints[index] ?? fallbackCheckpoints.at(-1) ?? fallbackCheckpoints[0];
+        const checkpointValue = checkpoint as LegacyCheckpoint;
+        const km =
+          typeof checkpoint.km === "number" && Number.isFinite(checkpoint.km)
+            ? checkpoint.km
+            : parseDistanceLabel(checkpointValue.distance ?? checkpoint.distanceLabel ?? fallbackCheckpoint?.distanceLabel ?? "0 km");
+
+        return {
+          stage: checkpoint.stage ?? fallbackCheckpoint?.stage ?? `Checkpoint ${index + 1}`,
+          name: checkpoint.name ?? fallbackCheckpoint?.name ?? `Checkpoint ${index + 1}`,
+          km,
+          distanceLabel: checkpoint.distanceLabel ?? checkpointValue.distance ?? `${km} km`,
+          lat:
+            typeof checkpoint.lat === "number" && Number.isFinite(checkpoint.lat)
+              ? checkpoint.lat
+              : fallbackCheckpoint?.lat ?? fallback.mapCenter.lat,
+          lng:
+            typeof checkpoint.lng === "number" && Number.isFinite(checkpoint.lng)
+              ? checkpoint.lng
+              : fallbackCheckpoint?.lng ?? fallback.mapCenter.lng,
+          note: checkpoint.note ?? fallbackCheckpoint?.note,
+        };
+      })
+    : fallbackCheckpoints;
+
+  return {
+    ...fallback,
+    ...route,
+    checkpoints,
+  };
+}
+
+function parseDistanceLabel(value: string) {
+  const numeric = Number.parseFloat(value.replace(/[^0-9.]/g, ""));
+  return Number.isFinite(numeric) ? numeric : 0;
 }

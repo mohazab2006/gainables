@@ -38,7 +38,15 @@ export type RouteContent = {
   title: string;
   summary: string;
   totalDistanceKm: number;
-  checkpoints: { stage: string; name: string; distance: string }[];
+  checkpoints: {
+    stage: string;
+    name: string;
+    km: number;
+    distanceLabel: string;
+    lat: number;
+    lng: number;
+    note?: string;
+  }[];
   polyline: { lat: number; lng: number }[];
   mapCenter: { lat: number; lng: number; zoom: number };
 };
@@ -186,10 +194,10 @@ export const fallbackSiteContent: SiteContent = {
       "The ride represents discipline, consistency, and pushing through difficulty. The route section gives supporters a sense of scale, provides expected checkpoints, and makes the campaign feel concrete before ride day.",
     totalDistanceKm: 200,
     checkpoints: [
-      { stage: "Start", name: "Ottawa", distance: "0 km" },
-      { stage: "Checkpoint 1", name: "Casselman", distance: "55 km" },
-      { stage: "Checkpoint 2", name: "Hawkesbury", distance: "105 km" },
-      { stage: "Finish", name: "Montreal", distance: "200 km" },
+      { stage: "Start", name: "Ottawa", km: 0, distanceLabel: "0 km", lat: 45.4215, lng: -75.6972, note: "Campaign rollout and first telemetry lock." },
+      { stage: "Checkpoint 1", name: "Casselman", km: 55, distanceLabel: "55 km", lat: 45.3154, lng: -75.0838, note: "Early nutrition and support-vehicle handoff." },
+      { stage: "Checkpoint 2", name: "Hawkesbury", km: 105, distanceLabel: "105 km", lat: 45.6074, lng: -74.6058, note: "Mid-route regroup before the final push east." },
+      { stage: "Finish", name: "Montreal", km: 200, distanceLabel: "200 km", lat: 45.5017, lng: -73.5673, note: "Ride complete and final supporter update." },
     ],
     polyline: [
       { lat: 45.4215, lng: -75.6972 },

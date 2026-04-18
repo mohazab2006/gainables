@@ -52,7 +52,7 @@ export function getTrackerSnapshot(route: RouteContent, update: RideUpdate) {
   const progressPercent = Math.max(0, Math.min(100, (update.kmCompleted / totalDistanceKm) * 100));
   const checkpoints = route.checkpoints.map((checkpoint) => ({
     ...checkpoint,
-    km: parseCheckpointDistance(checkpoint.distance),
+    km: checkpoint.km,
   }));
   const completedCheckpointCount = checkpoints.filter((checkpoint) => update.kmCompleted >= checkpoint.km).length;
   const currentCheckpoint =
@@ -73,11 +73,6 @@ export function getTrackerSnapshot(route: RouteContent, update: RideUpdate) {
     nextCheckpoint,
     checkpoints,
   };
-}
-
-function parseCheckpointDistance(distance: string) {
-  const numeric = Number.parseFloat(distance.replace(/[^0-9.]/g, ""));
-  return Number.isFinite(numeric) ? numeric : 0;
 }
 
 export function formatCountdown(rideDate: string, now = new Date()) {

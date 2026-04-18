@@ -196,7 +196,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
             <div key={checkpoint.name} className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4">
               <p className="text-xs uppercase tracking-[0.18em] text-white/55">{checkpoint.stage}</p>
               <p className="mt-2 text-lg font-medium">{checkpoint.name}</p>
-              <p className="mt-2 text-sm text-white/65">{checkpoint.distance}</p>
+              <p className="mt-2 text-sm text-white/65">{checkpoint.distanceLabel}</p>
             </div>
           ))}
         </div>

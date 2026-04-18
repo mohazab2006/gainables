@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useMemo, useState, startTransition } from "react";
+import { useEffect, useEffectEvent, useState, startTransition } from "react";
 
 import { LiveMap } from "@/components/track/live-map";
 import { SponsorStrip } from "@/components/track/sponsor-strip";
@@ -111,15 +111,7 @@ export function TrackerShell({
     };
   }, [refreshPositions, refreshUpdates]);
 
-  const checkpoints = useMemo(
-    () =>
-      route.checkpoints.map((checkpoint, index) => ({
-        ...checkpoint,
-        lat: route.polyline[index]?.lat ?? route.mapCenter.lat,
-        lng: route.polyline[index]?.lng ?? route.mapCenter.lng,
-      })),
-    [route.checkpoints, route.mapCenter.lat, route.mapCenter.lng, route.polyline],
-  );
+  const checkpoints = route.checkpoints;
 
   return (
     <>
@@ -169,12 +161,11 @@ export function TrackerShell({
 
             <div className="mt-8 grid gap-4">
               {checkpoints.map((checkpoint, index) => {
-                const checkpointKm = Number.parseFloat(checkpoint.distance.replace(/[^0-9.]/g, "")) || 0;
                 const active =
                   latestUpdate?.nextCheckpoint === checkpoint.name ||
                   (experienceState === "pre_ride" && index === 0) ||
                   (experienceState === "finished" && index === checkpoints.length - 1);
-                const passed = latestUpdate ? latestUpdate.kmCompleted >= checkpointKm : false;
+                const passed = latestUpdate ? latestUpdate.kmCompleted >= checkpoint.km : false;
 
                 return (
                   <div
@@ -194,9 +185,14 @@ export function TrackerShell({
                     <div>
                       <p className={active ? "text-background/65" : "text-muted-foreground"}>{checkpoint.stage}</p>
                       <p className="mt-1 text-lg font-medium">{checkpoint.name}</p>
+                      {checkpoint.note ? (
+                        <p className={["mt-2 text-sm leading-6", active ? "text-background/72" : "text-muted-foreground"].join(" ")}>
+                          {checkpoint.note}
+                        </p>
+                      ) : null}
                     </div>
                     <div className="flex flex-col items-start justify-between gap-2 md:items-end">
-                      <span className={active ? "text-background/70" : "text-muted-foreground"}>{checkpoint.distance}</span>
+                      <span className={active ? "text-background/70" : "text-muted-foreground"}>{checkpoint.distanceLabel}</span>
                       <span className="rounded-full border border-current/15 px-3 py-1 text-xs uppercase tracking-[0.18em]">
                         {active
                           ? experienceState === "finished"
