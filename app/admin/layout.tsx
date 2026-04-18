@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+import { AdminSubmitButton } from "@/components/admin/submit-button";
+import { signOutAdmin } from "@/lib/actions/admin-auth";
 import { getAdminSession } from "@/lib/admin/auth";
 
 const nav = [
@@ -22,13 +24,23 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Admin</p>
             <h1 className="text-xl font-medium">Ride for Mental Health</h1>
           </div>
-          <nav className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-            {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="rounded-full border border-border px-4 py-2 transition hover:text-foreground">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex flex-col gap-4 md:items-end">
+            <nav className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+              {nav.map((item) => (
+                <Link key={item.href} href={item.href} className="rounded-full border border-border px-4 py-2 transition hover:text-foreground">
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            {session.status === "authorized" ? (
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                <span className="text-muted-foreground">{session.user.email}</span>
+                <form action={signOutAdmin}>
+                  <AdminSubmitButton idleLabel="Sign out" pendingLabel="Signing out..." variant="outline" />
+                </form>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
       {session.status !== "authorized" ? <AccessState status={session.status} email={session.user?.email} /> : null}
@@ -41,11 +53,11 @@ function AccessState({ status, email }: { status: "unconfigured" | "anonymous" |
   const content = {
     unconfigured: {
       title: "Supabase is not configured yet.",
-      body: "Add Supabase environment variables and an admin allowlist to unlock the dashboard workflow.",
+      body: "Add Supabase environment variables, service role credentials, and an admin allowlist to unlock the dashboard workflow.",
     },
     anonymous: {
-      title: "Magic-link login is ready to connect.",
-      body: "Once Supabase is configured, add a login action or send an OTP to an allowlisted email to access the dashboard.",
+      title: "Magic-link login is ready.",
+      body: "Sign in from the overview page with an allowlisted email to unlock the admin editors.",
     },
     forbidden: {
       title: "Signed in, but not allowlisted.",

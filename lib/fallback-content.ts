@@ -75,6 +75,7 @@ export type Sponsor = {
   id: string;
   name: string;
   tier: "lead" | "supporting" | "community";
+  logoUrl?: string | null;
   link: string;
   tagline: string;
   visible: boolean;
@@ -281,6 +282,7 @@ export const fallbackSponsors: Sponsor[] = [
     id: "lead-gainables",
     name: "Gainables",
     tier: "lead",
+    logoUrl: null,
     link: "https://gainables.com",
     tagline: "Campaign lead and community-first organizer.",
     visible: true,
@@ -290,6 +292,7 @@ export const fallbackSponsors: Sponsor[] = [
     id: "supporting-health-wellness",
     name: "Health & Wellness Partner",
     tier: "supporting",
+    logoUrl: null,
     link: "https://example.com",
     tagline: "Supporting the campaign’s visibility and reach.",
     visible: true,
@@ -299,6 +302,7 @@ export const fallbackSponsors: Sponsor[] = [
     id: "community-cycle-club",
     name: "Community Cycling Partner",
     tier: "community",
+    logoUrl: null,
     link: "https://example.com",
     tagline: "Grassroots support and local ride-day momentum.",
     visible: true,

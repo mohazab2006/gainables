@@ -48,7 +48,10 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
                     rel="noreferrer"
                     className="rounded-[1.75rem] border border-border bg-background p-6 transition hover:-translate-y-0.5 hover:shadow-[0_16px_60px_rgba(10,10,10,0.06)]"
                   >
-                    <p className="text-lg font-medium">{sponsor.name}</p>
+                    {sponsor.logoUrl ? (
+                      <img src={sponsor.logoUrl} alt={`${sponsor.name} logo`} className="h-12 w-auto object-contain" />
+                    ) : null}
+                    <p className={sponsor.logoUrl ? "mt-4 text-lg font-medium" : "text-lg font-medium"}>{sponsor.name}</p>
                     <p className="mt-2 text-sm leading-7 text-muted-foreground">{sponsor.tagline}</p>
                   </Link>
                 ))}

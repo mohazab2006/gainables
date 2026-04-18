@@ -24,3 +24,14 @@ export async function signInAdmin(formData: FormData) {
 
   redirect("/admin");
 }
+
+export async function signOutAdmin() {
+  if (!hasSupabaseEnv()) {
+    redirect("/admin");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+
+  redirect("/admin");
+}

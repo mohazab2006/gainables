@@ -1,7 +1,5 @@
 import "server-only";
 
-import { cache } from "react";
-
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   fallbackFaqs,
@@ -15,7 +13,7 @@ import {
 } from "@/lib/fallback-content";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export const getSiteContent = cache(async (): Promise<SiteContent> => {
+export async function getSiteContent(): Promise<SiteContent> {
   if (!hasSupabaseEnv()) {
     return fallbackSiteContent;
   }
@@ -49,9 +47,9 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
   } catch {
     return fallbackSiteContent;
   }
-});
+}
 
-export const getSponsors = cache(async (): Promise<Sponsor[]> => {
+export async function getSponsors(): Promise<Sponsor[]> {
   if (!hasSupabaseEnv()) {
     return fallbackSponsors.filter((sponsor) => sponsor.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
@@ -60,7 +58,7 @@ export const getSponsors = cache(async (): Promise<Sponsor[]> => {
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("sponsors")
-      .select("id, name, tier, link, sort_order, visible, tagline")
+      .select("id, name, tier, logo_url, link, sort_order, visible, tagline")
       .eq("visible", true)
       .order("sort_order", { ascending: true });
 
@@ -72,6 +70,7 @@ export const getSponsors = cache(async (): Promise<Sponsor[]> => {
       id: row.id,
       name: row.name,
       tier: row.tier,
+      logoUrl: row.logo_url,
       link: row.link ?? "#",
       tagline: row.tagline ?? "Campaign sponsor",
       visible: row.visible,
@@ -80,9 +79,40 @@ export const getSponsors = cache(async (): Promise<Sponsor[]> => {
   } catch {
     return fallbackSponsors.filter((sponsor) => sponsor.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
-});
+}
 
-export const getRideUpdates = cache(async (): Promise<RideUpdate[]> => {
+export async function getAllSponsors(): Promise<Sponsor[]> {
+  if (!hasSupabaseEnv()) {
+    return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("sponsors")
+      .select("id, name, tier, logo_url, link, sort_order, visible, tagline")
+      .order("sort_order", { ascending: true });
+
+    if (error || !data?.length) {
+      return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    return data.map((row) => ({
+      id: row.id,
+      name: row.name,
+      tier: row.tier,
+      logoUrl: row.logo_url,
+      link: row.link ?? "#",
+      tagline: row.tagline ?? "Campaign sponsor",
+      visible: row.visible,
+      sortOrder: row.sort_order,
+    }));
+  } catch {
+    return [...fallbackSponsors].sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+}
+
+export async function getRideUpdates(): Promise<RideUpdate[]> {
   if (!hasSupabaseEnv()) {
     return [...fallbackRideUpdates].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
@@ -115,14 +145,14 @@ export const getRideUpdates = cache(async (): Promise<RideUpdate[]> => {
   } catch {
     return [...fallbackRideUpdates].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
-});
+}
 
-export const getLatestRideUpdate = cache(async (): Promise<RideUpdate> => {
+export async function getLatestRideUpdate(): Promise<RideUpdate> {
   const [latest] = await getRideUpdates();
   return latest;
-});
+}
 
-export const getFaqs = cache(async (): Promise<FaqItem[]> => {
+export async function getFaqs(): Promise<FaqItem[]> {
   if (!hasSupabaseEnv()) {
     return fallbackFaqs.filter((faq) => faq.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
@@ -149,7 +179,35 @@ export const getFaqs = cache(async (): Promise<FaqItem[]> => {
   } catch {
     return fallbackFaqs.filter((faq) => faq.visible).sort((a, b) => a.sortOrder - b.sortOrder);
   }
-});
+}
+
+export async function getAllFaqs(): Promise<FaqItem[]> {
+  if (!hasSupabaseEnv()) {
+    return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("faqs")
+      .select("id, question, answer, sort_order, visible")
+      .order("sort_order", { ascending: true });
+
+    if (error || !data?.length) {
+      return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+
+    return data.map((row) => ({
+      id: row.id,
+      question: row.question,
+      answer: row.answer,
+      sortOrder: row.sort_order,
+      visible: row.visible,
+    }));
+  } catch {
+    return [...fallbackFaqs].sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+}
 
 function readValue<T>(map: Map<string, unknown>, key: string, fallback: T): T {
   return (map.get(key) as T | undefined) ?? fallback;
