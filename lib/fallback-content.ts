@@ -162,8 +162,9 @@ export const fallbackSiteContent: SiteContent = {
   },
   stats: [
     { label: "Distance", value: "200 km", description: "Single-day route from Ottawa to Montreal with live checkpoints." },
-    { label: "Ride date", value: "Sept 14", description: "Campaign countdown, training content, and event-day updates." },
+    { label: "Ride date", value: "May 4th", description: "Campaign countdown, training content, and event-day updates." },
     { label: "Community", value: "150+ donors", description: "Supporters, riders, and sponsors moving the campaign forward together." },
+    { label: "Pledged", value: "$0 raised", description: "Every dollar pledged to mental health programs, tracked live as donations roll in." },
   ],
   whyItMatters: {
     eyebrow: "Why it matters",
