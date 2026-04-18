@@ -1,10 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight, MapPin } from "lucide-react";
 
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import { useScrollProgress } from "@/hooks/use-scroll-progress";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import type { HeroContent, StatItem } from "@/lib/fallback-content";
 
 type HeroSectionProps = {
@@ -13,84 +14,199 @@ type HeroSectionProps = {
 };
 
 export function HeroSection({ hero, stats }: HeroSectionProps) {
-  const { ref, progress } = useScrollProgress<HTMLElement>({ end: 1.8 });
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const animationProgress = prefersReducedMotion ? 1 : progress;
-  const textOpacity = Math.max(0, 1 - animationProgress / 0.26);
-  const cardProgress = Math.max(0, Math.min(1, (animationProgress - 0.16) / 0.84));
+  const root = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          motionOk: "(prefers-reduced-motion: no-preference)",
+          reduce: "(prefers-reduced-motion: reduce)",
+        },
+        (ctx) => {
+          if (!root.current) return;
+          const reduce = ctx.conditions?.reduce;
+
+          gsap.set("[data-hero-rail]", { autoAlpha: 0, y: 60 });
+          gsap.set("[data-hero-word]", { yPercent: 110, rotate: 4, autoAlpha: 0 });
+          gsap.set("[data-hero-eyebrow]", { autoAlpha: 0, y: 16 });
+          gsap.set("[data-hero-meta]", { autoAlpha: 0, y: 24 });
+          gsap.set("[data-hero-cta]", { autoAlpha: 0, y: 16 });
+          gsap.set("[data-hero-stat]", { autoAlpha: 0, y: 24 });
+          gsap.set("[data-hero-image]", { scale: reduce ? 1 : 1.18, autoAlpha: reduce ? 1 : 0.001 });
+
+          const tl = gsap.timeline({
+            defaults: { ease: "power3.out", duration: reduce ? 0 : 1 },
+          });
+
+          tl.to("[data-hero-image]", { autoAlpha: 1, scale: 1, duration: reduce ? 0 : 1.6, ease: "expo.out" })
+            .to("[data-hero-eyebrow]", { autoAlpha: 1, y: 0, duration: 0.6 }, "-=1.0")
+            .to(
+              "[data-hero-word]",
+              {
+                yPercent: 0,
+                rotate: 0,
+                autoAlpha: 1,
+                duration: 1,
+                ease: "expo.out",
+                stagger: reduce ? 0 : 0.07,
+              },
+              "-=0.85",
+            )
+            .to("[data-hero-meta]", { autoAlpha: 1, y: 0, duration: 0.7 }, "-=0.55")
+            .to("[data-hero-cta]", { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08 }, "-=0.55")
+            .to("[data-hero-rail]", { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.1 }, "-=0.7");
+
+          if (!reduce) {
+            gsap.to("[data-hero-image]", {
+              yPercent: 12,
+              ease: "none",
+              scrollTrigger: {
+                trigger: root.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+              },
+            });
+            gsap.to("[data-hero-rail='left']", {
+              yPercent: -10,
+              ease: "none",
+              scrollTrigger: {
+                trigger: root.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+              },
+            });
+            gsap.to("[data-hero-rail='right']", {
+              yPercent: -18,
+              ease: "none",
+              scrollTrigger: {
+                trigger: root.current,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+              },
+            });
+          }
+
+          gsap.fromTo(
+            "[data-hero-stat]",
+            { autoAlpha: 0, y: 28 },
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.8,
+              stagger: 0.1,
+              ease: "power3.out",
+              scrollTrigger: { trigger: "[data-hero-stats]", start: "top 82%" },
+            },
+          );
+
+          ScrollTrigger.refresh();
+        },
+      );
+
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
+
+  const titleWords = hero.title.split(" ");
 
   return (
-    <section id="ride" ref={ref} className="relative bg-background">
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <div
-          className="relative grid h-full grid-cols-1 gap-4 px-4 pb-6 pt-24 md:grid-cols-[0.22fr_0.56fr_0.22fr] md:px-6"
-          style={{
-            gap: `${16 * cardProgress}px`,
-            paddingInline: `${16 + 8 * cardProgress}px`,
-            paddingBottom: `${24 + 24 * cardProgress}px`,
-          }}
-        >
-          <SideRail
-            images={hero.sideImages.slice(0, 2)}
-            direction="left"
-            progress={cardProgress}
-            prefersReducedMotion={prefersReducedMotion}
-          />
-          <div
-            className="relative min-h-[70vh] overflow-hidden rounded-[1.8rem] bg-foreground md:min-h-0"
-            style={{
-              borderRadius: `${24 * cardProgress}px`,
-              transform: prefersReducedMotion ? undefined : `scale(${1 - cardProgress * 0.06})`,
-            }}
-          >
-            <Image src={hero.primaryImage.src} alt={hero.primaryImage.alt} fill priority className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/25 to-black/75" />
-            <div className="absolute inset-x-0 bottom-0 p-6 md:p-10 lg:p-14">
-              <div style={{ opacity: textOpacity }}>
-                <p className="text-sm uppercase tracking-[0.32em] text-white/70">{hero.eyebrow}</p>
-                <h1 className="mt-4 text-[17vw] font-medium leading-[0.82] tracking-[-0.08em] text-white md:text-[11vw]">
-                  {hero.title}
-                </h1>
+    <section
+      id="ride"
+      ref={root}
+      className="relative isolate overflow-hidden bg-background pt-28 pb-20 md:pt-32 md:pb-28"
+    >
+      <div className="container-shell relative px-4 md:px-6">
+        <div className="grid gap-4 md:grid-cols-[0.18fr_0.64fr_0.18fr]">
+          <SideRail images={hero.sideImages.slice(0, 2)} side="left" />
+
+          <div className="relative overflow-hidden rounded-[2rem] bg-foreground md:rounded-[2.5rem]">
+            <div className="relative aspect-[4/5] w-full md:aspect-[16/19] lg:aspect-[16/17]">
+              <div data-hero-image className="absolute inset-0 will-change-transform">
+                <Image
+                  src={hero.primaryImage.src}
+                  alt={hero.primaryImage.alt}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 65vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/30 to-black/85" />
               </div>
-              <div className="mt-6 flex flex-col gap-4 md:mt-8 md:flex-row md:items-center md:justify-between">
-                <p className="max-w-2xl text-base leading-7 text-white/82 md:text-lg">{hero.description}</p>
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    href={hero.primaryCta.href}
-                    className="rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground transition hover:bg-white/90"
+
+              <div className="absolute inset-x-0 top-0 flex items-center justify-between px-6 pt-6 md:px-10 md:pt-8">
+                <div data-hero-eyebrow className="ring-token border-white/25 bg-white/10 text-white/85">
+                  <MapPin size={14} />
+                  <span>{hero.eyebrow}</span>
+                </div>
+                <div data-hero-eyebrow className="ring-token hidden border-white/25 bg-white/10 text-white/80 md:inline-flex">
+                  Ottawa <span className="opacity-60">→</span> Montreal · 200 km
+                </div>
+              </div>
+
+              <div className="absolute inset-x-0 bottom-0 flex flex-col gap-8 px-6 pb-8 md:px-10 md:pb-12 lg:px-14 lg:pb-16">
+                <h1 className="font-display text-[14vw] leading-[0.86] tracking-[-0.04em] text-white md:text-[10vw] lg:text-[8.4vw]">
+                  {titleWords.map((word, index) => (
+                    <span key={`${word}-${index}`} className="mr-[0.18em] inline-block overflow-hidden align-bottom">
+                      <span data-hero-word className="inline-block">
+                        {word}
+                      </span>
+                    </span>
+                  ))}
+                </h1>
+
+                <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                  <p
+                    data-hero-meta
+                    className="max-w-2xl font-sans text-base leading-7 text-white/85 md:text-lg"
                   >
-                    {hero.primaryCta.label}
-                  </Link>
-                  <Link
-                    href={hero.secondaryCta.href}
-                    className="rounded-full border border-white/25 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/10"
-                  >
-                    {hero.secondaryCta.label}
-                  </Link>
+                    {hero.description}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      data-hero-cta
+                      href={hero.primaryCta.href}
+                      className="group inline-flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(200,226,92,0.45)]"
+                    >
+                      {hero.primaryCta.label}
+                      <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
+                    <Link
+                      data-hero-cta
+                      href={hero.secondaryCta.href}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-medium text-white backdrop-blur transition hover:bg-white/15"
+                    >
+                      {hero.secondaryCta.label}
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <SideRail
-            images={hero.sideImages.slice(2)}
-            direction="right"
-            progress={cardProgress}
-            prefersReducedMotion={prefersReducedMotion}
-          />
+
+          <SideRail images={hero.sideImages.slice(2, 4)} side="right" />
         </div>
-      </div>
-      <div className="h-[180vh]" />
-      <div className="px-6 pb-24 pt-8 md:px-12 lg:px-20">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <p className="max-w-2xl text-3xl font-medium leading-tight tracking-tight md:text-5xl">
-            Every kilometer becomes a conversation about mental health access, recovery, and community care.
+
+        <div data-hero-stats className="mt-14 grid gap-6 md:mt-20 lg:grid-cols-[1.1fr_1fr]">
+          <p className="max-w-2xl font-display text-3xl leading-[1.04] tracking-[-0.02em] md:text-5xl">
+            Every kilometer becomes a conversation about <span className="display-italic">access, recovery,</span> and community care.
           </p>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-[2rem] border border-border bg-secondary/60 p-6">
-                <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">{stat.label}</p>
-                <p className="mt-4 text-3xl font-medium tracking-tight">{stat.value}</p>
-                <p className="mt-2 text-sm leading-7 text-muted-foreground">{stat.description}</p>
+              <div
+                key={stat.label}
+                data-hero-stat
+                className="rounded-2xl border border-border bg-surface p-5 transition hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(14,14,12,0.06)]"
+              >
+                <p className="eyebrow">{stat.label}</p>
+                <p className="mt-3 font-display text-3xl tracking-tight">{stat.value}</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{stat.description}</p>
               </div>
             ))}
           </div>
@@ -100,27 +216,22 @@ export function HeroSection({ hero, stats }: HeroSectionProps) {
   );
 }
 
-type SideRailProps = {
-  direction: "left" | "right";
-  images: HeroContent["sideImages"];
-  progress: number;
-  prefersReducedMotion: boolean;
-};
-
-function SideRail({ direction, images, progress, prefersReducedMotion }: SideRailProps) {
-  const translateX = direction === "left" ? -100 + progress * 100 : 100 - progress * 100;
-
+function SideRail({ images, side }: { images: HeroContent["sideImages"]; side: "left" | "right" }) {
   return (
-    <div
-      className="hidden flex-col gap-4 md:flex"
-      style={{
-        opacity: progress,
-        transform: prefersReducedMotion ? undefined : `translateX(${translateX}%) translateY(${-12 * progress}%)`,
-      }}
-    >
-      {images.map((image) => (
-        <div key={image.src} className="relative min-h-[33vh] flex-1 overflow-hidden rounded-[1.8rem]">
-          <Image src={image.src} alt={image.alt} fill className="object-cover" />
+    <div className="hidden flex-col gap-4 md:flex" data-hero-rail={side}>
+      {images.map((image, idx) => (
+        <div
+          key={image.src + idx}
+          className="relative flex-1 overflow-hidden rounded-[2rem] bg-secondary"
+          style={{ minHeight: "min(36vh, 320px)" }}
+        >
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            sizes="20vw"
+            className="object-cover transition-transform duration-700 hover:scale-105"
+          />
         </div>
       ))}
     </div>

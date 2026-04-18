@@ -2,36 +2,50 @@
 
 import Image from "next/image";
 
-import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
-import { useScrollProgress } from "@/hooks/use-scroll-progress";
+import { useMarquee } from "@/hooks/use-marquee";
+import { useReveal } from "@/hooks/use-reveal";
 import type { ImageAsset } from "@/lib/fallback-content";
 
 export function GallerySection({ gallery }: { gallery: ImageAsset[] }) {
-  const { ref, progress } = useScrollProgress<HTMLElement>({ end: 1.2 });
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const translate = prefersReducedMotion ? 0 : progress * -35;
+  const headRef = useReveal<HTMLDivElement>();
+  const trackRef = useMarquee<HTMLDivElement>({ speed: 40 });
+  const items = gallery.length ? [...gallery, ...gallery] : gallery;
 
   return (
-    <section id="gallery" ref={ref} className="overflow-hidden bg-background py-24">
-      <div className="mb-8 px-6 md:px-12 lg:px-20">
-        <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Gallery</p>
-        <h2 className="mt-4 max-w-4xl text-4xl font-medium tracking-tight md:text-6xl">
-          Training photos, group rides, sponsor moments, and campaign media all have a place on the page.
-        </h2>
+    <section id="gallery" className="overflow-hidden bg-background py-24 md:py-28">
+      <div className="container-shell mb-12 px-6 md:px-12 lg:px-20" ref={headRef}>
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div data-reveal>
+            <p className="eyebrow">Field notes</p>
+            <h2 className="mt-4 max-w-3xl font-display text-4xl leading-[1.02] tracking-[-0.025em] md:text-6xl">
+              Training rides, group sessions, and <span className="display-italic">campaign moments</span>.
+            </h2>
+          </div>
+          <p data-reveal className="max-w-md text-base leading-7 text-muted-foreground">
+            A living gallery — pulled into the page so supporters always see real photos from the road, not stock
+            placeholders.
+          </p>
+        </div>
       </div>
-      <div className="overflow-hidden">
-        <div
-          className="flex gap-4 px-6 will-change-transform md:px-12 lg:px-20"
-          style={{ transform: `translateX(${translate}%)` }}
-        >
-          {gallery.map((image) => (
-            <div key={image.src} className="relative h-[340px] min-w-[280px] overflow-hidden rounded-[2rem] md:h-[460px] md:min-w-[360px]">
-              <Image src={image.src} alt={image.alt} fill className="object-cover" />
-            </div>
+
+      <div ref={trackRef} className="marquee-mask relative overflow-hidden">
+        <div data-marquee-track className="flex w-max gap-4 will-change-transform md:gap-6">
+          {items.map((image, index) => (
+            <figure
+              key={`${image.src}-${index}`}
+              className="relative h-[320px] w-[260px] shrink-0 overflow-hidden rounded-[1.5rem] bg-secondary md:h-[460px] md:w-[360px] md:rounded-[2rem]"
+            >
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                sizes="(max-width: 768px) 60vw, 360px"
+                className="object-cover"
+              />
+            </figure>
           ))}
         </div>
       </div>
-      <div className="h-10" />
     </section>
   );
 }

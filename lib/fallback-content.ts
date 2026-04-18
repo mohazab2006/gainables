@@ -148,14 +148,14 @@ export const fallbackSiteContent: SiteContent = {
     description:
       "This May, members of the Gainables team are cycling from Ottawa to Montreal to raise awareness and funds for mental health.",
     primaryImage: {
-      src: "/images/hero-cycling.jpg",
-      alt: "Cyclists riding together during a training block",
+      src: "/images/ride-2.jpg",
+      alt: "Cyclist on the open road at golden hour",
     },
     sideImages: [
+      { src: "/images/ride-1.jpg", alt: "Cyclist gearing up before a long ride" },
+      { src: "/images/ride-3.jpg", alt: "Quiet road stretching toward the horizon" },
       { src: "/images/cycling-team.jpg", alt: "Cycling team preparing for a group ride" },
       { src: "/images/cycling-training.jpg", alt: "Cyclist training on the road" },
-      { src: "/images/bottle-bike.png", alt: "Cycling setup detail" },
-      { src: "/images/bottle-canyon.png", alt: "Rider equipment close-up" },
     ],
     primaryCta: { href: "/donate", label: "Donate" },
     secondaryCta: { href: "/track", label: "Track the ride" },
@@ -171,8 +171,8 @@ export const fallbackSiteContent: SiteContent = {
     body:
       "Mental health affects people of all ages and backgrounds. Many struggle quietly with stress, burnout, anxiety, depression, and other challenges, often without enough support. This campaign is about creating a visible moment that encourages conversation, support, and shared action.",
     image: {
-      src: "/images/cycling-team.jpg",
-      alt: "Cycling group gathered before a ride",
+      src: "/images/ride-3.jpg",
+      alt: "Cyclist on a quiet road with mountains in the distance",
     },
   },
   about: {
@@ -212,26 +212,28 @@ export const fallbackSiteContent: SiteContent = {
       kicker: "Raise awareness",
       title: "Make support visible in public.",
       description: "Turn the route into a public narrative people can follow, share, and support with context.",
-      image: { src: "/images/cycling-team.jpg", alt: "Cyclists grouped together before a ride" },
+      image: { src: "/images/ride-1.jpg", alt: "Cyclists grouped together before a ride" },
     },
     {
       kicker: "Support mental health",
       title: "Direct momentum toward meaningful support.",
       description: "Keep the donation path visible and friction-light across the homepage, tracker, and story pages.",
-      image: { src: "/images/cycling-training.jpg", alt: "Cyclist training solo on a road ride" },
+      image: { src: "/images/ride-3.jpg", alt: "Cyclist training solo on a road ride" },
     },
     {
       kicker: "Bring people together",
       title: "Give supporters, sponsors, and riders a shared moment.",
       description: "Give partners visibility and give supporters reasons to stay engaged before, during, and after the event.",
-      image: { src: "/images/hero-cycling.jpg", alt: "Cyclists in motion during an organized ride" },
+      image: { src: "/images/ride-2.jpg", alt: "Cyclists in motion during an organized ride" },
     },
   ],
   gallery: [
+    { src: "/images/ride-2.jpg", alt: "Cyclist on the road at golden hour" },
     { src: "/images/cycling-team.jpg", alt: "Team photo before a cycling session" },
+    { src: "/images/ride-1.jpg", alt: "Cyclist preparing for a long ride" },
     { src: "/images/cycling-training.jpg", alt: "Training ride in progress" },
+    { src: "/images/ride-3.jpg", alt: "Open road stretching to the horizon" },
     { src: "/images/hero-cycling.jpg", alt: "Cyclist leading the route" },
-    { src: "/images/bottle-bike.png", alt: "Bike-mounted gear detail" },
   ],
   causePartner: {
     eyebrow: "Supporting mental health",
@@ -239,7 +241,7 @@ export const fallbackSiteContent: SiteContent = {
       "Funds raised through this campaign support mental health initiatives and services through our fundraising efforts.",
     body:
       "This section stays editable so Gainables can safely publish a confirmed partner name later. Until then, the language remains public-safe and focused on where funds are intended to go.",
-    image: { src: "/images/hero-cycling.jpg", alt: "Cycling route image used for cause partner section" },
+    image: { src: "/images/ride-2.jpg", alt: "Cycling route image used for cause partner section" },
   },
   media: {
     title: "Follow the journey across training, preparation, and ride-day moments.",

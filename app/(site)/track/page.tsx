@@ -27,16 +27,15 @@ export default async function TrackPage() {
   ]);
 
   return (
-    <main className="bg-background px-4 pb-20 pt-32 md:px-8 lg:px-10">
+    <main className="bg-background px-4 pb-20 pt-32 md:px-8 md:pt-40 lg:px-10">
       <div className="mx-auto max-w-[96rem]">
-        <div className="mb-10 flex flex-col gap-4">
-          <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Live tracking</p>
-          <h1 className="max-w-4xl text-5xl font-medium tracking-tight md:text-7xl">
-            Follow the Ottawa to Montreal ride in real time.
+        <div className="mb-12 flex flex-col gap-5">
+          <p className="ring-token w-fit">Live tracking</p>
+          <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6vw]">
+            Follow the Ottawa to Montreal ride <span className="display-italic">in real time</span>.
           </h1>
           <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
-            The tracker is now designed around the live Overland feed: branded route map, live trail line, manual ride updates,
-            and a fallback operator workflow if the rider signal drops.
+            Branded route map, live trail line, manual ride updates, and an operator workflow if the rider signal drops.
           </p>
         </div>
         <TrackerShell
