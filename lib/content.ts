@@ -12,6 +12,7 @@ import {
   type Sponsor,
 } from "@/lib/fallback-content";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { mapRideUpdate } from "@/lib/track";
 
 export async function getSiteContent(): Promise<SiteContent> {
   if (!hasSupabaseEnv()) {
@@ -129,18 +130,7 @@ export async function getRideUpdates(): Promise<RideUpdate[]> {
     }
 
     return data.map((row) => ({
-      id: row.id,
-      createdAt: row.created_at,
-      createdAtLabel: new Intl.DateTimeFormat("en-CA", {
-        hour: "numeric",
-        minute: "2-digit",
-      }).format(new Date(row.created_at)),
-      location: row.location,
-      kmCompleted: row.km_completed,
-      nextCheckpoint: row.next_checkpoint,
-      message: row.message,
-      lat: row.lat ?? fallbackRideUpdates[0].lat,
-      lng: row.lng ?? fallbackRideUpdates[0].lng,
+      ...mapRideUpdate(row, fallbackRideUpdates[0]),
     }));
   } catch {
     return [...fallbackRideUpdates].sort((a, b) => b.createdAt.localeCompare(a.createdAt));

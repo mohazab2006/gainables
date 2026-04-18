@@ -31,6 +31,7 @@ export default async function HomePage() {
       <GallerySection gallery={content.gallery} />
       <TrackingPreviewSection
         donationUrl={content.donationUrl}
+        routeTotalDistanceKm={content.route.totalDistanceKm}
         trackerEmbedUrl={content.trackerEmbedUrl}
         update={latestUpdate}
       />
