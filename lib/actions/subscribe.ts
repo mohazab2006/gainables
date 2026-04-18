@@ -2,6 +2,9 @@
 
 import { z } from "zod";
 
+import { hasSupabaseAdminEnv } from "@/lib/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
 export type SubscribeActionState = {
   status: "idle" | "success" | "error";
   message: string;
@@ -32,8 +35,35 @@ export async function subscribeAction(_: SubscribeActionState, formData: FormDat
     };
   }
 
+  if (hasSupabaseAdminEnv()) {
+    try {
+      const supabase = createSupabaseAdminClient();
+      const { error } = await supabase.from("subscribers").upsert(
+        {
+          email: result.data.email,
+          source: "website",
+        },
+        { onConflict: "email" },
+      );
+
+      if (error) {
+        return {
+          status: "error",
+          message: "Signup is configured, but the subscriber record could not be saved.",
+        };
+      }
+    } catch {
+      return {
+        status: "error",
+        message: "Signup is configured, but the subscriber record could not be saved.",
+      };
+    }
+  }
+
   return {
     status: "success",
-    message: "Thanks. The subscribe action is ready for Supabase and Resend wiring.",
+    message: hasSupabaseAdminEnv()
+      ? "Thanks. You’re subscribed for campaign updates."
+      : "Thanks. The form is ready and will start storing signups once Supabase is connected.",
   };
 }
