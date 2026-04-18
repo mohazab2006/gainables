@@ -78,6 +78,11 @@ export async function upsertSiteContentSection(formData: FormData) {
   } else if (editableScalarKeys.has(key)) {
     const rawValue = String(formData.get("value") ?? "").trim();
     const value = rawValue.length ? rawValue : null;
+
+    if (key === "tracker_status" && value && !["pre_ride", "live", "finished"].includes(value)) {
+      redirectWithMessage(path, "error", "Tracker status must be pre_ride, live, or finished.");
+    }
+
     const supabase = createSupabaseAdminClient();
     const { error } = await supabase.from("site_content").upsert({
       key,

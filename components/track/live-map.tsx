@@ -1,33 +1,49 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { Map as MapboxMap, Marker } from "mapbox-gl";
+import { useEffect, useRef, useState } from "react";
+import type { GeoJSONSource, Map as MapboxMap, Marker } from "mapbox-gl";
 
-import type { RideUpdate, RouteContent } from "@/lib/fallback-content";
+import type { RidePosition, RouteContent } from "@/lib/fallback-content";
 
-type LiveMapProps = {
-  mapboxToken?: string;
-  route: RouteContent;
-  trackerEmbedUrl?: string | null;
-  update: RideUpdate;
+type Checkpoint = RouteContent["checkpoints"][number] & {
+  lat: number;
+  lng: number;
 };
 
-export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMapProps) {
+type LiveMapProps = {
+  checkpoints: Checkpoint[];
+  mapboxToken?: string;
+  positions: RidePosition[];
+  route: RouteContent;
+  routeFeature: {
+    type: "Feature";
+    properties?: Record<string, unknown>;
+    geometry: {
+      type: "LineString";
+      coordinates: [number, number][];
+    };
+  };
+  state: "pre_ride" | "live" | "finished";
+};
+
+export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeature, state }: LiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<MapboxMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  const followRef = useRef(true);
+  const [followEnabled, setFollowEnabled] = useState(true);
+  const latestPosition = positions.at(-1) ?? null;
 
   useEffect(() => {
-    if (!mapboxToken || !mapRef.current) return;
+    if (!mapboxToken || !mapRef.current) {
+      return;
+    }
 
     let cancelled = false;
 
     async function start() {
       const mapboxgl = await import("mapbox-gl");
       mapboxgl.default.accessToken = mapboxToken;
-
-      const bounds = new mapboxgl.LngLatBounds();
-      route.polyline.forEach((point) => bounds.extend([point.lng, point.lat]));
 
       const map = new mapboxgl.default.Map({
         container: mapRef.current!,
@@ -38,18 +54,24 @@ export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMap
 
       instanceRef.current = map;
 
+      map.on("dragstart", () => {
+        followRef.current = false;
+        setFollowEnabled(false);
+      });
+
       map.on("load", () => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
+        const bounds = new mapboxgl.LngLatBounds();
+        routeFeature.geometry.coordinates.forEach((point) => bounds.extend(point));
 
         map.addSource("route", {
           type: "geojson",
           data: {
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: route.polyline.map((point) => [point.lng, point.lat]),
-            },
-            properties: {},
+            ...routeFeature,
+            properties: routeFeature.properties ?? {},
           },
         });
 
@@ -60,7 +82,23 @@ export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMap
           paint: {
             "line-color": "#111111",
             "line-width": 5,
-            "line-opacity": 0.72,
+            "line-opacity": 0.35,
+          },
+        });
+
+        map.addSource("trail", {
+          type: "geojson",
+          data: buildTrailFeature(positions),
+        });
+
+        map.addLayer({
+          id: "trail-line",
+          type: "line",
+          source: "trail",
+          paint: {
+            "line-color": "#111111",
+            "line-width": 6,
+            "line-opacity": 0.95,
           },
         });
 
@@ -68,14 +106,15 @@ export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMap
           type: "geojson",
           data: {
             type: "FeatureCollection",
-            features: route.polyline.map((point, index) => ({
+            features: checkpoints.map((checkpoint) => ({
               type: "Feature" as const,
               geometry: {
                 type: "Point" as const,
-                coordinates: [point.lng, point.lat],
+                coordinates: [checkpoint.lng, checkpoint.lat],
               },
               properties: {
-                label: route.checkpoints[index]?.name ?? `Checkpoint ${index + 1}`,
+                name: checkpoint.name,
+                stage: checkpoint.stage,
               },
             })),
           },
@@ -86,16 +125,18 @@ export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMap
           type: "circle",
           source: "checkpoints",
           paint: {
-            "circle-radius": 6,
+            "circle-radius": 7,
             "circle-color": "#ffffff",
             "circle-stroke-width": 2,
             "circle-stroke-color": "#111111",
           },
         });
 
-        markerRef.current = new mapboxgl.Marker({ color: "#111111", scale: 1.1 })
-          .setLngLat([update.lng, update.lat])
-          .addTo(map);
+        const startPoint: [number, number] = latestPosition
+          ? [latestPosition.lon, latestPosition.lat]
+          : [route.mapCenter.lng, route.mapCenter.lat];
+
+        markerRef.current = new mapboxgl.Marker({ color: "#111111", scale: 1.1 }).setLngLat(startPoint).addTo(map);
 
         if (!bounds.isEmpty()) {
           map.fitBounds(bounds, { padding: 56, duration: 0 });
@@ -111,67 +152,110 @@ export function LiveMap({ mapboxToken, route, trackerEmbedUrl, update }: LiveMap
       markerRef.current = null;
       instanceRef.current?.remove();
       instanceRef.current = null;
+      followRef.current = true;
     };
-  }, [mapboxToken, route]);
+  }, [checkpoints, latestPosition, mapboxToken, route.mapCenter.lat, route.mapCenter.lng, route.mapCenter.zoom, routeFeature]);
 
   useEffect(() => {
     if (!instanceRef.current) {
       return;
     }
 
-    markerRef.current?.setLngLat([update.lng, update.lat]);
-    instanceRef.current.easeTo({
-      center: [update.lng, update.lat],
-      duration: 1200,
-      zoom: Math.max(instanceRef.current.getZoom(), route.mapCenter.zoom),
-    });
-  }, [route.mapCenter.zoom, update.lat, update.lng]);
+    const trail = instanceRef.current.getSource("trail") as GeoJSONSource | undefined;
+    trail?.setData(buildTrailFeature(positions));
 
-  if (trackerEmbedUrl) {
-    return (
-      <div className="overflow-hidden rounded-[2rem] border border-border bg-secondary/50 p-4">
-        <div className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-background">
-          <iframe title="Live tracker" src={trackerEmbedUrl} className="h-full w-full border-0" loading="lazy" />
-        </div>
-      </div>
-    );
-  }
+    if (!latestPosition) {
+      return;
+    }
+
+    markerRef.current?.setLngLat([latestPosition.lon, latestPosition.lat]);
+
+    if (followRef.current) {
+      instanceRef.current.easeTo({
+        center: [latestPosition.lon, latestPosition.lat],
+        duration: 900,
+        zoom: Math.max(instanceRef.current.getZoom(), route.mapCenter.zoom),
+      });
+    }
+  }, [latestPosition, positions, route.mapCenter.zoom]);
 
   if (!mapboxToken) {
     return (
-      <div className="overflow-hidden rounded-[2rem] border border-border bg-secondary/50 p-4">
-        <div className="flex aspect-[4/3] flex-col justify-between rounded-[1.5rem] bg-[linear-gradient(160deg,#151515,#2a2a2a)] p-8 text-white">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-white/60">Tracker fallback</p>
-            <h2 className="mt-4 max-w-xl text-3xl font-medium tracking-tight">
-              Live checkpoint data is available even when the custom map isn&apos;t configured.
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
-              Add `NEXT_PUBLIC_MAPBOX_TOKEN` for the route map, or set `tracker_embed_url` to use a hosted GPS feed.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {route.checkpoints.map((checkpoint) => (
-              <div key={checkpoint.name} className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">{checkpoint.stage}</p>
-                <p className="mt-2 text-lg font-medium">{checkpoint.name}</p>
-                <p className="mt-2 text-sm text-white/65">{checkpoint.distance}</p>
-              </div>
-            ))}
-          </div>
+      <div className="flex min-h-[34rem] flex-col justify-between rounded-[1.85rem] bg-[linear-gradient(165deg,#0f0f0f,#2a2a2a)] p-8 text-white">
+        <div>
+          <p className="text-sm uppercase tracking-[0.24em] text-white/60">Mapbox not configured</p>
+          <h2 className="mt-4 max-w-3xl text-4xl font-medium tracking-tight">
+            The route is ready, but the branded live map needs `NEXT_PUBLIC_MAPBOX_TOKEN`.
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/72">
+            The tracker still supports manual ride updates now, and the Overland-powered position stream will light up as soon as the public token is added.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-4">
+          {checkpoints.map((checkpoint) => (
+            <div key={checkpoint.name} className="rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-white/55">{checkpoint.stage}</p>
+              <p className="mt-2 text-lg font-medium">{checkpoint.name}</p>
+              <p className="mt-2 text-sm text-white/65">{checkpoint.distance}</p>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-border bg-secondary/50 p-4">
-      <div className="relative">
-        <div ref={mapRef} className="aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-[linear-gradient(135deg,#f7f7f7,#e8e8e8)]" />
-        <div className="pointer-events-none absolute left-4 top-4 rounded-full border border-black/10 bg-white/90 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground shadow-sm">
-          Rider marker follows the latest manual update
-        </div>
+    <div className="relative overflow-hidden rounded-[1.85rem] bg-background">
+      <div ref={mapRef} className="min-h-[34rem] w-full bg-[linear-gradient(135deg,#f7f7f7,#ececec)] md:min-h-[42rem]" />
+      <div className="pointer-events-none absolute left-4 top-4 flex flex-wrap gap-3">
+        <Pill label="State" value={state.replace("_", " ")} />
+        <Pill label="Positions" value={String(positions.length)} />
+        <Pill label="Camera" value={followEnabled ? "Follow" : "Free pan"} />
       </div>
+      {!followEnabled && latestPosition ? (
+        <button
+          type="button"
+          onClick={() => {
+            followRef.current = true;
+            setFollowEnabled(true);
+            instanceRef.current?.easeTo({
+              center: [latestPosition.lon, latestPosition.lat],
+              duration: 900,
+              zoom: Math.max(instanceRef.current.getZoom(), route.mapCenter.zoom),
+            });
+          }}
+          className="absolute bottom-4 right-4 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-foreground"
+        >
+          Recenter rider
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function buildTrailFeature(positions: RidePosition[]) {
+  return {
+    type: "FeatureCollection" as const,
+    features:
+      positions.length > 1
+        ? [
+            {
+              type: "Feature" as const,
+              properties: {},
+              geometry: {
+                type: "LineString" as const,
+                coordinates: positions.map((position) => [position.lon, position.lat] as [number, number]),
+              },
+            },
+          ]
+        : [],
+  };
+}
+
+function Pill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-full border border-black/10 bg-white/90 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground shadow-sm">
+      {label}: {value}
     </div>
   );
 }

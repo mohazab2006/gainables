@@ -3,16 +3,18 @@ import "server-only";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
   fallbackFaqs,
+  fallbackRidePositions,
   fallbackRideUpdates,
   fallbackSiteContent,
   fallbackSponsors,
   type FaqItem,
+  type RidePosition,
   type RideUpdate,
   type SiteContent,
   type Sponsor,
 } from "@/lib/fallback-content";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { mapRideUpdate } from "@/lib/track";
+import { mapRidePosition, mapRideUpdate } from "@/lib/track";
 
 export async function getSiteContent(): Promise<SiteContent> {
   if (!hasSupabaseEnv()) {
@@ -44,6 +46,8 @@ export async function getSiteContent(): Promise<SiteContent> {
       donationUrl: readValue(map, "donation_url", fallbackSiteContent.donationUrl),
       donationEmbedUrl: readValue(map, "donation_embed_url", fallbackSiteContent.donationEmbedUrl),
       trackerEmbedUrl: readValue(map, "tracker_embed_url", fallbackSiteContent.trackerEmbedUrl),
+      trackerStatus: readValue(map, "tracker_status", fallbackSiteContent.trackerStatus),
+      rideDate: readValue(map, "ride_date", fallbackSiteContent.rideDate),
     };
   } catch {
     return fallbackSiteContent;
@@ -140,6 +144,36 @@ export async function getRideUpdates(): Promise<RideUpdate[]> {
 export async function getLatestRideUpdate(): Promise<RideUpdate> {
   const [latest] = await getRideUpdates();
   return latest;
+}
+
+export async function getRidePositions(limit = 80): Promise<RidePosition[]> {
+  if (!hasSupabaseEnv()) {
+    return [...fallbackRidePositions].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).slice(-limit);
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("ride_positions")
+      .select("id, recorded_at, lon, lat, accuracy_m, speed_mps, battery_pct, source, raw")
+      .order("recorded_at", { ascending: false })
+      .limit(limit);
+
+    if (error || !data?.length) {
+      return [...fallbackRidePositions].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).slice(-limit);
+    }
+
+    return data
+      .map((row) => mapRidePosition(row))
+      .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+  } catch {
+    return [...fallbackRidePositions].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).slice(-limit);
+  }
+}
+
+export async function getLatestRidePosition(): Promise<RidePosition | null> {
+  const positions = await getRidePositions(1);
+  return positions.at(-1) ?? null;
 }
 
 export async function getFaqs(): Promise<FaqItem[]> {

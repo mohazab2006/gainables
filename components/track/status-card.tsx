@@ -1,75 +1,104 @@
-import type { RideUpdate, RouteContent } from "@/lib/fallback-content";
-import { formatRideUpdateDate, getTrackerSnapshot } from "@/lib/track";
+import type { RidePosition, RideUpdate, RouteContent, TrackerStatus } from "@/lib/fallback-content";
+import { deriveSignalStatus, formatCountdown, formatRideUpdateDate, getTrackerSnapshot } from "@/lib/track";
 
-export function StatusCard({ route, update }: { route: RouteContent; update: RideUpdate }) {
-  const snapshot = getTrackerSnapshot(route, update);
-  const checkpointSummary = snapshot.nextCheckpoint
-    ? `${snapshot.completedCheckpointCount} of ${snapshot.checkpointCount} checkpoints cleared`
-    : "Final checkpoint ahead";
+export function StatusCard({
+  latestPosition,
+  rideDate,
+  route,
+  state,
+  trackerStatus,
+  update,
+}: {
+  latestPosition: RidePosition | null;
+  rideDate: string;
+  route: RouteContent;
+  state: "pre_ride" | "live" | "finished";
+  trackerStatus: TrackerStatus;
+  update: RideUpdate | null;
+}) {
+  const snapshot = update ? getTrackerSnapshot(route, update) : null;
+  const batteryLabel = latestPosition?.batteryPct !== null && latestPosition?.batteryPct !== undefined ? `${Math.round(latestPosition.batteryPct)}% battery` : "Battery unavailable";
+  const speedLabel = latestPosition?.speedMps ? `${(latestPosition.speedMps * 3.6).toFixed(1)} km/h` : "Speed unavailable";
 
   return (
     <aside className="rounded-[2rem] border border-border bg-foreground p-8 text-background md:p-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.28em] text-background/60">Ride status</p>
-          <p className="mt-3 text-3xl font-medium tracking-tight">{update.location}</p>
-        </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-right">
-          <p className="text-[0.7rem] uppercase tracking-[0.24em] text-background/55">Updated</p>
-          <p className="mt-1 text-sm font-medium">{formatRideUpdateDate(update.createdAt)}</p>
-        </div>
-      </div>
-
-      <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-background/55">Distance covered</p>
-            <p className="mt-2 text-3xl font-medium tracking-tight">{Math.round(snapshot.progressPercent)}%</p>
-          </div>
-          <p className="text-sm text-background/65">
-            {update.kmCompleted} / {snapshot.totalDistanceKm} km
+          <p className="text-sm uppercase tracking-[0.28em] text-background/60">Tracker state</p>
+          <p className="mt-3 text-3xl font-medium tracking-tight">
+            {state === "pre_ride" ? "Countdown" : state === "finished" ? "Ride summary" : update?.location ?? "Live ride"}
           </p>
         </div>
-        <div className="mt-4 h-2 rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-background transition-[width]" style={{ width: `${snapshot.progressPercent}%` }} />
+        <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-right">
+          <p className="text-[0.7rem] uppercase tracking-[0.24em] text-background/55">Mode</p>
+          <p className="mt-1 text-sm font-medium">{trackerStatus.replace("_", " ")}</p>
         </div>
-        <p className="mt-4 text-sm text-background/70">{checkpointSummary}</p>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        {snapshot.checkpoints.map((checkpoint) => {
-          const state =
-            snapshot.nextCheckpoint?.name === checkpoint.name
-              ? "next"
-              : update.kmCompleted >= checkpoint.km
-                ? "complete"
-                : "upcoming";
+      {state === "pre_ride" ? (
+        <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
+          <p className="text-sm uppercase tracking-[0.2em] text-background/55">Activation</p>
+          <p className="mt-3 text-4xl font-medium tracking-tight">{formatCountdown(rideDate)}</p>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-background/72">
+            The map is showing the planned route now. Once the rider starts Overland and the first position lands in Supabase, the page switches into live telemetry automatically.
+          </p>
+        </div>
+      ) : null}
 
-          return (
-            <div
-              key={checkpoint.name}
-              className={[
-                "rounded-full border px-4 py-2 text-sm transition-colors",
-                state === "complete"
-                  ? "border-transparent bg-background text-foreground"
-                  : state === "next"
-                    ? "border-background/35 bg-white/10 text-background"
-                    : "border-white/10 bg-transparent text-background/60",
-              ].join(" ")}
-            >
-              <span className="mr-2 text-[0.65rem] uppercase tracking-[0.2em] opacity-70">{checkpoint.stage}</span>
-              <span className="font-medium">{checkpoint.name}</span>
+      {update && snapshot ? (
+        <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-background/55">Distance covered</p>
+              <p className="mt-2 text-4xl font-medium tracking-tight">{Math.round(snapshot.progressPercent)}%</p>
             </div>
-          );
-        })}
+            <p className="text-sm text-background/65">
+              {update.kmCompleted} / {snapshot.totalDistanceKm} km
+            </p>
+          </div>
+          <div className="mt-4 h-2 rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-background transition-[width]" style={{ width: `${snapshot.progressPercent}%` }} />
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Metric label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? update.nextCheckpoint} />
+            <Metric label="Remaining distance" value={`${Math.round(snapshot.remainingKm)} km`} />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <Badge label="Signal" value={deriveSignalStatus(latestPosition)} />
+        <Badge label="Telemetry" value={batteryLabel} />
+        <Badge label="Speed" value={speedLabel} />
+        <Badge
+          label="Last update"
+          value={latestPosition ? formatRideUpdateDate(latestPosition.recordedAt) : update ? formatRideUpdateDate(update.createdAt) : "Awaiting feed"}
+        />
       </div>
 
       <div className="mt-8 space-y-6">
-        <Item label="Current checkpoint" value={snapshot.currentCheckpoint?.name ?? update.location} />
-        <Item label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? update.nextCheckpoint} />
-        <Item label="Latest message" value={update.message} />
+        <Item label="Latest message" value={update?.message ?? "Ride updates will appear here once the operator posts the first checkpoint note."} />
+        <Item label="Current checkpoint" value={snapshot?.currentCheckpoint?.name ?? "Ottawa start"} />
       </div>
     </aside>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
+      <p className="text-sm uppercase tracking-[0.18em] text-background/55">{label}</p>
+      <p className="mt-2 text-lg font-medium">{value}</p>
+    </div>
+  );
+}
+
+function Badge({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
+      <p className="text-[0.72rem] uppercase tracking-[0.2em] text-background/55">{label}</p>
+      <p className="mt-2 text-sm font-medium">{value}</p>
+    </div>
   );
 }
 

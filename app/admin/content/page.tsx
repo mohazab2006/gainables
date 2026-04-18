@@ -33,6 +33,8 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
     donation_url: content.donationUrl,
     donation_embed_url: content.donationEmbedUrl ?? "",
     tracker_embed_url: content.trackerEmbedUrl ?? "",
+    tracker_status: content.trackerStatus,
+    ride_date: content.rideDate,
   } as const;
 
   return (
@@ -85,13 +87,26 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
               <input type="hidden" name="key" value={section.key} />
               <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">{section.title}</p>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">{section.description}</p>
-              <input
-                type="url"
-                name="value"
-                defaultValue={scalarValues[section.key]}
-                className="mt-5 h-11 w-full rounded-xl border border-border bg-secondary/40 px-4 text-sm outline-none transition focus:border-foreground"
-                disabled={!canEdit}
-              />
+              {section.key === "tracker_status" ? (
+                <select
+                  name="value"
+                  defaultValue={scalarValues[section.key]}
+                  className="mt-5 h-11 w-full rounded-xl border border-border bg-secondary/40 px-4 text-sm outline-none transition focus:border-foreground"
+                  disabled={!canEdit}
+                >
+                  <option value="pre_ride">pre_ride</option>
+                  <option value="live">live</option>
+                  <option value="finished">finished</option>
+                </select>
+              ) : (
+                <input
+                  type={section.key.includes("url") ? "url" : "text"}
+                  name="value"
+                  defaultValue={scalarValues[section.key]}
+                  className="mt-5 h-11 w-full rounded-xl border border-border bg-secondary/40 px-4 text-sm outline-none transition focus:border-foreground"
+                  disabled={!canEdit}
+                />
+              )}
               <div className="mt-5">
                 <AdminSubmitButton idleLabel="Save URL" pendingLabel="Saving..." className="rounded-full px-5" disabled={!canEdit} />
               </div>

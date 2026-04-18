@@ -94,6 +94,19 @@ export type RideUpdate = {
   lng: number;
 };
 
+export type RidePosition = {
+  id: string;
+  recordedAt: string;
+  lat: number;
+  lon: number;
+  accuracyM: number | null;
+  speedMps: number | null;
+  batteryPct: number | null;
+  source: string;
+};
+
+export type TrackerStatus = "pre_ride" | "live" | "finished";
+
 export type FaqItem = {
   id: string;
   question: string;
@@ -116,6 +129,8 @@ export type SiteContent = {
   donationUrl: string;
   donationEmbedUrl: string | null;
   trackerEmbedUrl: string | null;
+  trackerStatus: TrackerStatus;
+  rideDate: string;
 };
 
 export const fallbackSiteContent: SiteContent = {
@@ -275,6 +290,8 @@ export const fallbackSiteContent: SiteContent = {
   donationUrl: "https://example.com/donate",
   donationEmbedUrl: null,
   trackerEmbedUrl: null,
+  trackerStatus: "pre_ride",
+  rideDate: "2026-09-14T07:00:00.000Z",
 };
 
 export const fallbackSponsors: Sponsor[] = [
@@ -332,6 +349,39 @@ export const fallbackRideUpdates: RideUpdate[] = [
     message: "Midday regroup complete. The ride is heading into the final push toward Montreal.",
     lat: 45.6074,
     lng: -74.6058,
+  },
+];
+
+export const fallbackRidePositions: RidePosition[] = [
+  {
+    id: "position-1",
+    recordedAt: "2026-09-14T08:10:00.000Z",
+    lat: 45.354,
+    lon: -75.188,
+    accuracyM: 9,
+    speedMps: 7.1,
+    batteryPct: 97,
+    source: "overland",
+  },
+  {
+    id: "position-2",
+    recordedAt: "2026-09-14T10:25:00.000Z",
+    lat: 45.497,
+    lon: -74.804,
+    accuracyM: 8,
+    speedMps: 7.8,
+    batteryPct: 88,
+    source: "overland",
+  },
+  {
+    id: "position-3",
+    recordedAt: "2026-09-14T12:05:00.000Z",
+    lat: 45.6074,
+    lon: -74.6058,
+    accuracyM: 11,
+    speedMps: 6.4,
+    batteryPct: 79,
+    source: "overland",
   },
 ];
 

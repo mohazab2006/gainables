@@ -47,6 +47,32 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["ride_updates"]["Insert"]>;
         Relationships: [];
       };
+      ride_positions: {
+        Row: {
+          id: string;
+          recorded_at: string;
+          lon: number;
+          lat: number;
+          accuracy_m: number | null;
+          speed_mps: number | null;
+          battery_pct: number | null;
+          source: string;
+          raw: Json | null;
+        };
+        Insert: {
+          id?: string;
+          recorded_at?: string;
+          lon: number;
+          lat: number;
+          accuracy_m?: number | null;
+          speed_mps?: number | null;
+          battery_pct?: number | null;
+          source?: string;
+          raw?: Json | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["ride_positions"]["Insert"]>;
+        Relationships: [];
+      };
       site_content: {
         Row: {
           key: string;

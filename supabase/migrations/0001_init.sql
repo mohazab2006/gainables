@@ -30,6 +30,18 @@ create table if not exists public.ride_updates (
   lng numeric(9,6)
 );
 
+create table if not exists public.ride_positions (
+  id uuid primary key default gen_random_uuid(),
+  recorded_at timestamptz not null default now(),
+  lon numeric(9,6) not null,
+  lat numeric(9,6) not null,
+  accuracy_m numeric(8,2),
+  speed_mps numeric(8,3),
+  battery_pct numeric(5,2),
+  source text not null default 'overland',
+  raw jsonb
+);
+
 create table if not exists public.subscribers (
   id uuid primary key default gen_random_uuid(),
   email citext not null unique,
@@ -49,6 +61,7 @@ create table if not exists public.faqs (
 alter table public.site_content enable row level security;
 alter table public.sponsors enable row level security;
 alter table public.ride_updates enable row level security;
+alter table public.ride_positions enable row level security;
 alter table public.subscribers enable row level security;
 alter table public.faqs enable row level security;
 
@@ -66,6 +79,12 @@ using (visible = true);
 
 create policy "ride_updates_public_read"
 on public.ride_updates
+for select
+to anon, authenticated
+using (true);
+
+create policy "ride_positions_public_read"
+on public.ride_positions
 for select
 to anon, authenticated
 using (true);
@@ -101,3 +120,29 @@ on storage.objects
 for select
 to public
 using (bucket_id = 'campaign-media');
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_rel pr
+    join pg_class c on c.oid = pr.prrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    join pg_publication p on p.oid = pr.prpubid
+    where p.pubname = 'supabase_realtime' and n.nspname = 'public' and c.relname = 'ride_updates'
+  ) then
+    alter publication supabase_realtime add table public.ride_updates;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_publication_rel pr
+    join pg_class c on c.oid = pr.prrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    join pg_publication p on p.oid = pr.prpubid
+    where p.pubname = 'supabase_realtime' and n.nspname = 'public' and c.relname = 'ride_positions'
+  ) then
+    alter publication supabase_realtime add table public.ride_positions;
+  end if;
+end
+$$;

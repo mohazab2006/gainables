@@ -67,6 +67,16 @@ export const adminScalarContentSections = [
     title: "Tracker embed URL",
     description: "Optional iframe source for Strava Beacon, Garmin LiveTrack, or a custom tracker.",
   },
+  {
+    key: "tracker_status",
+    title: "Tracker status",
+    description: "Tracker lifecycle state: pre_ride, live, or finished.",
+  },
+  {
+    key: "ride_date",
+    title: "Ride date",
+    description: "ISO timestamp used for countdown and ride-day activation.",
+  },
 ] as const;
 
 export type AdminJsonContentKey = (typeof adminJsonContentSections)[number]["key"];

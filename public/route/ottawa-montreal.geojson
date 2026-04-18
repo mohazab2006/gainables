@@ -1,0 +1,24 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ottawa to Montreal Ride Route"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-75.6972, 45.4215],
+          [-75.4600, 45.4030],
+          [-75.0838, 45.3154],
+          [-74.9000, 45.4100],
+          [-74.6058, 45.6074],
+          [-74.1900, 45.5900],
+          [-73.8600, 45.5600],
+          [-73.5673, 45.5017]
+        ]
+      }
+    }
+  ]
+}

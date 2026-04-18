@@ -1,15 +1,17 @@
 import "server-only";
 
+import { getSupabasePublishableKey } from "@/lib/env";
+
 export async function getAdminState() {
   const allowedEmails = process.env.ADMIN_ALLOWED_EMAILS;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseAnonKey = getSupabasePublishableKey();
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return {
       title: "Supabase is not configured yet",
       description:
-        "Add the public Supabase URL and anon key to enable auth, content editing, sponsor uploads, and ride updates.",
+        "Add the public Supabase URL and publishable key to enable auth, content editing, sponsor uploads, and ride updates.",
     };
   }
 
