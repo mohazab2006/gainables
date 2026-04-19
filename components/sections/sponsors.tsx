@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 
-import { useMarquee } from "@/hooks/use-marquee";
 import { useReveal } from "@/hooks/use-reveal";
 import type { Sponsor } from "@/lib/fallback-content";
 
@@ -13,16 +11,9 @@ const tierWeight: Record<Sponsor["tier"], number> = {
   community: 2,
 };
 
-const tierLabel: Record<Sponsor["tier"], string> = {
-  lead: "Lead Partner",
-  supporting: "Supporting Partner",
-  community: "Community Partner",
-};
-
 export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
   const headRef = useReveal<HTMLDivElement>();
-  const gridRef = useReveal<HTMLDivElement>({ y: 36, stagger: 0.08, duration: 0.85 });
-  const stripRef = useMarquee<HTMLDivElement>({ speed: 50 });
+  const gridRef = useReveal<HTMLDivElement>({ y: 28, stagger: 0.06, duration: 0.8 });
 
   const ordered = [...sponsors]
     .filter((s) => s.visible !== false)
@@ -33,55 +24,38 @@ export function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
     });
 
   return (
-    <section id="sponsors" className="bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20">
-      <div className="container-shell">
-        <div ref={headRef} className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div data-reveal>
-            <p className="eyebrow">Sponsors</p>
-            <h2 className="mt-4 max-w-3xl font-display text-4xl leading-[1.02] tracking-[-0.025em] md:text-6xl">
-              Built with partners who <span className="display-italic">show up</span>.
+    <section
+      id="sponsors"
+      className="relative border-t border-foreground bg-background text-foreground"
+    >
+      <div className="px-6 py-24 md:px-10 md:py-32">
+        <div className="container-shell">
+          <div ref={headRef} data-reveal>
+            <p className="text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">
+              Sponsors
+            </p>
+            <h2 className="mt-6 max-w-5xl font-display text-6xl leading-[0.9] md:text-8xl lg:text-[7vw]">
+              BUILT WITH
+              <br />
+              PARTNERS.
             </h2>
           </div>
-          <p data-reveal className="max-w-md text-base leading-7 text-muted-foreground">
-            The partners powering this ride — together they make every kilometre possible.
-          </p>
-        </div>
 
-        {ordered.length ? (
-          <div ref={stripRef} className="marquee-mask mt-12 overflow-hidden border-y border-border py-6">
-            <div data-marquee-track className="flex w-max items-center gap-12 will-change-transform">
+          {ordered.length ? (
+            <div
+              ref={gridRef}
+              className="mt-16 grid grid-cols-1 border-t border-foreground sm:grid-cols-2 lg:grid-cols-3"
+            >
               {ordered.map((sponsor) => (
-                <span
-                  key={sponsor.id}
-                  className="flex shrink-0 items-center gap-3 font-display text-2xl tracking-tight text-muted-foreground"
-                >
-                  {sponsor.logoUrl ? (
-                    <img
-                      src={sponsor.logoUrl}
-                      alt={`${sponsor.name} logo`}
-                      className="h-8 w-auto object-contain"
-                    />
-                  ) : null}
-                  {sponsor.name}
-                  <span className="ml-12 inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
-                </span>
+                <SponsorCard key={sponsor.id} sponsor={sponsor} />
               ))}
             </div>
-          </div>
-        ) : null}
-
-        {ordered.length ? (
-          <div
-            ref={gridRef}
-            className="mt-16 flex flex-wrap justify-center gap-5 md:gap-6"
-          >
-            {ordered.map((sponsor) => (
-              <SponsorCard key={sponsor.id} sponsor={sponsor} />
-            ))}
-          </div>
-        ) : (
-          <p className="mt-16 text-sm text-muted-foreground">Sponsor announcements coming soon.</p>
-        )}
+          ) : (
+            <p className="mt-16 text-sm uppercase tracking-[0.2em] text-muted-foreground">
+              Sponsor announcements coming soon.
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -92,44 +66,30 @@ function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
 
   const inner = (
     <>
-      <div className="flex items-start justify-between">
-        <span className="text-[0.65rem] font-medium uppercase tracking-[0.28em] text-muted-foreground">
-          {tierLabel[sponsor.tier]}
-        </span>
-        {hasLink ? (
-          <ArrowUpRight
-            size={16}
-            className="text-muted-foreground transition duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground"
-          />
-        ) : null}
-      </div>
-
-      <div className="flex flex-1 items-center justify-center py-6">
+      <div className="flex flex-1 items-center justify-center py-12">
         {sponsor.logoUrl ? (
           <img
             src={sponsor.logoUrl}
             alt={`${sponsor.name} logo`}
             loading="lazy"
-            className="max-h-20 w-auto max-w-[80%] object-contain opacity-85 transition duration-500 group-hover:opacity-100"
+            className="max-h-20 w-auto max-w-[70%] object-contain grayscale transition duration-300 group-hover:grayscale-0"
           />
         ) : (
-          <span className="px-2 text-center font-display text-2xl leading-tight tracking-tight text-foreground/80 transition-colors duration-300 group-hover:text-foreground md:text-3xl">
-            {sponsor.name}
+          <span className="text-center font-display text-3xl leading-none text-foreground md:text-4xl">
+            {sponsor.name.toUpperCase()}
           </span>
         )}
       </div>
-
-      <div className="mt-auto">
-        <p className="font-display text-lg leading-tight tracking-tight text-foreground">{sponsor.name}</p>
-        {sponsor.tagline ? (
-          <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-muted-foreground">{sponsor.tagline}</p>
-        ) : null}
-      </div>
+      {sponsor.tagline ? (
+        <p className="border-t border-foreground p-4 text-[0.65rem] uppercase tracking-[0.24em] text-muted-foreground">
+          {sponsor.tagline}
+        </p>
+      ) : null}
     </>
   );
 
   const className =
-    "group relative flex aspect-[4/5] w-full max-w-sm flex-col rounded-[1.75rem] border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(14,14,12,0.04)] transition duration-300 hover:-translate-y-1 hover:border-foreground/30 hover:bg-background hover:shadow-[0_22px_50px_rgba(14,14,12,0.08)] sm:w-[280px] sm:p-7";
+    "group flex flex-col border-b border-r border-foreground transition-colors hover:bg-foreground/[0.03] last:border-b-0 sm:[&:nth-child(2n)]:border-r-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(3n)]:border-r-0";
 
   if (hasLink) {
     return (

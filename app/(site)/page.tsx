@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
 
-import { CausePartnerSection } from "@/components/sections/cause-partner";
-import { DonateBannerSection } from "@/components/sections/donate-banner";
-import { EmailSignupSection } from "@/components/sections/email-signup";
-import { FaqSection } from "@/components/sections/faq";
-import { GallerySection } from "@/components/sections/gallery";
 import { HeroSection } from "@/components/sections/hero";
-import { MediaSocialSection } from "@/components/sections/media-social";
 import { MissionSection } from "@/components/sections/mission";
-import { PillarsSection } from "@/components/sections/pillars";
+import { MoneyRaisedSection } from "@/components/sections/money-raised";
 import { RouteSection } from "@/components/sections/route";
 import { SponsorsSection } from "@/components/sections/sponsors";
-import { StatsSection } from "@/components/sections/stats";
-import { TrackingPreviewSection } from "@/components/sections/tracking-preview";
-import { getFaqs, getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
+import { getSiteContent, getSponsors } from "@/lib/content";
 import { getSiteUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
@@ -22,12 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [content, sponsors, faqs, latestUpdate] = await Promise.all([
-    getSiteContent(),
-    getSponsors(),
-    getFaqs(),
-    getLatestRideUpdate(),
-  ]);
+  const [content, sponsors] = await Promise.all([getSiteContent(), getSponsors()]);
   const siteUrl = getSiteUrl();
   const eventSchema = {
     "@context": "https://schema.org",
@@ -70,22 +57,9 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
       <HeroSection hero={content.hero} stats={content.stats} />
       <MissionSection whyItMatters={content.whyItMatters} />
+      <MoneyRaisedSection stats={content.stats} donationUrl={content.donationUrl} />
       <RouteSection about={content.about} route={content.route} />
-      <PillarsSection pillars={content.pillars} />
-      <StatsSection stats={content.stats} />
-      <GallerySection gallery={content.gallery} />
-      <TrackingPreviewSection
-        donationUrl={content.donationUrl}
-        routeTotalDistanceKm={content.route.totalDistanceKm}
-        trackerEmbedUrl={content.trackerEmbedUrl}
-        update={latestUpdate}
-      />
-      <DonateBannerSection donationUrl={content.donationUrl} donate={content.donate} />
       <SponsorsSection sponsors={sponsors} />
-      <CausePartnerSection causePartner={content.causePartner} />
-      <MediaSocialSection media={content.media} />
-      <FaqSection faqs={faqs} />
-      <EmailSignupSection />
     </main>
   );
 }
