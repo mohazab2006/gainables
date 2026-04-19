@@ -6,7 +6,7 @@ export function DonateFloat({ donationUrl }: { donationUrl: string }) {
       href={donationUrl}
       target="_blank"
       rel="noreferrer"
-      className="fixed bottom-5 right-5 z-40 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background shadow-[0_18px_50px_rgba(10,10,10,0.18)] transition hover:opacity-85"
+      className="fixed bottom-5 right-5 z-40 inline-flex items-center justify-center border border-foreground bg-foreground px-6 py-3 text-xs font-medium uppercase tracking-[0.24em] text-background transition-colors duration-200 hover:bg-background hover:text-foreground"
     >
       Donate
     </Link>

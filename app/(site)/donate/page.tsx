@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, HeartHandshake } from "lucide-react";
 
 import { getSiteContent } from "@/lib/content";
 
@@ -15,62 +14,93 @@ export default async function DonatePage() {
   const { donate, donationUrl, donationEmbedUrl } = content;
 
   return (
-    <main className="bg-background pb-24 pt-36 md:pt-44">
-      <div className="container-shell px-6 md:px-12 lg:px-20">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-          <section className="space-y-10">
-            <div className="ring-token w-fit">
-              <HeartHandshake size={14} className="text-accent" /> Donate
-            </div>
-            <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6.5vw]">
-              Help turn a two-city ride into <span className="display-italic">direct</span> mental health support.
-            </h1>
-            <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">{donate.story}</p>
+    <main className="min-h-screen bg-background pb-24 pt-32 md:pt-40">
+      <section className="border-b border-foreground px-6 pb-20 md:px-10">
+        <div className="container-shell">
+          <p className="text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">Donate</p>
+          <h1 className="mt-8 max-w-6xl font-display text-6xl leading-[0.9] md:text-8xl lg:text-[8vw]">
+            DIRECT IMPACT.
+          </h1>
+          <p className="mt-10 max-w-3xl text-base leading-8 text-foreground md:text-lg">{donate.story}</p>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              {donate.impact.map((item, idx) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-border bg-surface p-6 transition hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(14,14,12,0.06)]"
-                >
-                  <p className="font-display text-3xl text-accent-foreground/80">
-                    <span className="text-foreground">{String(idx + 1).padStart(2, "0")}</span>
-                  </p>
-                  <p className="mt-4 font-display text-xl tracking-tight">{item.title}</p>
-                  <p className="mt-3 text-base leading-7 text-muted-foreground">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <aside className="grain-bg overflow-hidden rounded-[2rem] border border-foreground/10 bg-foreground p-8 text-background md:p-12">
-            <p className="ring-token border-white/15 bg-white/10 text-white/80">Where funds go</p>
-            <div className="mt-8 space-y-7">
-              {donate.fundAllocation.map((item) => (
-                <div key={item.label} className="border-b border-white/10 pb-7 last:border-b-0 last:pb-0">
-                  <div className="flex items-center justify-between gap-4">
-                    <h2 className="font-display text-2xl tracking-tight">{item.label}</h2>
-                    <span className="text-xs uppercase tracking-[0.24em] text-background/65">{item.value}</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-7 text-background/72">{item.description}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-12 flex flex-wrap gap-3">
             <Link
               href={donationUrl}
               target="_blank"
               rel="noreferrer"
-              className="group mt-10 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(200,226,92,0.5)]"
+              className="pill-cta"
             >
               Donate now
-              <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
-          </aside>
+            <Link href="/track" className="pill-ghost">
+              Track the ride
+            </Link>
+          </div>
         </div>
+      </section>
 
-        {donationEmbedUrl ? (
-          <section className="mt-16 rounded-[2rem] border border-border bg-surface p-4 md:p-6">
-            <div className="aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-white">
+      <section className="border-b border-foreground px-6 py-20 md:px-10 md:py-28">
+        <div className="container-shell">
+          <p className="text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">Impact</p>
+          <h2 className="mt-6 max-w-5xl font-display text-5xl leading-[0.92] md:text-7xl lg:text-[6vw]">
+            WHERE FUNDING LANDS.
+          </h2>
+
+          <div className="mt-16 grid gap-0 border-t border-foreground md:grid-cols-3">
+            {donate.impact.map((item, idx) => (
+              <div
+                key={item.title}
+                className="border-b border-foreground p-8 last:border-b-0 md:border-b-0 md:border-r md:p-10 md:last:border-r-0"
+              >
+                <p className="font-display text-6xl leading-none text-foreground/30">
+                  {String(idx + 1).padStart(2, "0")}
+                </p>
+                <p className="mt-8 font-display text-2xl leading-tight md:text-3xl">
+                  {item.title.toUpperCase()}
+                </p>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-20 md:px-10 md:py-28">
+        <div className="container-shell">
+          <p className="text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">
+            Where funds go
+          </p>
+          <h2 className="mt-6 max-w-5xl font-display text-5xl leading-[0.92] md:text-7xl lg:text-[6vw]">
+            ALLOCATION.
+          </h2>
+
+          <div className="mt-12 border-t border-foreground">
+            {donate.fundAllocation.map((item) => (
+              <div
+                key={item.label}
+                className="grid gap-3 border-b border-foreground py-8 md:grid-cols-[1fr_auto] md:items-baseline md:gap-12"
+              >
+                <div>
+                  <p className="font-display text-3xl leading-tight md:text-5xl">
+                    {item.label.toUpperCase()}
+                  </p>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+                <span className="text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground md:text-right">
+                  {item.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {donationEmbedUrl ? (
+        <section className="border-t border-foreground px-6 py-20 md:px-10">
+          <div className="container-shell border border-foreground p-2">
+            <div className="aspect-[16/10] overflow-hidden bg-background">
               <iframe
                 title="Donation platform"
                 src={donationEmbedUrl}
@@ -78,9 +108,9 @@ export default async function DonatePage() {
                 loading="lazy"
               />
             </div>
-          </section>
-        ) : null}
-      </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
