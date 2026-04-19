@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Anton } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 
 import { getSiteUrl } from "@/lib/env";
@@ -12,10 +12,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const instrumentSerif = Instrument_Serif({
+// Anton is the closest free Google Font to the GAINABLES wordmark (heavy condensed grotesque).
+// To swap to a licensed face later (e.g. Druk Condensed Super), replace this with localFont and
+// repoint the --font-display variable. No other code needs to change.
+const anton = Anton({
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
@@ -66,7 +68,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${anton.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>
