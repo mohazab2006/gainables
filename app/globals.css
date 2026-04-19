@@ -4,25 +4,27 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #000000;
+  /* Brand stays black/white only — but the "black" gets a touch of life so
+     the page reads as a lit stage instead of a void. Still pure white text. */
+  --background: #08080A;
   --foreground: #FFFFFF;
-  --surface: #0A0A0A;
-  --card: #0A0A0A;
+  --surface: #131316;
+  --card: #131316;
   --card-foreground: #FFFFFF;
-  --popover: #0A0A0A;
+  --popover: #131316;
   --popover-foreground: #FFFFFF;
   --primary: #FFFFFF;
   --primary-foreground: #000000;
-  --secondary: #101010;
+  --secondary: #1A1A1E;
   --secondary-foreground: #FFFFFF;
-  --muted: #101010;
-  --muted-foreground: #8A8A85;
+  --muted: #1A1A1E;
+  --muted-foreground: #B5B5B0;
   --accent: #C8E25C;
   --accent-foreground: #000000;
   --destructive: #F43F5E;
   --destructive-foreground: #FFFFFF;
-  --border: #1A1A1A;
-  --input: #101010;
+  --border: #2A2A2E;
+  --input: #1A1A1E;
   --ring: #FFFFFF;
   --campaign-surface: #000000;
   --campaign-ink: #FFFFFF;
@@ -45,25 +47,25 @@
 }
 
 .dark {
-  --background: #000000;
+  --background: #08080A;
   --foreground: #FFFFFF;
-  --surface: #0A0A0A;
-  --card: #0A0A0A;
+  --surface: #131316;
+  --card: #131316;
   --card-foreground: #FFFFFF;
-  --popover: #0A0A0A;
+  --popover: #131316;
   --popover-foreground: #FFFFFF;
   --primary: #FFFFFF;
   --primary-foreground: #000000;
-  --secondary: #101010;
+  --secondary: #1A1A1E;
   --secondary-foreground: #FFFFFF;
-  --muted: #101010;
-  --muted-foreground: #8A8A85;
+  --muted: #1A1A1E;
+  --muted-foreground: #B5B5B0;
   --accent: #C8E25C;
   --accent-foreground: #000000;
   --destructive: #F43F5E;
   --destructive-foreground: #FFFFFF;
-  --border: #1A1A1A;
-  --input: #101010;
+  --border: #2A2A2E;
+  --input: #1A1A1E;
   --ring: #FFFFFF;
   --chart-1: #FFFFFF;
   --chart-2: #A3A29A;
@@ -128,9 +130,16 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Body wears a fixed, very subtle vignette + lift so dark sections feel
+     dimensional. Stays strictly black/white — the highlight is white at low
+     alpha, not a tinted color. */
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02", "cv11";
+    background-image:
+      radial-gradient(ellipse 60% 40% at 50% -5%, rgba(255, 255, 255, 0.06), transparent 60%),
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255, 255, 255, 0.03), transparent 70%);
+    background-attachment: fixed;
   }
 
   html {
@@ -217,7 +226,7 @@
   }
 
   .hairline {
-    @apply border-t border-white/10;
+    @apply border-t border-white/15;
   }
 
   .marquee-mask {
