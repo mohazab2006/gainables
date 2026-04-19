@@ -49,6 +49,7 @@ async function getCachedSiteContent(): Promise<SiteContent> {
       causePartner: readValue(map, "cause_partner", fallbackSiteContent.causePartner),
       media: readValue(map, "media", fallbackSiteContent.media),
       donate: readValue(map, "donate", fallbackSiteContent.donate),
+      donationTotals: readValue(map, "donation_totals", fallbackSiteContent.donationTotals),
       donationUrl: readValue(map, "donation_url", fallbackSiteContent.donationUrl),
       donationEmbedUrl: readValue(map, "donation_embed_url", fallbackSiteContent.donationEmbedUrl),
       trackerEmbedUrl: readValue(map, "tracker_embed_url", fallbackSiteContent.trackerEmbedUrl),

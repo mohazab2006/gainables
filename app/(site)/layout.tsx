@@ -1,14 +1,7 @@
 import type { ReactNode } from "react";
 
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
+import { SiteChrome } from "@/components/site-chrome";
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
-  return (
-    <>
-      <Header />
-      {children}
-      <Footer />
-    </>
-  );
+  return <SiteChrome>{children}</SiteChrome>;
 }

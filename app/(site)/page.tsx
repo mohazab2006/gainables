@@ -1,34 +1,30 @@
 import type { Metadata } from "next";
 
-import { CausePartnerSection } from "@/components/sections/cause-partner";
-import { DonateBannerSection } from "@/components/sections/donate-banner";
-import { EmailSignupSection } from "@/components/sections/email-signup";
-import { FaqSection } from "@/components/sections/faq";
-import { GallerySection } from "@/components/sections/gallery";
-import { HeroSection } from "@/components/sections/hero";
-import { MediaSocialSection } from "@/components/sections/media-social";
-import { MissionSection } from "@/components/sections/mission";
-import { PillarsSection } from "@/components/sections/pillars";
-import { RouteSection } from "@/components/sections/route";
-import { SponsorsSection } from "@/components/sections/sponsors";
-import { StatsSection } from "@/components/sections/stats";
-import { TrackingPreviewSection } from "@/components/sections/tracking-preview";
-import { getFaqs, getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
+import { BikerTimelineSection } from "@/components/sections/biker-timeline";
+import { ContactStrip } from "@/components/sections/contact-strip";
+import { DonationsStrip } from "@/components/sections/donations-strip";
+import { GainablesHero } from "@/components/sections/gainables-hero";
+import { MissionStrip } from "@/components/sections/mission-strip";
+import { SignupStrip } from "@/components/sections/signup-strip";
+import { SponsorStrip } from "@/components/sections/sponsor-strip";
+import { getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
 import { getSiteUrl } from "@/lib/env";
+import { getTrackerSnapshot } from "@/lib/track";
 
 export const metadata: Metadata = {
   description:
-    "Support Gainables' Ride for Mental Health, track the Ottawa to Montreal route, and follow campaign updates in real time.",
+    "Gainables Ride for Mental Health — a live-synced Ottawa to Montreal journey. Track the biker, donate, and drive the conversation forward.",
 };
 
 export default async function HomePage() {
-  const [content, sponsors, faqs, latestUpdate] = await Promise.all([
+  const [content, sponsors, latestUpdate] = await Promise.all([
     getSiteContent(),
     getSponsors(),
-    getFaqs(),
     getLatestRideUpdate(),
   ]);
   const siteUrl = getSiteUrl();
+  const snapshot = getTrackerSnapshot(content.route, latestUpdate);
+
   const eventSchema = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -42,50 +38,57 @@ export default async function HomePage() {
     startDate: content.rideDate,
     endDate: content.rideDate,
     image: [`${siteUrl}/opengraph-image`],
-    organizer: {
-      "@type": "Organization",
-      name: "Gainables",
-      url: siteUrl,
-    },
+    organizer: { "@type": "Organization", name: "Gainables", url: siteUrl },
     location: {
       "@type": "Place",
       name: "Ottawa to Montreal Route",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Ottawa to Montreal",
-        addressCountry: "CA",
-      },
+      address: { "@type": "PostalAddress", addressLocality: "Ottawa to Montreal", addressCountry: "CA" },
     },
     offers: {
       "@type": "Offer",
       url: content.donationUrl,
       availability: "https://schema.org/InStock",
       price: "0",
-      priceCurrency: "CAD",
+      priceCurrency: content.donationTotals.currency,
     },
   };
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
-      <HeroSection hero={content.hero} stats={content.stats} />
-      <MissionSection whyItMatters={content.whyItMatters} />
-      <RouteSection about={content.about} route={content.route} />
-      <PillarsSection pillars={content.pillars} />
-      <StatsSection stats={content.stats} />
-      <GallerySection gallery={content.gallery} />
-      <TrackingPreviewSection
+
+      {/* 1. Hero — massive wordmark + tagline + CTAs */}
+      <GainablesHero hero={content.hero} donationUrl={content.donationUrl} />
+
+      {/* 2. Live biker timeline — the centerpiece */}
+      <BikerTimelineSection
+        route={content.route}
+        progressPercent={snapshot.progressPercent}
+        kmCompleted={latestUpdate.kmCompleted}
+        currentLocation={latestUpdate.location}
         donationUrl={content.donationUrl}
-        routeTotalDistanceKm={content.route.totalDistanceKm}
-        trackerEmbedUrl={content.trackerEmbedUrl}
-        update={latestUpdate}
       />
-      <DonateBannerSection donationUrl={content.donationUrl} donate={content.donate} />
-      <SponsorsSection sponsors={sponsors} />
-      <CausePartnerSection causePartner={content.causePartner} />
-      <MediaSocialSection media={content.media} />
-      <FaqSection faqs={faqs} />
-      <EmailSignupSection />
+
+      {/* 3. Donations — live counter + CTA */}
+      <DonationsStrip
+        donationUrl={content.donationUrl}
+        raisedAmount={content.donationTotals.raisedAmount}
+        goalAmount={content.donationTotals.goalAmount}
+        donorCount={content.donationTotals.donorCount}
+        currency={content.donationTotals.currency}
+      />
+
+      {/* 4. Mission */}
+      <MissionStrip whyItMatters={content.whyItMatters} />
+
+      {/* 5. Sponsors — floating logos, no cards */}
+      <SponsorStrip sponsors={sponsors} />
+
+      {/* 6. Email signup */}
+      <SignupStrip />
+
+      {/* 7. Contact / socials */}
+      <ContactStrip media={content.media} />
     </main>
   );
 }
