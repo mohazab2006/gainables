@@ -123,6 +123,13 @@ export type FaqItem = {
   visible: boolean;
 };
 
+export type DonationTotals = {
+  raisedAmount: number;
+  goalAmount: number;
+  donorCount: number;
+  currency: string;
+};
+
 export type SiteContent = {
   hero: HeroContent;
   stats: StatItem[];
@@ -134,6 +141,7 @@ export type SiteContent = {
   causePartner: CausePartnerContent;
   media: MediaContent;
   donate: DonateContent;
+  donationTotals: DonationTotals;
   donationUrl: string;
   donationEmbedUrl: string | null;
   trackerEmbedUrl: string | null;
@@ -298,6 +306,12 @@ export const fallbackSiteContent: SiteContent = {
       },
     ],
   },
+  donationTotals: {
+    raisedAmount: 0,
+    goalAmount: 25000,
+    donorCount: 0,
+    currency: "CAD",
+  },
   donationUrl: "https://example.com/donate",
   donationEmbedUrl: null,
   trackerEmbedUrl: null,
@@ -305,38 +319,7 @@ export const fallbackSiteContent: SiteContent = {
   rideDate: "2026-09-14T07:00:00.000Z",
 };
 
-export const fallbackSponsors: Sponsor[] = [
-  {
-    id: "lead-gainables",
-    name: "Gainables",
-    tier: "lead",
-    logoUrl: null,
-    link: "https://gainables.ca",
-    tagline: "Campaign lead and community-first organizer.",
-    visible: true,
-    sortOrder: 1,
-  },
-  {
-    id: "supporting-health-wellness",
-    name: "Health & Wellness Partner",
-    tier: "supporting",
-    logoUrl: null,
-    link: "https://example.com",
-    tagline: "Supporting the campaign’s visibility and reach.",
-    visible: true,
-    sortOrder: 2,
-  },
-  {
-    id: "community-cycle-club",
-    name: "Community Cycling Partner",
-    tier: "community",
-    logoUrl: null,
-    link: "https://example.com",
-    tagline: "Grassroots support and local ride-day momentum.",
-    visible: true,
-    sortOrder: 3,
-  },
-];
+export const fallbackSponsors: Sponsor[] = [];
 
 export const fallbackRideUpdates: RideUpdate[] = [
   {
