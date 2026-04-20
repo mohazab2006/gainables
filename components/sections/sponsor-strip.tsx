@@ -111,21 +111,15 @@ function SponsorLogo({ sponsor }: { sponsor: Sponsor }) {
   const hasLink = Boolean(sponsor.link && sponsor.link.trim().length > 0);
 
   const body = (
-    <div className="group relative flex h-40 items-center justify-center md:h-52 lg:h-60">
-      {/* Soft lime glow on hover */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -m-6 rounded-4xl bg-accent/0 blur-2xl transition duration-500 group-hover:bg-accent/10"
-      />
-
+    <div className="group flex h-32 items-center justify-center px-6 md:h-44 md:px-10 lg:h-52">
       {sponsor.logoUrl ? (
         <SmartSponsorLogo
           src={sponsor.logoUrl}
           alt={`${sponsor.name} logo`}
-          className="relative max-h-32 w-auto max-w-[260px] object-contain will-change-transform group-hover:-translate-y-1 md:max-h-44 md:max-w-[320px] lg:max-h-52 lg:max-w-[360px]"
+          className="max-h-24 w-auto max-w-[220px] object-contain drop-shadow-[0_2px_14px_rgba(255,255,255,0.08)] transition duration-500 group-hover:-translate-y-1 group-hover:drop-shadow-[0_4px_22px_rgba(255,255,255,0.16)] md:max-h-36 md:max-w-[280px] lg:max-h-40 lg:max-w-[320px]"
         />
       ) : (
-        <span className="relative whitespace-nowrap font-display text-4xl uppercase tracking-tight text-foreground/60 transition duration-500 group-hover:-translate-y-1 group-hover:text-foreground md:text-5xl lg:text-6xl">
+        <span className="whitespace-nowrap font-display text-4xl uppercase tracking-tight text-foreground/70 drop-shadow-[0_2px_12px_rgba(255,255,255,0.08)] transition duration-500 group-hover:-translate-y-1 group-hover:text-foreground md:text-5xl lg:text-6xl">
           {sponsor.name}
         </span>
       )}

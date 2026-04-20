@@ -172,16 +172,29 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           <ArrowDown size={14} />
           Scroll
         </div>
-        <Link
-          href="#signup"
-          className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
-        >
-          Subscribe for updates
-          <span
-            aria-hidden
-            className="inline-block h-px w-6 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent"
-          />
-        </Link>
+        <div className="flex items-center gap-4 md:gap-6">
+          <Link
+            href="/donate"
+            className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
+          >
+            Donate
+            <span
+              aria-hidden
+              className="inline-block h-px w-6 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent"
+            />
+          </Link>
+          <span aria-hidden className="hidden h-3 w-px bg-white/15 md:inline-block" />
+          <Link
+            href="#signup"
+            className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
+          >
+            Subscribe for updates
+            <span
+              aria-hidden
+              className="inline-block h-px w-6 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent"
+            />
+          </Link>
+        </div>
       </div>
     </section>
   );

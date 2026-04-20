@@ -258,7 +258,7 @@ export const fallbackSiteContent: SiteContent = {
     quote:
       "All funds raised are directed toward mental health services and support programs.",
     body:
-      "This initiative supports mental health programs in partnership with a confirmed cause organization. The partner name will be published here once the collaboration is finalized — until then, the commitment on where funds go remains the same.",
+      "This initiative supports mental health programs in partnership with CHEO Foundation. All funds raised are directed toward mental health services and support programs.",
     image: { src: "/images/ride-2.jpg", alt: "Cycling route image used for cause partner section" },
   },
   media: {
@@ -287,11 +287,11 @@ export const fallbackSiteContent: SiteContent = {
     ],
   },
   donate: {
-    bannerTitle: "All funds raised go directly to mental health support.",
+    bannerTitle: "All funds raised go to CHEO Foundation for mental health support.",
     bannerBody:
-      "Every contribution helps raise awareness and fund mental health services and programs. Follow the ride, share the campaign, and donate to help make a meaningful impact.",
+      "Every contribution flows through CHEO Foundation to fund mental health services and programs. Follow the ride, share the campaign, and donate to help make a meaningful impact.",
     story:
-      "Donating here is the most direct way to stand with the campaign. All funds raised are directed toward mental health services and support programs — helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
+      "Donating here is the most direct way to stand with the campaign. All funds raised are directed to CHEO Foundation and go toward mental health services and support programs — helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
     impact: [
       { title: "Care access", description: "Support programs, counselling access, and community-led mental health initiatives." },
       { title: "Awareness", description: "Keep the conversation active and visible before, during, and after ride day." },
@@ -299,19 +299,9 @@ export const fallbackSiteContent: SiteContent = {
     ],
     fundAllocation: [
       {
-        label: "Mental health services",
-        value: "Primary",
-        description: "Funds are directed toward mental health services, programs, and support efforts through our cause partner.",
-      },
-      {
-        label: "Campaign reach",
-        value: "Secondary",
-        description: "A trackable, well-documented campaign keeps supporters following the ride and keeps the cause visible.",
-      },
-      {
-        label: "Sponsor match",
-        value: "Optional",
-        description: "Room for a sponsor match block if that becomes part of the fundraising strategy.",
+        label: "CHEO Foundation",
+        value: "100%",
+        description: "Every dollar raised goes to CHEO Foundation for mental health services and support programs.",
       },
     ],
   },
@@ -321,7 +311,7 @@ export const fallbackSiteContent: SiteContent = {
     donorCount: 0,
     currency: "CAD",
   },
-  donationUrl: "https://example.com/donate",
+  donationUrl: "mailto:admin@gainables.ca?subject=Ride%20for%20Mental%20Health%20Donation",
   donationEmbedUrl: null,
   trackerEmbedUrl: null,
   trackerStatus: "pre_ride",

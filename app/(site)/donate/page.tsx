@@ -7,12 +7,13 @@ import { getSiteContent } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Donate",
   description:
-    "Support Ride for Mental Health and help turn the Ottawa to Montreal campaign into direct mental health impact.",
+    "Support Ride for Mental Health and help turn the Ottawa to Montreal campaign into direct mental health impact, in partnership with CHEO Foundation.",
 };
 
 export default async function DonatePage() {
   const content = await getSiteContent();
   const { donate, donationUrl, donationEmbedUrl } = content;
+  const isPlaceholderDonationUrl = !donationUrl || donationUrl.startsWith("mailto:");
 
   return (
     <main className="bg-background pb-24 pt-36 md:pt-44">
@@ -20,12 +21,15 @@ export default async function DonatePage() {
         <div className="grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="space-y-10">
             <div className="ring-token w-fit">
-              <HeartHandshake size={14} className="text-accent" /> Donate
+              <HeartHandshake size={14} className="text-accent" /> Donate · CHEO Foundation
             </div>
             <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6.5vw]">
               Turn an Ottawa → Montreal ride into <span className="display-italic">direct</span> mental health support.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">{donate.story}</p>
+            <p className="max-w-2xl text-sm uppercase tracking-[0.28em] text-foreground/60">
+              In partnership with <span className="text-foreground">CHEO Foundation</span>
+            </p>
 
             <div className="grid gap-4 md:grid-cols-3">
               {donate.impact.map((item, idx) => (
@@ -56,15 +60,30 @@ export default async function DonatePage() {
                 </div>
               ))}
             </div>
-            <Link
-              href={donationUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="group mt-10 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(200,226,92,0.5)]"
-            >
-              Donate now
-              <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
+            {isPlaceholderDonationUrl ? (
+              <div className="mt-10 space-y-3">
+                <Link
+                  href={donationUrl || "mailto:admin@gainables.ca?subject=Ride%20for%20Mental%20Health%20Donation"}
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-medium text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(200,226,92,0.5)]"
+                >
+                  Contact us to donate
+                  <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+                <p className="text-xs uppercase tracking-[0.24em] text-background/60">
+                  Donation platform coming soon — reach out and we&apos;ll guide your gift to CHEO Foundation.
+                </p>
+              </div>
+            ) : (
+              <Link
+                href={donationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="group mt-10 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-medium text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(200,226,92,0.5)]"
+              >
+                Donate now
+                <ArrowUpRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            )}
           </aside>
         </div>
 
