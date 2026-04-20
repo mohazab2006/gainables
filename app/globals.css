@@ -6,10 +6,10 @@
 :root {
   /* Brand stays black/white only — but the "black" gets a touch of life so
      the page reads as a lit stage instead of a void. Still pure white text. */
-  --background: #08080A;
+  --background: #111115;
   --foreground: #FFFFFF;
-  --surface: #131316;
-  --card: #131316;
+  --surface: #18181C;
+  --card: #18181C;
   --card-foreground: #FFFFFF;
   --popover: #131316;
   --popover-foreground: #FFFFFF;
@@ -47,10 +47,10 @@
 }
 
 .dark {
-  --background: #08080A;
+  --background: #111115;
   --foreground: #FFFFFF;
-  --surface: #131316;
-  --card: #131316;
+  --surface: #18181C;
+  --card: #18181C;
   --card-foreground: #FFFFFF;
   --popover: #131316;
   --popover-foreground: #FFFFFF;
@@ -137,8 +137,10 @@
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02", "cv11";
     background-image:
-      radial-gradient(ellipse 60% 40% at 50% -5%, rgba(255, 255, 255, 0.06), transparent 60%),
-      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255, 255, 255, 0.03), transparent 70%);
+      radial-gradient(ellipse 70% 45% at 50% -5%, rgba(255, 255, 255, 0.10), transparent 65%),
+      radial-gradient(ellipse 90% 55% at 50% 100%, rgba(255, 255, 255, 0.05), transparent 70%),
+      radial-gradient(ellipse 55% 35% at 15% 30%, rgba(255, 255, 255, 0.035), transparent 70%),
+      radial-gradient(ellipse 55% 35% at 85% 70%, rgba(255, 255, 255, 0.035), transparent 70%);
     background-attachment: fixed;
   }
 

@@ -6,6 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useMarquee } from "@/hooks/use-marquee";
 import { useReveal } from "@/hooks/use-reveal";
 import type { Sponsor } from "@/lib/fallback-content";
+import { SmartSponsorLogo } from "@/components/sections/smart-sponsor-logo";
 
 const SPONSOR_CONTACT_HREF = "mailto:sponsor@gainables.ca?subject=Gainables%20Ride%20Sponsorship";
 
@@ -90,7 +91,7 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
         </div>
 
         {/* Logo grid — clickable, float-hover */}
-        <div className="mt-20 grid grid-cols-2 gap-x-8 gap-y-16 md:grid-cols-4 md:gap-x-10 lg:grid-cols-6">
+        <div className="mt-20 grid grid-cols-1 gap-x-10 gap-y-20 sm:grid-cols-2 md:grid-cols-3 md:gap-x-14 lg:grid-cols-4">
           {visible.map((sponsor) => (
             <SponsorLogo key={sponsor.id} sponsor={sponsor} />
           ))}
@@ -104,22 +105,21 @@ function SponsorLogo({ sponsor }: { sponsor: Sponsor }) {
   const hasLink = Boolean(sponsor.link && sponsor.link.trim().length > 0);
 
   const body = (
-    <div className="group relative flex h-20 items-center justify-center md:h-24">
+    <div className="group relative flex h-40 items-center justify-center md:h-52 lg:h-60">
       {/* Soft lime glow on hover */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 -m-4 rounded-[2rem] bg-accent/0 blur-2xl transition duration-500 group-hover:bg-accent/10"
+        className="pointer-events-none absolute inset-0 -m-6 rounded-4xl bg-accent/0 blur-2xl transition duration-500 group-hover:bg-accent/10"
       />
 
       {sponsor.logoUrl ? (
-        <img
+        <SmartSponsorLogo
           src={sponsor.logoUrl}
           alt={`${sponsor.name} logo`}
-          loading="lazy"
-          className="relative max-h-14 w-auto max-w-[160px] object-contain opacity-60 brightness-0 invert transition duration-500 will-change-transform group-hover:-translate-y-1 group-hover:opacity-100 md:max-h-16"
+          className="relative max-h-32 w-auto max-w-[260px] object-contain will-change-transform group-hover:-translate-y-1 md:max-h-44 md:max-w-[320px] lg:max-h-52 lg:max-w-[360px]"
         />
       ) : (
-        <span className="relative whitespace-nowrap font-display text-xl uppercase tracking-tight text-foreground/60 transition duration-500 group-hover:-translate-y-1 group-hover:text-foreground md:text-2xl">
+        <span className="relative whitespace-nowrap font-display text-4xl uppercase tracking-tight text-foreground/60 transition duration-500 group-hover:-translate-y-1 group-hover:text-foreground md:text-5xl lg:text-6xl">
           {sponsor.name}
         </span>
       )}

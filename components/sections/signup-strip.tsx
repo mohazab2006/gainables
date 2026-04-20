@@ -9,7 +9,7 @@ export function SignupStrip() {
   return (
     <section
       id="signup"
-      className="relative overflow-hidden bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20"
+      className="relative overflow-hidden bg-background px-6 pb-10 pt-24 md:px-12 md:pb-14 md:pt-32 lg:px-20"
     >
       {/* Soft accent glow so the section reads as a destination, not a footnote. */}
       <div

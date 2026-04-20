@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { ArrowUpRight, Check, Loader2, Mail, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Check, Loader2, Mail, ShieldCheck, X } from "lucide-react";
 
 import { subscribeAction, type SubscribeActionState } from "@/lib/actions/subscribe";
 
@@ -9,12 +9,6 @@ const initialState: SubscribeActionState = {
   message: "",
   status: "idle",
 };
-
-const trustBadges = [
-  { icon: ShieldCheck, label: "No spam, ever" },
-  { icon: Mail, label: "3 emails total" },
-  { icon: Sparkles, label: "Unsubscribe anytime" },
-];
 
 export function EmailSignupForm() {
   const [state, action, pending] = useActionState(subscribeAction, initialState);
@@ -32,18 +26,12 @@ export function EmailSignupForm() {
         className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-accent/40 to-transparent opacity-0 transition-opacity duration-500 group-focus-within/form:opacity-100"
       />
 
-      <div className="flex items-center justify-between gap-4">
-        <label
-          className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground"
-          htmlFor="email"
-        >
-          Get the updates
-        </label>
-        <span className="hidden items-center gap-1.5 text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground sm:inline-flex">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          Free
-        </span>
-      </div>
+      <label
+        className="block text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground"
+        htmlFor="email"
+      >
+        Get the updates
+      </label>
 
       <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-stretch">
         <div className="relative flex-1">
@@ -120,18 +108,6 @@ export function EmailSignupForm() {
         </span>
       </div>
 
-      {/* Trust badges */}
-      <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-border/60 pt-5 sm:justify-start">
-        {trustBadges.map(({ icon: Icon, label }) => (
-          <li
-            key={label}
-            className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-muted-foreground"
-          >
-            <Icon size={14} className="text-accent" aria-hidden />
-            <span>{label}</span>
-          </li>
-        ))}
-      </ul>
     </form>
   );
 }

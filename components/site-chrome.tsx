@@ -6,20 +6,16 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 /**
- * Chrome (header + footer) is hidden on the landing page to keep it
- * cinematic and focused. Inner pages keep the full nav experience.
+ * Home is kept cinematic by hiding the floating header on `/`.
+ * The sitemap footer is rendered on every page so navigation stays reachable.
  */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  if (isHome) {
-    return <>{children}</>;
-  }
-
   return (
     <>
-      <Header />
+      {isHome ? null : <Header />}
       {children}
       <Footer />
     </>
