@@ -47,7 +47,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
 
       const map = new mapboxgl.default.Map({
         container: mapRef.current!,
-        style: "mapbox://styles/mapbox/light-v11",
+        style: "mapbox://styles/mapbox/dark-v11",
         center: [route.mapCenter.lng, route.mapCenter.lat],
         zoom: route.mapCenter.zoom,
       });
@@ -132,9 +132,18 @@ export function LiveMap({ checkpoints, mapboxToken, positions, route, routeFeatu
           },
         });
 
-        const startPoint: [number, number] = [route.mapCenter.lng, route.mapCenter.lat];
+        const ottawaCheckpoint = checkpoints.find((c) => c.stage === "Start") ?? checkpoints[0];
+        const startPoint: [number, number] = ottawaCheckpoint
+          ? [ottawaCheckpoint.lng, ottawaCheckpoint.lat]
+          : [route.mapCenter.lng, route.mapCenter.lat];
 
-        markerRef.current = new mapboxgl.Marker({ color: "#111111", scale: 1.1 }).setLngLat(startPoint).addTo(map);
+        const el = document.createElement("div");
+        el.style.cssText =
+          "width:40px;height:40px;border-radius:50%;background:#c8f135;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.35);";
+        el.innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 0 0 0-2h-3l-3 8.5H6"/><path d="m12 6 1.5 5H9"/></svg>';
+
+        markerRef.current = new mapboxgl.Marker({ element: el }).setLngLat(startPoint).addTo(map);
 
         if (!bounds.isEmpty()) {
           map.fitBounds(bounds, { padding: 56, duration: 0 });
