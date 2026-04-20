@@ -1,5 +1,7 @@
 "use client";
 
+import "mapbox-gl/dist/mapbox-gl.css";
+
 import { useEffect, useRef, useState } from "react";
 import type { ExpressionSpecification, GeoJSONSource, Map as MapboxMap, Marker } from "mapbox-gl";
 
@@ -127,7 +129,7 @@ export function LiveMap({ checkpoints, mapboxToken, positions, progressPercent, 
             type: "sky",
             paint: {
               "sky-type": "atmosphere",
-              "sky-atmosphere-sun": [-1.2, 70.0],
+              "sky-atmosphere-sun": [358.8, 70.0],
               "sky-atmosphere-sun-intensity": 8,
               "sky-atmosphere-halo-color": "rgba(200,226,92,0.35)",
               "sky-atmosphere-color": "rgba(12,12,12,0.9)",
@@ -426,22 +428,41 @@ export function LiveMap({ checkpoints, mapboxToken, positions, progressPercent, 
         className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55),transparent)]"
       />
 
-      {!followEnabled && latestPosition ? (
+      {!followEnabled ? (
         <button
           type="button"
           onClick={() => {
+            const map = instanceRef.current;
+            if (!map) return;
             followRef.current = true;
             setFollowEnabled(true);
-            instanceRef.current?.easeTo({
-              center: [latestPosition.lon, latestPosition.lat],
-              duration: 900,
-              zoom: Math.max(instanceRef.current.getZoom(), route.mapCenter.zoom),
-              pitch: 55,
-            });
+            if (latestPosition) {
+              map.easeTo({
+                center: [latestPosition.lon, latestPosition.lat],
+                duration: 900,
+                zoom: Math.max(map.getZoom(), route.mapCenter.zoom),
+                pitch: 55,
+              });
+              return;
+            }
+            const coords = routeFeature.geometry.coordinates;
+            if (coords.length === 0) return;
+            let [w, s] = coords[0];
+            let [e, n] = coords[0];
+            for (const [lng, lat] of coords) {
+              if (lng < w) w = lng;
+              if (lng > e) e = lng;
+              if (lat < s) s = lat;
+              if (lat > n) n = lat;
+            }
+            map.fitBounds(
+              [[w, s], [e, n]],
+              { padding: 72, duration: 900, pitch: 45, bearing: -12 },
+            );
           }}
-          className="absolute bottom-4 right-4 rounded-full bg-accent px-4 py-2 text-sm font-medium text-foreground shadow-[0_12px_36px_rgba(200,226,92,0.45)] transition hover:-translate-y-0.5"
+          className="absolute bottom-4 right-4 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold uppercase tracking-wide text-[#0a0a0a] shadow-[0_16px_48px_rgba(200,226,92,0.6)] ring-1 ring-black/10 transition hover:-translate-y-0.5 hover:shadow-[0_20px_56px_rgba(200,226,92,0.75)]"
         >
-          Recenter rider
+          Recenter
         </button>
       ) : null}
     </div>

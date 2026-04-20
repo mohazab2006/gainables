@@ -3,9 +3,8 @@
 import { useEffect, useEffectEvent, useState, startTransition } from "react";
 
 import { LiveMap } from "@/components/track/live-map";
-import { SponsorStrip } from "@/components/track/sponsor-strip";
 import { StatusCard } from "@/components/track/status-card";
-import type { RidePosition, RideUpdate, RouteContent, Sponsor, TrackerStatus } from "@/lib/fallback-content";
+import type { RidePosition, RideUpdate, RouteContent, TrackerStatus } from "@/lib/fallback-content";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { deriveTrackerState, formatCountdown, getTrackerSnapshot, mapRidePosition, mapRideUpdate } from "@/lib/track";
 import type { Database } from "@/types/db";
@@ -25,7 +24,6 @@ type TrackerShellProps = {
       coordinates: [number, number][];
     };
   };
-  sponsors: Sponsor[];
   trackerStatus: TrackerStatus;
 };
 
@@ -40,7 +38,6 @@ export function TrackerShell({
   rideDate,
   route,
   routeFeature,
-  sponsors,
   trackerStatus,
 }: TrackerShellProps) {
   const [updates, setUpdates] = useState(initialUpdates);
@@ -269,8 +266,6 @@ export function TrackerShell({
           </article>
         </div>
       </section>
-
-      <SponsorStrip sponsors={sponsors} />
     </>
   );
 }

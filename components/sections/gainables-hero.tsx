@@ -157,7 +157,7 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           {hero.description}
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <Link data-hero-cta href={donationUrl} className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
+          <Link data-hero-cta href="/donate" className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
             Donate now
           </Link>
           <Link data-hero-cta href="#track" className="pill-ghost">

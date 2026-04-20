@@ -4,7 +4,7 @@ import { ArrowUpRight, HeartHandshake, Mail } from "lucide-react";
 
 import { DonateFloat } from "@/components/track/donate-float";
 import { TrackerShell } from "@/components/track/tracker-shell";
-import { getRidePositions, getRideUpdates, getSiteContent, getSponsors } from "@/lib/content";
+import { getRidePositions, getRideUpdates, getSiteContent } from "@/lib/content";
 import { getRouteGeoJson } from "@/lib/route-geojson";
 
 export const metadata: Metadata = {
@@ -14,11 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function TrackPage() {
-  const [content, ridePositions, rideUpdates, sponsors, routeFeature] = await Promise.all([
+  const [content, ridePositions, rideUpdates, routeFeature] = await Promise.all([
     getSiteContent(),
     getRidePositions(),
     getRideUpdates(),
-    getSponsors(),
     getRouteGeoJson(),
   ]);
 
@@ -42,7 +41,6 @@ export default async function TrackPage() {
           rideDate={content.rideDate}
           route={content.route}
           routeFeature={routeFeature}
-          sponsors={sponsors}
           trackerStatus={content.trackerStatus}
         />
 

@@ -67,7 +67,7 @@ export function DonationsStrip({
             <Meta label="Remaining" value={formatMoney(Math.max(goalAmount - raisedAmount, 0), currency)} />
           </div>
           <div data-reveal className="flex flex-wrap gap-3">
-            <Link href={donationUrl} className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
+            <Link href="/donate" className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
               Donate now
             </Link>
             <Link href="/faq" className="pill-ghost">
