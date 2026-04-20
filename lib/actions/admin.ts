@@ -33,7 +33,6 @@ function refreshPublicSite() {
   revalidatePath("/");
   revalidatePath("/donate");
   revalidatePath("/track");
-  revalidatePath("/updates");
 }
 
 async function uploadSponsorLogo(file: File) {

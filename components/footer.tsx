@@ -4,8 +4,7 @@ const navLinks = [
   { href: "/#ride", label: "Ride" },
   { href: "/track", label: "Track" },
   { href: "/#sponsors", label: "Sponsors" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/updates", label: "Updates" },
+  { href: "/faq", label: "FAQ" },
   { href: "/donate", label: "Donate" },
 ];
 

@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowUpRight, HeartHandshake, Mail } from "lucide-react";
 
-import { TrackerReadiness } from "@/components/operations/tracker-readiness";
 import { DonateFloat } from "@/components/track/donate-float";
 import { TrackerShell } from "@/components/track/tracker-shell";
 import { getRidePositions, getRideUpdates, getSiteContent, getSponsors } from "@/lib/content";
-import { getTrackerReadiness } from "@/lib/env";
 import { getRouteGeoJson } from "@/lib/route-geojson";
 
 export const metadata: Metadata = {
   title: "Live tracker",
   description:
-    "Watch the Ottawa to Montreal ride progress with live positions, checkpoint status, and ride-day updates.",
+    "Follow the Gainables Ride for Mental Health in real time — live location, checkpoint progress, and ride-day updates from Ottawa to Montreal.",
 };
 
 export default async function TrackPage() {
-  const readiness = getTrackerReadiness();
   const [content, ridePositions, rideUpdates, sponsors, routeFeature] = await Promise.all([
     getSiteContent(),
     getRidePositions(),
@@ -26,14 +24,14 @@ export default async function TrackPage() {
 
   return (
     <main className="bg-background px-4 pb-20 pt-32 md:px-8 md:pt-40 lg:px-10">
-      <div className="mx-auto max-w-[96rem]">
+      <div className="mx-auto max-w-384">
         <div className="mb-12 flex flex-col gap-5">
-          <p className="ring-token w-fit">Live tracking</p>
+          <p className="ring-token w-fit">Live tracker</p>
           <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6vw]">
-            Follow the Ottawa to Montreal ride <span className="display-italic">in real time</span>.
+            Follow the Ottawa → Montreal ride <span className="display-italic">in real time</span>.
           </h1>
           <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
-            Branded route map, live trail line, manual ride updates, and an operator workflow if the rider signal drops.
+            Real-time location updates from the Gainables team as they cycle ~200 km from Ottawa to Montreal — with checkpoint progress, ride-day updates, and a live route map.
           </p>
         </div>
         <TrackerShell
@@ -47,39 +45,61 @@ export default async function TrackPage() {
           sponsors={sponsors}
           trackerStatus={content.trackerStatus}
         />
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <TrackerReadiness
-            items={readiness}
-            title="This page reports tracker deployment status in real time."
-            description="Before ride day, use this to verify the public client, map token, rider token, and production URL are in place. If any item stays missing, the tracker falls back to manual updates and the static route experience."
-          />
-          <section className="rounded-[2rem] border border-border bg-background p-8 shadow-[0_16px_60px_rgba(10,10,10,0.04)] md:p-10">
-            <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Ride-day workflow</p>
-            <div className="mt-5 space-y-4 text-sm leading-7 text-muted-foreground">
-              <p>1. Deploy `supabase/functions/ingest-position` and confirm the public `/track` page shows the public Supabase client as ready.</p>
-              <p>2. Generate the Overland setup link from the runbook and send it to the lead rider after `RIDER_TOKEN` is set.</p>
-              <p>3. Keep `/admin/updates` open on ride day so the operator can post checkpoint messages if the signal drops.</p>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
+
+        <section className="mt-16 grid gap-6 md:mt-20 lg:grid-cols-[1.1fr_0.9fr]">
+          <article className="rounded-4xl border border-border bg-surface p-8 md:p-10">
+            <p className="eyebrow">Why we ride</p>
+            <h2 className="mt-5 font-display text-3xl leading-[1.05] tracking-tight md:text-4xl">
+              Mental health affects everyone.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+              Many people are dealing with stress, burnout, anxiety, and other challenges, often without visible support. This ride represents discipline, consistency, and pushing through difficulty — values that reflect the mental health journey.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/admin"
-                className="inline-flex rounded-full border border-border bg-secondary/45 px-5 py-3 text-sm font-medium transition hover:border-foreground"
+                href="/donate"
+                className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(200,226,92,0.35)]"
               >
-                Open admin
+                <HeartHandshake size={16} />
+                Donate to the cause
               </Link>
               <Link
-                href="https://supabase.com/dashboard"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex rounded-full border border-border px-5 py-3 text-sm font-medium transition hover:border-foreground"
+                href="/faq"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:border-foreground"
               >
-                Open Supabase
+                FAQ
               </Link>
             </div>
-          </section>
-        </div>
+          </article>
+
+          <article className="rounded-4xl border border-foreground/10 bg-foreground p-8 text-background md:p-10">
+            <p className="ring-token border-white/15 bg-white/10 text-white/80">Stay close to the ride</p>
+            <h2 className="mt-5 font-display text-3xl leading-[1.05] tracking-tight md:text-4xl">
+              Get ride-day updates in your inbox.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-background/70 md:text-lg md:leading-8">
+              Three emails: campaign launch, the morning the ride starts, and a recap when it&apos;s done. No spam — just the moments that matter.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/#signup"
+                className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(200,226,92,0.35)]"
+              >
+                <Mail size={16} />
+                Join the waitlist
+                <ArrowUpRight size={14} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-medium text-background transition hover:border-white/30 hover:bg-white/10"
+              >
+                Back to home
+              </Link>
+            </div>
+          </article>
+        </section>
       </div>
-      <DonateFloat donationUrl={content.donationUrl} />
+      <DonateFloat />
     </main>
   );
 }

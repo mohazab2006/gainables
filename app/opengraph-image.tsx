@@ -45,15 +45,15 @@ export default function OpenGraphImage() {
             Ride for Mental Health
           </div>
           <div style={{ fontSize: 30, lineHeight: 1.35, opacity: 0.78 }}>
-            Follow the live route, support the fundraiser, and stay close to ride-day progress in real time.
+            A community-driven initiative from Gainables during Mental Health Month. Follow the ride, support the cause, and stay close in real time.
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 18 }}>
           {[
-            { label: "Distance", value: "200 km" },
+            { label: "Distance", value: "~200 km" },
             { label: "Tracking", value: "Live" },
-            { label: "Campaign", value: "Mental Health" },
+            { label: "Window", value: "Mental Health Month" },
           ].map((item) => (
             <div
               key={item.label}

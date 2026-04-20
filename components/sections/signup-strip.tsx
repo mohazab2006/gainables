@@ -40,7 +40,7 @@ export function SignupStrip() {
             data-reveal
             className="mt-6 display-hero text-5xl md:text-7xl lg:text-[5.5rem]"
           >
-            A quiet update <span className="display-italic text-muted-foreground">before</span> ride day.
+            Join the <span className="display-italic text-muted-foreground">waitlist</span> before ride day.
           </h2>
           <p
             data-reveal

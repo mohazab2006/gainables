@@ -17,8 +17,8 @@ export function FaqSection({ faqs }: { faqs: FaqItem[] }) {
           </h2>
           <p className="mt-6 max-w-md text-base leading-7 text-muted-foreground">
             Need something else? Reach out at{" "}
-            <a className="text-foreground underline-offset-4 hover:underline" href="mailto:hello@gainables.com">
-              hello@gainables.com
+            <a className="text-foreground underline-offset-4 hover:underline" href="mailto:admin@gainables.ca">
+              admin@gainables.ca
             </a>
             .
           </p>

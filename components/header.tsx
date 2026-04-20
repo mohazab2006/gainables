@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
   { href: "/#ride", label: "Ride", sectionId: "ride" },
   { href: "/track", label: "Track", matchPathname: "/track" },
   { href: "/#sponsors", label: "Sponsors", sectionId: "sponsors" },
-  { href: "/#faq", label: "FAQ", sectionId: "faq" },
+  { href: "/faq", label: "FAQ", matchPathname: "/faq" },
 ];
 
 export function Header() {

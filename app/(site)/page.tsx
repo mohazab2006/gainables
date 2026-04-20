@@ -13,7 +13,7 @@ import { getTrackerSnapshot } from "@/lib/track";
 
 export const metadata: Metadata = {
   description:
-    "Gainables Ride for Mental Health — a live-synced Ottawa to Montreal journey. Track the biker, donate, and drive the conversation forward.",
+    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. A ~200 km ride from Ottawa to Montreal with live tracking, donations, and sponsor partners.",
 };
 
 export default async function HomePage() {

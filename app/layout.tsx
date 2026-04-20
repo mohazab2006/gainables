@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: "%s | Ride for Mental Health",
   },
   description:
-    "A Next.js campaign site for Gainables' Ottawa to Montreal Ride for Mental Health with donations, sponsor visibility, and live ride tracking.",
+    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. Cycling Ottawa to Montreal to raise awareness and funds, with live tracking, donations, and sponsor partners.",
   applicationName: "Ride for Mental Health",
   icons: {
     icon: [
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ride for Mental Health | Gainables",
     description:
-      "Follow the Ottawa to Montreal route, support the fundraiser, and stay current with live ride updates.",
+      "A community-driven initiative from Gainables during Mental Health Month. Follow the Ottawa to Montreal ride, support the cause, and stay close in real time.",
     type: "website",
     url: metadataBase,
     images: [
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ride for Mental Health | Gainables",
     description:
-      "Support the fundraiser, track the route, and stay close to the campaign as riders move from Ottawa to Montreal.",
+      "Support the cause, track the ride, and stay close to the campaign as the Gainables team moves from Ottawa to Montreal.",
     images: ["/opengraph-image"],
   },
 };

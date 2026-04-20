@@ -7,7 +7,7 @@ import { SponsorStrip } from "@/components/track/sponsor-strip";
 import { StatusCard } from "@/components/track/status-card";
 import type { RidePosition, RideUpdate, RouteContent, Sponsor, TrackerStatus } from "@/lib/fallback-content";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { deriveTrackerState, formatCountdown, mapRidePosition, mapRideUpdate } from "@/lib/track";
+import { deriveTrackerState, formatCountdown, getTrackerSnapshot, mapRidePosition, mapRideUpdate } from "@/lib/track";
 import type { Database } from "@/types/db";
 
 type TrackerShellProps = {
@@ -118,6 +118,13 @@ export function TrackerShell({
   }, []);
 
   const checkpoints = route.checkpoints;
+  const trackerSnapshot = latestUpdate
+    ? getTrackerSnapshot(route, latestUpdate)
+    : null;
+  const progressPercent =
+    experienceState === "finished"
+      ? 100
+      : trackerSnapshot?.progressPercent ?? 0;
 
   return (
     <>
@@ -126,6 +133,7 @@ export function TrackerShell({
           checkpoints={checkpoints}
           mapboxToken={mapboxToken}
           positions={positions}
+          progressPercent={progressPercent}
           routeFeature={routeFeature}
           route={route}
           state={experienceState}
@@ -144,7 +152,7 @@ export function TrackerShell({
         />
 
         <div className="space-y-6">
-          <article className="rounded-[2rem] border border-border bg-background p-8 shadow-[0_16px_60px_rgba(10,10,10,0.04)] md:p-10">
+          <article className="rounded-4xl border border-border bg-background p-8 shadow-[0_16px_60px_rgba(10,10,10,0.04)] md:p-10">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Checkpoint list</p>
@@ -168,10 +176,12 @@ export function TrackerShell({
 
             <div className="mt-8 grid gap-4">
               {checkpoints.map((checkpoint, index) => {
+                const isStart = index === 0;
+                const isFinish = index === checkpoints.length - 1;
                 const active =
                   latestUpdate?.nextCheckpoint === checkpoint.name ||
-                  (experienceState === "pre_ride" && index === 0) ||
-                  (experienceState === "finished" && index === checkpoints.length - 1);
+                  (experienceState === "pre_ride" && isStart) ||
+                  (experienceState === "finished" && isFinish);
                 const passed = latestUpdate ? latestUpdate.kmCompleted >= checkpoint.km : false;
 
                 return (
@@ -201,15 +211,15 @@ export function TrackerShell({
                     <div className="flex flex-col items-start justify-between gap-2 md:items-end">
                       <span className={active ? "text-background/70" : "text-muted-foreground"}>{checkpoint.distanceLabel}</span>
                       <span className="rounded-full border border-current/15 px-3 py-1 text-xs uppercase tracking-[0.18em]">
-                        {active
-                          ? experienceState === "finished"
+                        {isStart
+                          ? "Start"
+                          : isFinish
                             ? "Finish"
-                            : experienceState === "pre_ride"
-                              ? "Start"
-                              : "Next"
-                          : passed
-                            ? "Passed"
-                            : "Ahead"}
+                            : active
+                              ? "Next"
+                              : passed
+                                ? "Passed"
+                                : "Ahead"}
                       </span>
                     </div>
                   </div>
@@ -218,7 +228,7 @@ export function TrackerShell({
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-border bg-background p-8 shadow-[0_16px_60px_rgba(10,10,10,0.04)] md:p-10">
+          <article className="rounded-4xl border border-border bg-background p-8 shadow-[0_16px_60px_rgba(10,10,10,0.04)] md:p-10">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Ride signal</p>

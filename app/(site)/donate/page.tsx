@@ -17,13 +17,13 @@ export default async function DonatePage() {
   return (
     <main className="bg-background pb-24 pt-36 md:pt-44">
       <div className="container-shell px-6 md:px-12 lg:px-20">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="space-y-10">
             <div className="ring-token w-fit">
               <HeartHandshake size={14} className="text-accent" /> Donate
             </div>
             <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6.5vw]">
-              Help turn a two-city ride into <span className="display-italic">direct</span> mental health support.
+              Turn an Ottawa → Montreal ride into <span className="display-italic">direct</span> mental health support.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">{donate.story}</p>
 
@@ -43,7 +43,7 @@ export default async function DonatePage() {
             </div>
           </section>
 
-          <aside className="grain-bg overflow-hidden rounded-[2rem] border border-foreground/10 bg-foreground p-8 text-background md:p-12">
+          <aside className="grain-bg overflow-hidden self-start rounded-4xl border border-foreground/10 bg-foreground p-8 text-background lg:sticky lg:top-32 md:p-12">
             <p className="ring-token border-white/15 bg-white/10 text-white/80">Where funds go</p>
             <div className="mt-8 space-y-7">
               {donate.fundAllocation.map((item) => (
@@ -69,8 +69,8 @@ export default async function DonatePage() {
         </div>
 
         {donationEmbedUrl ? (
-          <section className="mt-16 rounded-[2rem] border border-border bg-surface p-4 md:p-6">
-            <div className="aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-white">
+          <section className="mt-16 rounded-4xl border border-border bg-surface p-4 md:p-6">
+            <div className="aspect-16/10 overflow-hidden rounded-3xl bg-white">
               <iframe
                 title="Donation platform"
                 src={donationEmbedUrl}

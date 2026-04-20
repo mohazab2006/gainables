@@ -70,7 +70,7 @@ export function DonationsStrip({
             <Link href={donationUrl} className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
               Donate now
             </Link>
-            <Link href="/donate" className="pill-ghost">
+            <Link href="/faq" className="pill-ghost">
               Learn more
             </Link>
           </div>

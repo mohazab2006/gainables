@@ -37,8 +37,8 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
             data-reveal
             className="mt-8 max-w-2xl font-serif text-xl leading-[1.4] text-muted-foreground md:text-2xl"
           >
-            The first sponsors on this page will be part of the campaign story —
-            tied to every kilometre, every update, every donor moment from Ottawa to Montreal.
+            This campaign is supported by a growing network of partners.
+            Sponsors are integrated across jerseys, the website, social media content, and campaign materials — from Ottawa to Montreal.
           </p>
 
           <div data-reveal className="mt-10 flex flex-wrap gap-3">
@@ -66,7 +66,7 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
       <div className="container-shell">
         <div ref={head} className="flex items-baseline justify-between gap-6">
           <p data-reveal className="eyebrow">Sponsors</p>
-          <p data-reveal className="eyebrow text-foreground/50">Partners making it possible</p>
+          <p data-reveal className="eyebrow text-foreground/50">A growing network of partners</p>
         </div>
 
         {/* Names-only ticker — sponsor name in Anton uppercase, scrolls infinitely */}
@@ -90,10 +90,16 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
           </div>
         </div>
 
-        {/* Logo grid — clickable, float-hover */}
-        <div className="mt-20 grid grid-cols-1 gap-x-10 gap-y-20 sm:grid-cols-2 md:grid-cols-3 md:gap-x-14 lg:grid-cols-4">
+        {/* Logo grid — flex-wrap so an incomplete last row centers naturally
+            instead of sticking to the left like a strict grid would. */}
+        <div className="mt-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-20 md:gap-x-14">
           {visible.map((sponsor) => (
-            <SponsorLogo key={sponsor.id} sponsor={sponsor} />
+            <div
+              key={sponsor.id}
+              className="flex w-full justify-center sm:w-[calc(50%-1.25rem)] md:w-[calc(33.333%-2.333rem)] lg:w-[calc(25%-2.625rem)]"
+            >
+              <SponsorLogo sponsor={sponsor} />
+            </div>
           ))}
         </div>
       </div>
