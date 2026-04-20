@@ -7,15 +7,50 @@ export function SignupStrip() {
   const ref = useReveal<HTMLDivElement>({ y: 24, stagger: 0.06 });
 
   return (
-    <section id="signup" className="relative bg-background px-6 py-20 md:px-12 md:py-24 lg:px-20">
-      <div ref={ref} className="container-shell grid gap-10 border-y border-white/10 py-16 md:grid-cols-[1fr_auto] md:items-center md:gap-20">
-        <div data-reveal>
-          <p className="eyebrow">Live updates</p>
-          <h2 className="mt-5 display-hero text-4xl md:text-6xl">
+    <section
+      id="signup"
+      className="relative overflow-hidden bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20"
+    >
+      {/* Soft accent glow so the section reads as a destination, not a footnote. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-[420px] max-w-[900px] opacity-60 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 0%, rgba(200,226,92,0.18), transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/15 to-transparent"
+      />
+
+      <div ref={ref} className="container-shell relative">
+        <div className="mx-auto max-w-3xl text-center">
+          <p data-reveal className="eyebrow">
+            <span className="inline-flex items-center gap-2">
+              <span className="relative inline-flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              Live updates
+            </span>
+          </p>
+          <h2
+            data-reveal
+            className="mt-6 display-hero text-5xl md:text-7xl lg:text-[5.5rem]"
+          >
             A quiet update <span className="display-italic text-muted-foreground">before</span> ride day.
           </h2>
+          <p
+            data-reveal
+            className="mx-auto mt-6 max-w-xl text-base leading-7 text-muted-foreground md:text-lg md:leading-8"
+          >
+            Drop your email — we&apos;ll send the campaign launch, the morning the ride starts, and a quick recap when it&apos;s done. That&apos;s it.
+          </p>
         </div>
-        <div data-reveal className="w-full md:min-w-[420px] md:max-w-[460px]">
+
+        <div data-reveal className="mx-auto mt-12 w-full max-w-2xl md:mt-16">
           <EmailSignupForm />
         </div>
       </div>

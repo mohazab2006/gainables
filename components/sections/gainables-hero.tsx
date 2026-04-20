@@ -80,20 +80,17 @@ export function GainablesHero({ hero, donationUrl }: Props) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-background to-transparent" />
       </div>
 
-      {/* Top bar: brand mark (centered) + flanking eyebrows */}
-      <div className="relative flex items-start justify-between">
-        <span data-eyebrow className="eyebrow text-foreground/80">
+      {/* Top bar: brand mark (centered) + flanking eyebrows.
+          3-column grid keeps the mark in the middle column so the side
+          eyebrows can never extend under it on narrow screens. */}
+      <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <span data-eyebrow className="eyebrow min-w-0 truncate text-foreground/80">
           {hero.eyebrow ?? "Ride for Mental Health"}
         </span>
 
-        {/* Absolute-centered brand mark. Transparent-bg PNG so we don't
-            need mix-blend tricks — just paint it directly with a soft,
-            understated bloom from layered drop-shadows. */}
-        <div
-          data-hero-mark
-          className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-          aria-hidden
-        >
+        {/* Centered brand mark. Transparent-bg PNG with a soft, understated
+            bloom from layered drop-shadows. */}
+        <div data-hero-mark className="pointer-events-none relative z-10" aria-hidden>
           {/* Subtle ambient halo — well outside the mark's bounding box so
               it stays a soft glow, not a hot ring around the logo. */}
           <div
@@ -104,13 +101,13 @@ export function GainablesHero({ hero, donationUrl }: Props) {
                 "radial-gradient(closest-side, rgba(255,255,255,0.28), rgba(255,255,255,0.06) 45%, transparent 78%)",
             }}
           />
-          <div className="relative h-16 w-16 md:h-20 md:w-20">
+          <div className="relative h-14 w-14 md:h-20 md:w-20">
             <Image
               src="/gainables-mark.png"
               alt="Gainables"
               fill
               priority
-              sizes="80px"
+              sizes="(min-width: 768px) 80px, 56px"
               className="object-contain"
               style={{
                 filter:
@@ -120,7 +117,9 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           </div>
         </div>
 
-        <span data-eyebrow className="eyebrow hidden md:inline">Ottawa → Montreal · 200 km</span>
+        <span data-eyebrow className="eyebrow hidden text-right md:inline">
+          Ottawa → Montreal · 200 km
+        </span>
       </div>
 
       {/* The massive wordmark — edge to edge. The overflow-hidden mask gets
