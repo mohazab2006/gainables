@@ -67,6 +67,8 @@ export default async function HomePage() {
         kmCompleted={latestUpdate.kmCompleted}
         currentLocation={latestUpdate.location}
         donationUrl={content.donationUrl}
+        trackerStatus={content.trackerStatus}
+        rideDate={content.rideDate}
       />
 
       {/* 3. Donations — live counter + CTA */}
@@ -76,6 +78,8 @@ export default async function HomePage() {
         goalAmount={content.donationTotals.goalAmount}
         donorCount={content.donationTotals.donorCount}
         currency={content.donationTotals.currency}
+        trackerStatus={content.trackerStatus}
+        rideDate={content.rideDate}
       />
 
       {/* 4. Mission */}

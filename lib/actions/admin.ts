@@ -111,6 +111,39 @@ export async function upsertSiteContentSection(formData: FormData) {
   redirectWithMessage(path, "success", `Saved ${key.replaceAll("_", " ")}.`);
 }
 
+const trackerStatusLabels: Record<"pre_ride" | "live" | "finished", string> = {
+  pre_ride: "Pre-ride preview",
+  live: "Live — ride day is on",
+  finished: "Ride complete",
+};
+
+export async function setTrackerStatus(formData: FormData) {
+  await requireAuthorizedAdmin("/admin");
+
+  const status = String(formData.get("status") ?? "");
+  if (!["pre_ride", "live", "finished"].includes(status)) {
+    redirectWithMessage("/admin", "error", "Invalid ride mode.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  const { error } = await supabase.from("site_content").upsert({
+    key: "tracker_status",
+    value: status,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    redirectWithMessage("/admin", "error", `Unable to update ride mode: ${error.message}`);
+  }
+
+  updateTag(CACHE_TAGS.siteContent);
+  refreshPublicSite();
+  revalidatePath("/admin");
+  revalidatePath("/admin/content");
+  const label = trackerStatusLabels[status as keyof typeof trackerStatusLabels];
+  redirectWithMessage("/admin", "success", `Ride mode set to ${label}.`);
+}
+
 export async function createSponsor(formData: FormData) {
   await requireAuthorizedAdmin("/admin/sponsors");
 

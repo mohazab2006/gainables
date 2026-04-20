@@ -1,23 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
-import { ScrollTrigger, useGSAP } from "@/lib/gsap";
-import type { RouteContent } from "@/lib/fallback-content";
+import { gsap, useGSAP } from "@/lib/gsap";
+import type { RouteContent, TrackerStatus } from "@/lib/fallback-content";
 
 type BikerTimelineProps = {
   route: RouteContent;
-  /** Live progress from the snapshot. Currently ignored — the visual is
-   *  driven by scroll position until the live-sync integration lands.
-   *  Kept on the prop list so the data layer doesn't need to change. */
+  /** Live progress (0..100) derived from the latest ride update. Only used in
+   *  `live` mode — pre_ride drives a local loop, finished pins to 100. */
   progressPercent: number;
-  /** Kept for future telemetry display (pace, ETA) — not currently rendered. */
+  /** Real-world km covered. Only shown in `live` / `finished`. */
   kmCompleted?: number;
-  /** Fallback "Currently" label if the user hasn't scrolled into the
-   *  section yet. Once they do, the city is derived from scroll position. */
+  /** Real-world "Currently X" label from the latest update. Live mode only. */
   currentLocation: string;
   donationUrl: string;
+  trackerStatus: TrackerStatus;
+  /** ISO timestamp of ride day — drives the pre-ride countdown + "Ride day" label. */
+  rideDate: string;
 };
 
 // Single source of truth for the route curve. Used by the SVG <path>,
@@ -25,64 +26,127 @@ type BikerTimelineProps = {
 const ROUTE_PATH_D = "M 40 110 C 260 110, 380 260, 520 180 S 820 40, 960 130";
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 240;
-const LABEL_BASELINE_Y = 220; // fixed y for milestone labels, below the curve
+const LABEL_BASELINE_Y = 220;
+
+const PRE_RIDE_LOOP_SECONDS = 8;
+const PRE_RIDE_HOLD_SECONDS = 1;
 
 export function BikerTimelineSection({
   route,
-  // Accepted for future live-sync; not currently used for the visual.
-  progressPercent: _liveProgress,
+  progressPercent,
+  kmCompleted,
   currentLocation,
   donationUrl,
+  trackerStatus,
+  rideDate,
 }: BikerTimelineProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  // 0..100, driven by scroll position through the section.
-  const [progress, setProgress] = useState(0);
+  // 0..100 — driven by the mode-dependent effect below.
+  const [progress, setProgress] = useState(() => {
+    if (trackerStatus === "finished") return 100;
+    if (trackerStatus === "live") return Math.max(0, Math.min(100, progressPercent));
+    return 0;
+  });
 
-  // Scroll-scrubbed progress: as the user scrolls through the timeline
-  // section, the cyclist + city dots advance from Ottawa (0) to Montreal
-  // (100). Scrub smoothing makes the motion feel inertial instead of
-  // pixel-perfect to the wheel events.
+  // Pre-ride: run a looping GSAP timeline that drives a local 0 -> 100
+  // value, holds at the end, resets, repeats. Respects reduced motion
+  // (falls back to a static mid-route preview).
   useGSAP(
     () => {
-      if (!sectionRef.current) return;
-      const st = ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top 75%",
-        end: "bottom 25%",
-        scrub: 0.6,
-        onUpdate: (self) => {
-          setProgress(self.progress * 100);
-        },
-      });
+      if (trackerStatus !== "pre_ride") return;
+
+      const mediaQuery =
+        typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+      if (mediaQuery?.matches) {
+        setProgress(42);
+        return;
+      }
+
+      const state = { value: 0 };
+      setProgress(0);
+      const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
+      tl.to(state, {
+        value: 100,
+        duration: PRE_RIDE_LOOP_SECONDS,
+        ease: "power2.inOut",
+        onUpdate: () => setProgress(state.value),
+      })
+        .to(state, { value: 100, duration: PRE_RIDE_HOLD_SECONDS })
+        .set(state, { value: 0, onComplete: () => setProgress(0) });
+
       return () => {
-        st.kill();
+        tl.kill();
       };
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [trackerStatus] },
   );
+
+  // Live: ease the on-screen bar to the real progressPercent whenever it
+  // changes (Realtime subscription updates can make it jump — smooth it).
+  useGSAP(
+    () => {
+      if (trackerStatus !== "live") return;
+      const target = Math.max(0, Math.min(100, progressPercent));
+      const state = { value: progress };
+      const tween = gsap.to(state, {
+        value: target,
+        duration: 1.2,
+        ease: "power2.out",
+        onUpdate: () => setProgress(state.value),
+      });
+      return () => {
+        tween.kill();
+      };
+    },
+    { scope: sectionRef, dependencies: [trackerStatus, progressPercent] },
+  );
+
+  // Finished: pin to 100.
+  useEffect(() => {
+    if (trackerStatus === "finished") setProgress(100);
+  }, [trackerStatus]);
 
   const clamped = Math.max(0, Math.min(100, progress));
 
   const startCp = route.checkpoints[0];
   const endCp = route.checkpoints.at(-1);
   const midCheckpoints = route.checkpoints.slice(1, -1);
-  const displayedKm = Math.round((clamped / 100) * route.totalDistanceKm);
 
-  const midWithPercent = midCheckpoints.map((cp) => ({
-    name: cp.name,
-    km: cp.km,
-    pct: Math.max(0, Math.min(100, (cp.km / route.totalDistanceKm) * 100)),
-  }));
-
-  // Derive the "currently in" city from scroll: most recently passed
-  // checkpoint. Falls back to the prop before the user reaches the section.
-  const passedCheckpoints = route.checkpoints.filter(
-    (cp) => (cp.km / route.totalDistanceKm) * 100 <= clamped + 0.001,
+  const midWithPercent = useMemo(
+    () =>
+      midCheckpoints.map((cp) => ({
+        name: cp.name,
+        km: cp.km,
+        pct: Math.max(0, Math.min(100, (cp.km / Math.max(route.totalDistanceKm, 1)) * 100)),
+      })),
+    [midCheckpoints, route.totalDistanceKm],
   );
-  const liveCity =
-    clamped <= 0
-      ? currentLocation
-      : passedCheckpoints.at(-1)?.name ?? currentLocation;
+
+  const rideDay = useMemo(() => formatRideDay(rideDate), [rideDate]);
+  const countdown = useRideDayCountdown(rideDate, trackerStatus === "pre_ride");
+
+  // Panel copy — what the right-side "Currently" block shows. Pre-ride
+  // never claims to be tracking; live reads the real update.
+  const panel = describePanel({
+    trackerStatus,
+    currentLocation,
+    kmCompleted: kmCompleted ?? 0,
+    totalDistanceKm: route.totalDistanceKm,
+    rideDay,
+    countdown,
+  });
+
+  // Bottom stat grid (Progress / Distance / Status).
+  const stats = describeStats({
+    trackerStatus,
+    clamped,
+    kmCompleted: kmCompleted ?? 0,
+    totalDistanceKm: route.totalDistanceKm,
+    checkpointCount: route.checkpoints.length,
+    rideDay,
+    countdown,
+  });
 
   return (
     <section
@@ -93,15 +157,15 @@ export function BikerTimelineSection({
       <div className="container-shell">
         <div className="grid gap-10 md:grid-cols-[auto_1fr] md:items-end md:justify-between">
           <div>
-            <p className="eyebrow">Live tracker</p>
+            <p className="eyebrow">{panel.eyebrow}</p>
             <h2 className="mt-5 display-hero text-6xl md:text-8xl lg:text-[9rem]">
               Ottawa <span className="display-italic text-muted-foreground">to</span> Montreal
             </h2>
           </div>
           <div className="flex flex-col gap-1 text-right font-sans text-sm text-muted-foreground md:max-w-xs">
-            <span className="eyebrow text-foreground/60">Currently</span>
-            <span className="text-lg text-foreground">{liveCity}</span>
-            <span>{displayedKm} km of {route.totalDistanceKm} km</span>
+            <span className="eyebrow text-foreground/60">{panel.label}</span>
+            <span className="text-lg text-foreground">{panel.primary}</span>
+            <span>{panel.secondary}</span>
           </div>
         </div>
 
@@ -118,30 +182,35 @@ export function BikerTimelineSection({
 
         <div className="mt-24 grid gap-10 border-t border-white/10 pt-10 md:mt-32 md:grid-cols-3">
           <div>
-            <p className="eyebrow">Progress</p>
+            <p className="eyebrow">{stats.progress.label}</p>
             <p className="mt-4 font-display text-7xl leading-none tracking-tight md:text-8xl">
-              {clamped.toFixed(1)}
-              <span className="text-muted-foreground">%</span>
+              {stats.progress.main}
+              {stats.progress.suffix ? (
+                <span className="text-muted-foreground">{stats.progress.suffix}</span>
+              ) : null}
             </p>
           </div>
           <div>
-            <p className="eyebrow">Distance</p>
+            <p className="eyebrow">{stats.distance.label}</p>
             <p className="mt-4 font-display text-7xl leading-none tracking-tight md:text-8xl">
-              {displayedKm}
-              <span className="text-muted-foreground text-4xl md:text-5xl"> km</span>
+              {stats.distance.main}
+              {stats.distance.suffix ? (
+                <span className="text-muted-foreground text-4xl md:text-5xl"> {stats.distance.suffix}</span>
+              ) : null}
             </p>
           </div>
           <div className="flex flex-col justify-between gap-6">
             <div>
               <p className="eyebrow">Status</p>
-              <p className="mt-4 font-display text-3xl tracking-tight md:text-4xl">
-                {clamped <= 0 ? "Pre-ride" : clamped >= 100 ? "Complete" : "On route"}
-              </p>
+              <p className="mt-4 font-display text-3xl tracking-tight md:text-4xl">{stats.status.main}</p>
+              {stats.status.detail ? (
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{stats.status.detail}</p>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-3">
               <Link href="/track" className="pill-ghost">Full tracker</Link>
               <Link
-                href="/donate"
+                href={donationUrl || "/donate"}
                 className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
               >
                 Donate
@@ -153,6 +222,145 @@ export function BikerTimelineSection({
     </section>
   );
 }
+
+// --- copy helpers ---------------------------------------------------------
+
+type PanelCopy = {
+  eyebrow: string;
+  label: string;
+  primary: string;
+  secondary: string;
+};
+
+function describePanel(args: {
+  trackerStatus: TrackerStatus;
+  currentLocation: string;
+  kmCompleted: number;
+  totalDistanceKm: number;
+  rideDay: string;
+  countdown: string;
+}): PanelCopy {
+  const { trackerStatus, currentLocation, kmCompleted, totalDistanceKm, rideDay, countdown } = args;
+
+  if (trackerStatus === "live") {
+    return {
+      eyebrow: "Live tracker",
+      label: "Currently",
+      primary: currentLocation,
+      secondary: `${Math.round(kmCompleted)} km of ${totalDistanceKm} km`,
+    };
+  }
+
+  if (trackerStatus === "finished") {
+    return {
+      eyebrow: "Ride complete",
+      label: "Finished",
+      primary: "Montreal",
+      secondary: `${totalDistanceKm} km · thank you`,
+    };
+  }
+
+  return {
+    eyebrow: "Ride preview",
+    label: "Ride day",
+    primary: rideDay,
+    secondary: countdown,
+  };
+}
+
+type StatCopy = {
+  progress: { label: string; main: string; suffix?: string };
+  distance: { label: string; main: string; suffix?: string };
+  status: { main: string; detail?: string };
+};
+
+function describeStats(args: {
+  trackerStatus: TrackerStatus;
+  clamped: number;
+  kmCompleted: number;
+  totalDistanceKm: number;
+  checkpointCount: number;
+  rideDay: string;
+  countdown: string;
+}): StatCopy {
+  const {
+    trackerStatus,
+    clamped,
+    kmCompleted,
+    totalDistanceKm,
+    checkpointCount,
+    rideDay,
+    countdown,
+  } = args;
+
+  if (trackerStatus === "live") {
+    return {
+      progress: { label: "Progress", main: clamped.toFixed(1), suffix: "%" },
+      distance: { label: "Distance", main: String(Math.round(kmCompleted)), suffix: "km" },
+      status: { main: clamped >= 100 ? "Complete" : "On route", detail: "Live signal from the road." },
+    };
+  }
+
+  if (trackerStatus === "finished") {
+    return {
+      progress: { label: "Progress", main: "100", suffix: "%" },
+      distance: { label: "Distance", main: String(totalDistanceKm), suffix: "km" },
+      status: { main: "Ride complete", detail: "Thanks for riding with us." },
+    };
+  }
+
+  return {
+    progress: { label: "Ride day", main: rideDay },
+    distance: {
+      label: "Route",
+      main: String(totalDistanceKm),
+      suffix: `km · ${checkpointCount} checkpoints`,
+    },
+    status: {
+      main: "Pre-ride",
+      detail: `${countdown} · Live tracking activates on ride day.`,
+    },
+  };
+}
+
+// --- date / countdown -----------------------------------------------------
+
+function formatRideDay(iso: string) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "TBA";
+  return new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric" }).format(date);
+}
+
+function useRideDayCountdown(iso: string, enabled: boolean) {
+  const [label, setLabel] = useState("Tracker activates on ride day");
+
+  useEffect(() => {
+    if (!enabled) return;
+    const update = () => setLabel(buildCountdown(iso, Date.now()));
+    update();
+    const id = window.setInterval(update, 60_000);
+    return () => window.clearInterval(id);
+  }, [iso, enabled]);
+
+  return label;
+}
+
+function buildCountdown(iso: string, nowMs: number) {
+  const target = new Date(iso).getTime();
+  if (Number.isNaN(target)) return "Ride day coming soon";
+  const diff = target - nowMs;
+  if (diff <= 0) return "Ride day is here";
+
+  const totalMinutes = Math.floor(diff / 60000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) return `${days}d ${hours}h until rollout`;
+  return `${hours}h ${minutes}m until rollout`;
+}
+
+// --- curve + cyclist ------------------------------------------------------
 
 type MidCheckpoint = { name: string; km: number; pct: number };
 
@@ -196,9 +404,7 @@ function RouteCurve({
           strokeLinecap="round"
         />
 
-        {/* Completed portion — no CSS transition: the value is already
-            scroll-scrubbed by GSAP, so we want the stroke to track scroll
-            position 1:1 instead of lagging behind a CSS interpolation. */}
+        {/* Completed portion */}
         <path
           d={ROUTE_PATH_D}
           fill="none"
@@ -209,11 +415,9 @@ function RouteCurve({
           strokeDasharray={`${progressPercent} 100`}
         />
 
-        {/* Endpoint pins */}
         <circle cx="40" cy="110" r="4" fill="white" />
         <circle cx="960" cy="130" r="4" fill="white" />
 
-        {/* Milestone dots — on the curve, drop-line + label on fixed baseline */}
         {dots.map((d) => {
           const reached = progressPercent >= d.pct;
           return (
@@ -254,22 +458,11 @@ function RouteCurve({
         })}
       </svg>
 
-      {/* Biker — rides the same path; sits above the SVG in its own layer */}
       <Cyclist progressPercent={progressPercent} />
     </div>
   );
 }
 
-/**
- * Cyclist rides along the route via CSS offset-path. The wrapper is
- * sized to the SVG viewBox (via the parent's aspect-ratio), and we use
- * a container-query unit to scale the motion path to the rendered size
- * so percentages map 1:1 with the drawn curve.
- *
- * The position itself is scroll-scrubbed (GSAP smooths it upstream),
- * so we don't add a CSS transition on offset-distance — that would
- * cause the cyclist to lag the scroll instead of riding it.
- */
 function Cyclist({ progressPercent }: { progressPercent: number }) {
   return (
     <div
@@ -295,7 +488,6 @@ function Cyclist({ progressPercent }: { progressPercent: number }) {
   );
 }
 
-/** Stylized SVG cyclist silhouette. Slated for a revamp later. */
 function CyclistIcon() {
   return (
     <svg

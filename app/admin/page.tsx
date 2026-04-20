@@ -3,11 +3,14 @@ import Link from "next/link";
 import { ArrowUpRight, FileText, HelpCircle, Mail, Radio, Sparkles, Users } from "lucide-react";
 
 import { AdminFlashBanner } from "@/components/admin/flash-banner";
+import { RideModeCard } from "@/components/admin/ride-mode-card";
 import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { TrackerReadiness } from "@/components/operations/tracker-readiness";
+import { setTrackerStatus } from "@/lib/actions/admin";
 import { signInAdmin, signOutAdmin } from "@/lib/actions/admin-auth";
 import { getAdminSession } from "@/lib/admin/auth";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
+import { getSiteContent } from "@/lib/content";
 import { getOverlandSetupLink, getTrackerReadiness, hasSupabaseEnv } from "@/lib/env";
 
 type AdminPageProps = {
@@ -70,6 +73,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   // 4) Authorized — the real dashboard.
+  const content = await getSiteContent();
+
   return (
     <main className="px-6 pb-24 pt-12 md:px-12 md:pt-16 lg:px-20">
       <div className="mx-auto max-w-7xl">
@@ -115,6 +120,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             })}
           </div>
         </section>
+
+        <div className="mt-10">
+          <RideModeCard current={content.trackerStatus} action={setTrackerStatus} />
+        </div>
 
         <div className="mt-10">
           <TrackerReadiness
