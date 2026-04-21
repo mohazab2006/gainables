@@ -50,7 +50,7 @@ export function GainablesHero({ hero, donationUrl }: Props) {
         </div>
       )}
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl pb-10 md:pb-16">
+      <div className="relative z-10 mx-auto w-full max-w-6xl pt-24 pb-10 md:pt-0 md:pb-16">
         <div className="max-w-5xl">
           <div className="relative mb-6 h-14 w-14 md:mb-8 md:h-20 md:w-20">
             <Image
