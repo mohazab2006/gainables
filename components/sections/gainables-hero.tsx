@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
-import { gsap, useGSAP } from "@/lib/gsap";
 import type { HeroContent } from "@/lib/fallback-content";
 
 type Props = {
@@ -14,38 +14,6 @@ type Props = {
 export function GainablesHero({ hero, donationUrl }: Props) {
   const root = useRef<HTMLElement>(null);
   const donationHref = donationUrl || "/donate";
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add(
-        {
-          motionOk: "(prefers-reduced-motion: no-preference)",
-          reduce: "(prefers-reduced-motion: reduce)",
-        },
-        (ctx) => {
-          const reduce = ctx.conditions?.reduce;
-          const tl = gsap.timeline({
-            defaults: { ease: "expo.out", duration: reduce ? 0 : 1.1 },
-          });
-
-          tl.from("[data-hero-bg]", {
-            autoAlpha: 0,
-            scale: 1.03,
-            duration: reduce ? 0 : 1.2,
-            ease: "expo.out",
-          })
-            .from("[data-hero-title]", { autoAlpha: 0, y: 16, duration: 0.6 }, "-=0.8")
-            .from("[data-tagline]", { autoAlpha: 0, y: 18, duration: 0.7 }, "-=0.35")
-            .from("[data-hero-cta]", { autoAlpha: 0, y: 12, stagger: 0.08, duration: 0.45 }, "-=0.3")
-            .from("[data-hero-meta]", { autoAlpha: 0, y: 10, duration: 0.45 }, "-=0.2");
-        },
-      );
-
-      return () => mm.revert();
-    },
-    { scope: root },
-  );
 
   return (
     <section
@@ -72,8 +40,8 @@ export function GainablesHero({ hero, donationUrl }: Props) {
               className="h-full w-full object-cover"
             />
           )}
-          <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.32)_40%,rgba(0,0,0,0.68)_100%)]" />
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.26),rgba(0,0,0,0.42)_40%,rgba(0,0,0,0.76)_100%)]" />
         </div>
       ) : (
         <div aria-hidden data-hero-bg className="absolute inset-0 -z-20">
@@ -84,6 +52,20 @@ export function GainablesHero({ hero, donationUrl }: Props) {
 
       <div className="relative z-10 mx-auto w-full max-w-6xl pb-10 md:pb-16">
         <div className="max-w-5xl">
+          <div className="relative mb-6 h-14 w-14 md:mb-8 md:h-20 md:w-20">
+            <Image
+              src="/gainables-mark.png"
+              alt="Gainables"
+              fill
+              priority
+              sizes="(min-width: 768px) 80px, 56px"
+              className="object-contain"
+              style={{
+                filter:
+                  "drop-shadow(0 0 8px rgba(255,255,255,0.22)) drop-shadow(0 0 22px rgba(255,255,255,0.12))",
+              }}
+            />
+          </div>
           <h1 data-hero-title className="display-hero text-5xl text-white md:text-7xl lg:text-8xl">
             Ride for Mental Health
           </h1>
@@ -97,21 +79,21 @@ export function GainablesHero({ hero, donationUrl }: Props) {
             <Link
               data-hero-cta
               href={donationHref}
-              className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
+              className="inline-flex items-center justify-center rounded-full bg-accent px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-accent-foreground transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
             >
               Donate now
             </Link>
             <Link
               data-hero-cta
               href="#track"
-              className="pill-ghost border-white/25 bg-white/8 text-white hover:bg-white/14"
+              className="inline-flex items-center justify-center rounded-full border border-white/35 bg-black/30 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/16"
             >
               Track the ride
             </Link>
             <Link
               data-hero-cta
               href="#signup"
-              className="pill-ghost border-white/25 bg-white/8 text-white hover:bg-white/14"
+              className="inline-flex items-center justify-center rounded-full border border-white/35 bg-black/30 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/16"
             >
               Subscribe for updates
             </Link>
