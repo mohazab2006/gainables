@@ -6,7 +6,7 @@ import { AdminSubmitButton } from "@/components/admin/submit-button";
 import { createRideUpdate, deleteRideUpdate, updateRideUpdate } from "@/lib/actions/admin";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { resolveAdminFlashState, type AdminSearchParams } from "@/lib/admin/page-state";
-import { getRideUpdates } from "@/lib/content";
+import { getAdminRideUpdates } from "@/lib/content";
 
 type AdminUpdatesPageProps = {
   searchParams?: AdminSearchParams;
@@ -15,7 +15,7 @@ type AdminUpdatesPageProps = {
 export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPageProps) {
   await connection();
   await requireAuthorizedAdmin();
-  const updates = await getRideUpdates();
+  const updates = await getAdminRideUpdates();
   const canEdit = true;
   const { message, type } = await resolveAdminFlashState(searchParams);
 
@@ -65,6 +65,11 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
         </form>
 
         <section className="space-y-4">
+          {updates.length === 0 ? (
+            <div className="rounded-[1.75rem] border border-dashed border-border bg-background/50 p-8 text-center text-sm text-muted-foreground">
+              No ride updates yet. Use the form above to post the first update — it will appear here and on the public feed.
+            </div>
+          ) : null}
           {updates.map((update) => (
             <article key={update.id} className="rounded-[1.75rem] border border-border bg-background p-6">
               <form action={updateRideUpdate}>

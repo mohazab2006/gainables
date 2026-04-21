@@ -40,19 +40,13 @@ async function getCachedSiteContent(): Promise<SiteContent> {
     return {
       ...fallbackSiteContent,
       hero: readValue(map, "hero", fallbackSiteContent.hero),
-      stats: readValue(map, "stats", fallbackSiteContent.stats),
       whyItMatters: readValue(map, "why_it_matters", fallbackSiteContent.whyItMatters),
-      about: readValue(map, "about", fallbackSiteContent.about),
       route: normalizeRouteContent(readValue(map, "route", fallbackSiteContent.route), fallbackSiteContent.route),
-      pillars: readValue(map, "pillars", fallbackSiteContent.pillars),
-      gallery: readValue(map, "gallery", fallbackSiteContent.gallery),
-      causePartner: readValue(map, "cause_partner", fallbackSiteContent.causePartner),
       media: readValue(map, "media", fallbackSiteContent.media),
       donate: readValue(map, "donate", fallbackSiteContent.donate),
       donationTotals: readValue(map, "donation_totals", fallbackSiteContent.donationTotals),
       donationUrl: readValue(map, "donation_url", fallbackSiteContent.donationUrl),
       donationEmbedUrl: readValue(map, "donation_embed_url", fallbackSiteContent.donationEmbedUrl),
-      trackerEmbedUrl: readValue(map, "tracker_embed_url", fallbackSiteContent.trackerEmbedUrl),
       trackerStatus: readValue(map, "tracker_status", fallbackSiteContent.trackerStatus),
       rideDate: readValue(map, "ride_date", fallbackSiteContent.rideDate),
     };
@@ -134,6 +128,31 @@ async function getCachedAllSponsors(): Promise<Sponsor[]> {
 
 export async function getRideUpdates(): Promise<RideUpdate[]> {
   return getCachedRideUpdates();
+}
+
+/**
+ * Admin-only getter: returns real Supabase rows with no fallback placeholder
+ * injection. The public `getRideUpdates()` seeds a synthetic "update-initial"
+ * row so the public feed never looks empty — but that row has a non-UUID id,
+ * so any admin edit/delete against it hits a Postgres uuid cast error. Admin
+ * screens must only see rows that actually exist in the database.
+ */
+export async function getAdminRideUpdates(): Promise<RideUpdate[]> {
+  if (!hasSupabaseEnv()) return [];
+
+  try {
+    const supabase = createSupabasePublicClient();
+    const { data, error } = await supabase
+      .from("ride_updates")
+      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng")
+      .order("created_at", { ascending: false });
+
+    if (error || !data) return [];
+
+    return data.map((row) => mapRideUpdate(row, { lat: 0, lng: 0 }));
+  } catch {
+    return [];
+  }
 }
 
 async function getCachedRideUpdates(): Promise<RideUpdate[]> {

@@ -8,7 +8,7 @@ const config = [
   ...nextCoreWebVitals,
   ...nextTypeScript,
   {
-    files: ["app/admin/sponsors/page.tsx", "components/sections/sponsors.tsx"],
+    files: ["app/admin/sponsors/page.tsx"],
     rules: {
       "@next/next/no-img-element": "off",
     },

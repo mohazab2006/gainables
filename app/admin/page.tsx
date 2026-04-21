@@ -21,7 +21,7 @@ const quickActions = [
   {
     href: "/admin/content",
     label: "Site content",
-    description: "Hero, mission, route, pillars, gallery, and all section copy.",
+    description: "Hero, mission, contact, donate copy, route data, and ride-day settings.",
     icon: FileText,
   },
   {
@@ -100,7 +100,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <Link
                   key={action.href}
                   href={action.href}
-                  className="group flex flex-col gap-4 rounded-[1.5rem] border border-border bg-surface p-6 transition hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-[0_20px_60px_rgba(14,14,12,0.06)]"
+                  className="group flex flex-col gap-4 rounded-3xl border border-border bg-surface p-6 transition hover:-translate-y-0.5 hover:border-foreground/40 hover:shadow-[0_20px_60px_rgba(14,14,12,0.06)]"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background">
@@ -134,7 +134,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-[2rem] border border-border bg-background p-8">
+          <section className="rounded-4xl border border-border bg-background p-8">
             <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Rider setup link</p>
             <h2 className="mt-4 font-display text-2xl tracking-tight">
               Send this to the lead rider when secrets are live.
@@ -153,7 +153,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             />
           </section>
 
-          <section className="rounded-[2rem] border border-border bg-foreground p-8 text-background">
+          <section className="rounded-4xl border border-border bg-foreground p-8 text-background">
             <p className="text-xs uppercase tracking-[0.28em] text-background/60">Signed in</p>
             <h2 className="mt-4 font-display text-2xl tracking-tight">{session.user.email}</h2>
             <p className="mt-3 max-w-md text-sm leading-7 text-background/70">
@@ -184,7 +184,7 @@ function SignInView({ message, type }: { message: string | null; type: string | 
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center px-6 py-16 md:px-12">
       <div className="w-full max-w-md">
         <AdminFlashBanner message={message} type={type} className="mb-6" />
-        <div className="rounded-[2rem] border border-border bg-surface p-8 md:p-10">
+        <div className="rounded-4xl border border-border bg-surface p-8 md:p-10">
           <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Admin access</p>
           <h1 className="mt-4 font-display text-3xl leading-tight tracking-tight md:text-4xl">
             Sign in to the <span className="display-italic">control room</span>.
@@ -235,7 +235,7 @@ function ForbiddenView({
     <main className="flex min-h-[calc(100vh-88px)] items-center justify-center px-6 py-16 md:px-12">
       <div className="w-full max-w-md">
         <AdminFlashBanner message={message} type={type} className="mb-6" />
-        <div className="rounded-[2rem] border border-red-200 bg-red-50 p-8 md:p-10">
+        <div className="rounded-4xl border border-red-200 bg-red-50 p-8 md:p-10">
           <p className="text-xs uppercase tracking-[0.28em] text-red-700/80">Access denied</p>
           <h1 className="mt-4 font-display text-3xl leading-tight tracking-tight text-red-900 md:text-4xl">
             This email isn't on the allowlist.

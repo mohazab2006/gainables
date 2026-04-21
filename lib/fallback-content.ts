@@ -1,42 +1,14 @@
-export type ImageAsset = {
-  src: string;
-  alt: string;
-};
-
 export type HeroContent = {
   eyebrow: string;
-  title: string;
-  description: string;
-  primaryImage: ImageAsset;
-  sideImages: ImageAsset[];
-  primaryCta: { href: string; label: string };
-  secondaryCta: { href: string; label: string };
-};
-
-export type StatItem = {
-  label: string;
-  value: string;
   description: string;
 };
 
 export type WhyItMattersContent = {
-  eyebrow: string;
   title: string;
   body: string;
-  image: ImageAsset;
-};
-
-export type AboutContent = {
-  eyebrow: string;
-  title: string;
-  body: string;
-  highlights: { label: string; value: string }[];
 };
 
 export type RouteContent = {
-  eyebrow: string;
-  title: string;
-  summary: string;
   totalDistanceKm: number;
   checkpoints: {
     stage: string;
@@ -51,30 +23,13 @@ export type RouteContent = {
   mapCenter: { lat: number; lng: number; zoom: number };
 };
 
-export type Pillar = {
-  kicker: string;
-  title: string;
-  description: string;
-  image: ImageAsset;
-};
-
 export type DonateContent = {
-  bannerTitle: string;
-  bannerBody: string;
   story: string;
   impact: { title: string; description: string }[];
   fundAllocation: { label: string; value: string; description: string }[];
 };
 
-export type CausePartnerContent = {
-  eyebrow: string;
-  quote: string;
-  body: string;
-  image: ImageAsset;
-};
-
 export type MediaContent = {
-  title: string;
   body: string;
   links: { label: string; handle: string; href: string; description: string }[];
 };
@@ -132,19 +87,13 @@ export type DonationTotals = {
 
 export type SiteContent = {
   hero: HeroContent;
-  stats: StatItem[];
   whyItMatters: WhyItMattersContent;
-  about: AboutContent;
   route: RouteContent;
-  pillars: Pillar[];
-  gallery: ImageAsset[];
-  causePartner: CausePartnerContent;
   media: MediaContent;
   donate: DonateContent;
   donationTotals: DonationTotals;
   donationUrl: string;
   donationEmbedUrl: string | null;
-  trackerEmbedUrl: string | null;
   trackerStatus: TrackerStatus;
   rideDate: string;
 };
@@ -152,55 +101,15 @@ export type SiteContent = {
 export const fallbackSiteContent: SiteContent = {
   hero: {
     eyebrow: "Presented by Gainables",
-    title: "RIDE FOR MENTAL HEALTH",
     description:
       "A community-driven initiative from Gainables during Mental Health Month. The team is cycling Ottawa to Montreal to raise awareness and funds — and to create a moment that encourages connection, conversation, and support.",
-    primaryImage: {
-      src: "/images/ride-2.jpg",
-      alt: "Cyclist on the open road at golden hour",
-    },
-    sideImages: [
-      { src: "/images/ride-1.jpg", alt: "Cyclist gearing up before a long ride" },
-      { src: "/images/ride-3.jpg", alt: "Quiet road stretching toward the horizon" },
-      { src: "/images/cycling-team.jpg", alt: "Cycling team preparing for a group ride" },
-      { src: "/images/cycling-training.jpg", alt: "Cyclist training on the road" },
-    ],
-    primaryCta: { href: "/donate", label: "Donate" },
-    secondaryCta: { href: "/track", label: "Track the ride" },
   },
-  stats: [
-    { label: "Distance", value: "~200 km", description: "A single-day endurance ride from Ottawa to Montreal, documented in real time." },
-    { label: "Window", value: "Mental Health Month", description: "The campaign runs during Mental Health Month to keep the conversation visible." },
-    { label: "Community", value: "0 donors", description: "Supporters, riders, and sponsors moving the campaign forward together." },
-    { label: "Pledged", value: "$0 raised", description: "Every dollar pledged is directed toward mental health services and support programs." },
-  ],
   whyItMatters: {
-    eyebrow: "Why it matters",
     title: "Mental health affects everyone.",
     body:
       "Many people are dealing with stress, burnout, anxiety, and other challenges, often without visible support. This initiative exists to encourage open conversations, show visible support, and bring people together through action.",
-    image: {
-      src: "/images/ride-3.jpg",
-      alt: "Cyclist on a quiet road with mountains in the distance",
-    },
-  },
-  about: {
-    eyebrow: "About the ride",
-    title: "A community-driven initiative from Ottawa to Montreal.",
-    body:
-      "Ride for Mental Health is led by Gainables during Mental Health Month. Through a long-distance cycling journey from Ottawa to Montreal, the campaign raises awareness and funds for mental health while bringing people together through a shared experience — supported by partners, sponsors, and media outreach, and documented across social platforms in real time.",
-    highlights: [
-      { label: "Route", value: "Ottawa → Montreal" },
-      { label: "Distance", value: "~200 km" },
-      { label: "Riders", value: "Gainables team members" },
-      { label: "Format", value: "Endurance ride documented in real time" },
-    ],
   },
   route: {
-    eyebrow: "Route overview",
-    title: "Ottawa to Montreal with visible checkpoints.",
-    summary:
-      "The ride represents discipline, consistency, and pushing through difficulty — values that reflect the mental health journey. Checkpoints along the route give supporters a sense of scale and make the campaign feel concrete before ride day.",
     totalDistanceKm: 200,
     checkpoints: [
       { stage: "Start", name: "Ottawa", km: 0, distanceLabel: "0 km", lat: 45.4215, lng: -75.6972, note: "8:00 AM rollout from downtown Ottawa." },
@@ -225,44 +134,7 @@ export const fallbackSiteContent: SiteContent = {
     ],
     mapCenter: { lat: 45.5, lng: -74.65, zoom: 7.5 },
   },
-  pillars: [
-    {
-      kicker: "Encourage open conversations",
-      title: "Make mental health easier to talk about.",
-      description: "Use the ride as a reason to start honest conversations about stress, burnout, anxiety, and the challenges people carry without visible support.",
-      image: { src: "/images/ride-1.jpg", alt: "Cyclists grouped together before a ride" },
-    },
-    {
-      kicker: "Show visible support",
-      title: "Turn movement into a public stand.",
-      description: "Every kilometre, update, and sponsor moment signals to people quietly struggling that there is a community in their corner.",
-      image: { src: "/images/ride-3.jpg", alt: "Cyclist training solo on a road ride" },
-    },
-    {
-      kicker: "Bring people together through action",
-      title: "Give supporters, sponsors, and riders a shared moment.",
-      description: "Partners, donors, and riders all move the campaign forward together — before, during, and after the ride.",
-      image: { src: "/images/ride-2.jpg", alt: "Cyclists in motion during an organized ride" },
-    },
-  ],
-  gallery: [
-    { src: "/images/ride-2.jpg", alt: "Cyclist on the road at golden hour" },
-    { src: "/images/cycling-team.jpg", alt: "Team photo before a cycling session" },
-    { src: "/images/ride-1.jpg", alt: "Cyclist preparing for a long ride" },
-    { src: "/images/cycling-training.jpg", alt: "Training ride in progress" },
-    { src: "/images/ride-3.jpg", alt: "Open road stretching to the horizon" },
-    { src: "/images/hero-cycling.jpg", alt: "Cyclist leading the route" },
-  ],
-  causePartner: {
-    eyebrow: "Cause partner",
-    quote:
-      "All funds raised are directed toward mental health services and support programs.",
-    body:
-      "This initiative supports mental health programs in partnership with CHEO Foundation. All funds raised are directed toward mental health services and support programs.",
-    image: { src: "/images/ride-2.jpg", alt: "Cycling route image used for cause partner section" },
-  },
   media: {
-    title: "Follow the journey across training, preparation, and ride-day moments.",
     body:
       "The campaign is positioned for strong visibility across both social and traditional media — documented in real time through preparation, challenges, and the real moments behind the initiative.",
     links: [
@@ -287,9 +159,6 @@ export const fallbackSiteContent: SiteContent = {
     ],
   },
   donate: {
-    bannerTitle: "All funds raised go to CHEO Foundation for mental health support.",
-    bannerBody:
-      "Every contribution flows through CHEO Foundation to fund mental health services and programs. Follow the ride, share the campaign, and donate to help make a meaningful impact.",
     story:
       "Donating here is the most direct way to stand with the campaign. All funds raised are directed to CHEO Foundation and go toward mental health services and support programs — helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
     impact: [
@@ -313,7 +182,6 @@ export const fallbackSiteContent: SiteContent = {
   },
   donationUrl: "mailto:admin@gainables.ca?subject=Ride%20for%20Mental%20Health%20Donation",
   donationEmbedUrl: null,
-  trackerEmbedUrl: null,
   trackerStatus: "pre_ride",
   rideDate: "2026-05-14T12:00:00.000Z",
 };
