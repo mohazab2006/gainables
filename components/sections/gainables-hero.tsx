@@ -112,7 +112,7 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           3-column grid keeps the mark in the middle column so the side
           eyebrows can never extend under it on narrow screens. */}
       <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <span data-eyebrow className="eyebrow min-w-0 break-words text-foreground/80">
+        <span data-eyebrow className="eyebrow min-w-0 hidden md:inline text-foreground/80">
           {hero.eyebrow ?? "Ride for Mental Health"}
         </span>
 
