@@ -26,6 +26,9 @@ yarn-error.log*
 # claude code
 .claude/
 
+# supabase cli local state
+supabase/.temp/
+
 # lockfiles (pnpm is the source of truth)
 package-lock.json
 

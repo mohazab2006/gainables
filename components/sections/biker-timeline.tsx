@@ -364,9 +364,9 @@ function buildCountdown(iso: string, nowMs: number) {
 
 // --- curve + cyclist ------------------------------------------------------
 
-type MidCheckpoint = { name: string; km: number; pct: number };
+export type MidCheckpoint = { name: string; km: number; pct: number };
 
-function RouteCurve({
+export function RouteCurve({
   progressPercent,
   midCheckpoints,
 }: {
@@ -460,81 +460,11 @@ function RouteCurve({
         })}
       </svg>
 
-      <Cyclist progressPercent={progressPercent} />
     </div>
   );
 }
 
-// The cyclist rides the route via CSS offset-path. Two key details:
-// - `offset-anchor: 50% 100%` pins the bottom-center of the SVG (right where
-//   the wheels touch the ground) onto the path, so wheels stay on the line.
-// - `offset-rotate: auto` rotates the element to match the path's tangent,
-//   so the bike tilts up/down with the gentle hill instead of sitting flat.
-function Cyclist({ progressPercent }: { progressPercent: number }) {
-  // Tie the bike's drawn size to the container so it scales with the curve.
-  // A single CSS var (used both for width and margin offsets) keeps it tidy.
-  return (
-    <div
-      className="pointer-events-none absolute inset-0"
-      aria-hidden
-      style={{ containerType: "inline-size" }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: "7cqw",
-          height: "calc(7cqw * 46 / 80)",
-          offsetPath: `path("${ROUTE_PATH_D}")`,
-          offsetDistance: `${progressPercent}%`,
-          offsetRotate: "auto",
-          offsetAnchor: "50% 100%",
-        }}
-      >
-        <CyclistIcon />
-      </div>
-    </div>
-  );
-}
-
-// Side-view bicycle. ViewBox is 80x46 but the wheels are drawn with their
-// hubs at y=38 so the tire strokes reach y=49 — 3 units *below* the viewBox
-// bottom. Combined with `overflow: visible`, this makes the tires visibly
-// sink onto the route line instead of merely being tangent to it.
-function CyclistIcon() {
-  return (
-    <svg
-      viewBox="0 0 80 46"
-      preserveAspectRatio="xMidYMax meet"
-      overflow="visible"
-      style={{ overflow: "visible" }}
-      className="block h-full w-full drop-shadow-[0_6px_20px_rgba(200,226,92,0.35)]"
-      aria-hidden
-    >
-      {/* Wheels — centered at y=38, r=9 + stroke 2 → tire bottom at y=49,
-          i.e. 3 units below the viewBox so they overlap the route line. */}
-      <circle cx="16" cy="38" r="9" fill="none" stroke="white" strokeWidth="2" />
-      <circle cx="64" cy="38" r="9" fill="none" stroke="white" strokeWidth="2" />
-      <circle cx="16" cy="38" r="1.2" fill="white" />
-      <circle cx="64" cy="38" r="1.2" fill="white" />
-
-      {/* Frame + forward handlebar stub. Nothing protrudes above y=18 so the
-          silhouette reads as a pure bike — no upward stems that could be
-          mistaken for a rider's neck/head. */}
-      <path
-        d="M 16 38 L 40 38 L 34 20 L 16 38 M 34 20 L 54 18 L 40 38 M 54 18 L 64 38 M 50 18 L 60 18"
-        fill="none"
-        stroke="#C8E25C"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function EndpointLabel({
+export function EndpointLabel({
   name,
   km,
   align,
