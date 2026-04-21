@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown } from "lucide-react";
 
 import { gsap, useGSAP } from "@/lib/gsap";
 import type { HeroContent } from "@/lib/fallback-content";
@@ -196,31 +195,27 @@ export function GainablesHero({ hero, donationUrl }: Props) {
       </div>
 
       {/* Bottom meta row */}
-      <div data-hero-meta className="mt-12 flex items-end justify-between gap-4 border-t border-white/10 pt-6">
-        <div className="flex items-center gap-3 text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">
-          <ArrowDown size={14} />
-          Scroll
-        </div>
-        <div className="flex items-center gap-4 md:gap-6">
+      <div data-hero-meta className="mt-12 border-t border-white/10 pt-6">
+        <div className="flex items-center justify-between gap-6 sm:gap-8 md:justify-end md:gap-6">
           <Link
             href={donationHref}
-            className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
+            className="group inline-flex min-w-0 flex-1 items-center gap-2 whitespace-nowrap text-[0.64rem] font-medium uppercase tracking-[0.22em] text-foreground transition hover:text-accent sm:flex-none sm:text-[0.7rem] sm:tracking-[0.28em]"
           >
             Donate
             <span
               aria-hidden
-              className="inline-block h-px w-6 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent"
+              className="inline-block h-px w-5 shrink-0 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent sm:w-6"
             />
           </Link>
           <span aria-hidden className="hidden h-3 w-px bg-white/15 md:inline-block" />
           <Link
             href="#signup"
-            className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
+            className="group inline-flex min-w-0 flex-1 items-center justify-end gap-2 whitespace-nowrap text-[0.64rem] font-medium uppercase tracking-[0.22em] text-foreground transition hover:text-accent sm:flex-none sm:text-[0.7rem] sm:tracking-[0.28em] md:justify-start"
           >
             Subscribe for updates
             <span
               aria-hidden
-              className="inline-block h-px w-6 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent"
+              className="inline-block h-px w-5 shrink-0 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent sm:w-6"
             />
           </Link>
         </div>

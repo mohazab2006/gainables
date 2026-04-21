@@ -24,14 +24,14 @@ type BikerTimelineProps = {
 // Single source of truth for the route curve. Used by the SVG <path>,
 // by milestone dots (via getPointAtLength), and by the biker's motion.
 // Three uniform half-periods (up → down → up) with a tight ±12 amplitude.
-// Endpoints at x=110/860 — asymmetric because OTTAWA is visually narrower
+// Endpoints at x=95/835 — asymmetric because OTTAWA is visually narrower
 // than MONTREAL, so this gives both dots a comparable perceived gap from
 // their label. Each half-period is 250 units wide; C + S + S keeps tangents
 // continuous so the biker leans through the waves cleanly.
 const ROUTE_PATH_D =
-  "M 110 130 C 193 118, 277 118, 360 130 S 527 142, 610 130 S 777 118, 860 130";
-const ROUTE_START = { x: 110, y: 130 };
-const ROUTE_END = { x: 860, y: 130 };
+  "M 95 130 C 178 118, 262 118, 345 130 S 512 142, 595 130 S 752 118, 835 130";
+const ROUTE_START = { x: 95, y: 130 };
+const ROUTE_END = { x: 835, y: 130 };
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 240;
 const LABEL_BASELINE_Y = 210;
@@ -154,24 +154,24 @@ export function BikerTimelineSection({
     <section
       id="track"
       ref={sectionRef}
-      className="relative overflow-hidden bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20"
+      className="relative overflow-hidden bg-background px-6 py-18 md:px-12 md:py-32 lg:px-20"
     >
       <div className="container-shell">
-        <div className="grid gap-10 md:grid-cols-[auto_1fr] md:items-end md:justify-between">
+        <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-end md:justify-between md:gap-10">
           <div>
             <p className="eyebrow">{panel.eyebrow}</p>
-            <h2 className="mt-5 display-hero text-6xl md:text-8xl lg:text-[9rem]">
+            <h2 className="mt-4 display-hero text-5xl md:mt-5 md:text-8xl lg:text-[9rem]">
               Ottawa <span className="display-italic text-muted-foreground">to</span> Montreal
             </h2>
           </div>
-          <div className="flex flex-col gap-1 text-right font-sans text-sm text-muted-foreground md:max-w-xs">
+          <div className="flex flex-col gap-1 font-sans text-sm text-muted-foreground md:max-w-xs md:text-right">
             <span className="eyebrow text-foreground/60">{panel.label}</span>
             <span className="text-lg text-foreground">{panel.primary}</span>
             <span>{panel.secondary}</span>
           </div>
         </div>
 
-        <div className="relative mt-20 md:mt-28">
+        <div className="relative mt-14 md:mt-28">
           <RouteCurve progressPercent={clamped} midCheckpoints={midWithPercent} />
 
           <EndpointLabel name={startCp?.name ?? "Ottawa"} km={startCp?.km ?? 0} align="left" />
@@ -182,10 +182,10 @@ export function BikerTimelineSection({
           />
         </div>
 
-        <div className="mt-24 grid gap-10 border-t border-white/10 pt-10 md:mt-32 md:grid-cols-3">
+        <div className="mt-16 grid gap-8 border-t border-white/10 pt-8 md:mt-32 md:grid-cols-3 md:gap-10 md:pt-10">
           <div>
             <p className="eyebrow">{stats.progress.label}</p>
-            <p className="mt-4 font-display text-7xl leading-none tracking-tight md:text-8xl">
+            <p className="mt-3 font-display text-6xl leading-none tracking-tight md:mt-4 md:text-8xl">
               {stats.progress.main}
               {stats.progress.suffix ? (
                 <span className="text-muted-foreground">{stats.progress.suffix}</span>
@@ -194,10 +194,10 @@ export function BikerTimelineSection({
           </div>
           <div>
             <p className="eyebrow">{stats.distance.label}</p>
-            <p className="mt-4 font-display text-7xl leading-none tracking-tight md:text-8xl">
+            <p className="mt-3 font-display text-6xl leading-none tracking-tight md:mt-4 md:text-8xl">
               {stats.distance.main}
               {stats.distance.suffix ? (
-                <span className="text-muted-foreground text-4xl md:text-5xl"> {stats.distance.suffix}</span>
+                <span className="text-muted-foreground text-3xl md:text-5xl"> {stats.distance.suffix}</span>
               ) : null}
             </p>
           </div>
@@ -389,7 +389,7 @@ export function RouteCurve({
   }, [midCheckpoints]);
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: `${VIEWBOX_W} / ${VIEWBOX_H}` }}>
+    <div className="relative aspect-[1000/190] w-full md:aspect-[1000/240]">
       <svg
         viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
         className="absolute inset-0 h-full w-full"
@@ -420,8 +420,12 @@ export function RouteCurve({
         <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="4" fill="white" />
         <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="4" fill="white" />
 
-        {dots.map((d) => {
+        {dots.map((d, index) => {
           const reached = progressPercent >= d.pct;
+          const placeAbove = index === 0 || index === dots.length - 1;
+          const lineStartY = placeAbove ? d.y - 6 : d.y + 6;
+          const lineEndY = placeAbove ? 56 : LABEL_BASELINE_Y - 14;
+          const labelY = placeAbove ? 42 : LABEL_BASELINE_Y;
           return (
             <g key={d.name}>
               <circle
@@ -435,20 +439,20 @@ export function RouteCurve({
               />
               <line
                 x1={d.x}
-                y1={d.y + 6}
+                y1={lineStartY}
                 x2={d.x}
-                y2={LABEL_BASELINE_Y - 14}
+                y2={lineEndY}
                 stroke="rgba(255,255,255,0.12)"
                 strokeWidth="1"
                 strokeDasharray="2 3"
               />
               <text
                 x={d.x}
-                y={LABEL_BASELINE_Y}
+                y={labelY}
                 textAnchor="middle"
                 fill={reached ? "#FFFFFF" : "rgba(255,255,255,0.45)"}
                 fontFamily="var(--font-sans)"
-                fontSize="10"
+                fontSize="18"
                 fontWeight="500"
                 letterSpacing="3"
                 style={{ textTransform: "uppercase", transition: "fill 700ms ease" }}
@@ -476,12 +480,12 @@ export function EndpointLabel({
   const isLeft = align === "left";
   return (
     <div
-      className={`pointer-events-none absolute top-1/2 flex -translate-y-1/2 flex-col gap-3 ${
-        isLeft ? "left-0 items-start pl-2 md:pl-4" : "right-0 items-end pr-2 md:pr-4"
+      className={`pointer-events-none absolute top-[47%] flex -translate-y-1/2 flex-col gap-2 ${
+        isLeft ? "left-0 items-start pl-1 md:pl-4" : "right-0 items-end pr-1 md:pr-4"
       }`}
     >
       <span className="eyebrow">{km === 0 ? "Start" : "Finish"}</span>
-      <span className="font-display text-2xl leading-none tracking-tight md:text-4xl">
+      <span className="font-display text-xl leading-none tracking-tight md:text-4xl">
         {name}
       </span>
     </div>
