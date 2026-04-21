@@ -239,11 +239,9 @@ export function TrackerShell({
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Checkpoint list</p>
                 <h2 className="mt-4 text-3xl font-medium tracking-tight md:text-4xl">
-                  {experienceState === "pre_ride"
-                    ? "The full Ottawa to Montreal route is locked in before ride day."
-                    : experienceState === "finished"
-                      ? "The route is complete and the final ride line is preserved below."
-                      : "Each checkpoint advances as ride updates and Overland positions arrive."}
+                  {experienceState === "finished"
+                    ? "The route is complete and the final ride line is preserved below."
+                    : "Each checkpoint advances as ride updates and Overland positions arrive."}
                 </h2>
               </div>
               <a
@@ -267,7 +265,6 @@ export function TrackerShell({
                 const isFinish = index === checkpoints.length - 1;
                 const active =
                   trackerSnapshot?.nextCheckpoint?.name === checkpoint.name ||
-                  (experienceState === "pre_ride" && isStart) ||
                   (experienceState === "finished" && isFinish);
                 const passed = trackerSnapshot ? trackerSnapshot.kmCompleted >= checkpoint.km : false;
 
