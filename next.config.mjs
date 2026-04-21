@@ -8,6 +8,11 @@ const nextConfig = {
   turbopack: {
     root: rootDir,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
     unoptimized: true,
   },

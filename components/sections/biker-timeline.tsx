@@ -29,9 +29,9 @@ type BikerTimelineProps = {
 // their label. Each half-period is 250 units wide; C + S + S keeps tangents
 // continuous so the biker leans through the waves cleanly.
 const ROUTE_PATH_D =
-  "M 95 130 C 178 118, 262 118, 345 130 S 512 142, 595 130 S 752 118, 835 130";
-const ROUTE_START = { x: 95, y: 130 };
-const ROUTE_END = { x: 835, y: 130 };
+  "M 115 120 C 198 108, 282 108, 365 120 S 532 132, 615 120 S 772 108, 855 120";
+const ROUTE_START = { x: 115, y: 120 };
+const ROUTE_END = { x: 855, y: 120 };
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 240;
 const LABEL_BASELINE_Y = 210;
@@ -455,6 +455,7 @@ export function RouteCurve({
                 fontSize="18"
                 fontWeight="500"
                 letterSpacing="3"
+                className="md:text-[13px]"
                 style={{ textTransform: "uppercase", transition: "fill 700ms ease" }}
               >
                 {d.name.toUpperCase()}

@@ -67,7 +67,7 @@ export function TypedContentForm({
           <AdminFlashBanner message={flashMessage} type={flashType} className="mt-6" />
         </section>
 
-        <form action={action} encType="multipart/form-data" className="space-y-8 rounded-[2rem] border border-border bg-background p-8">
+        <form action={action} className="space-y-8 rounded-[2rem] border border-border bg-background p-8">
           {children}
           {footer ? <div className="pt-4">{footer}</div> : null}
           <div className="flex items-center justify-between gap-4 border-t border-border pt-6">

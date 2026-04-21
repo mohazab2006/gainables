@@ -32,7 +32,7 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
           <AdminFlashBanner message={message} type={type} className="mt-6" />
         </section>
 
-        <form action={createRideUpdate} encType="multipart/form-data" className="rounded-[2rem] border border-border bg-background p-8">
+        <form action={createRideUpdate} className="rounded-[2rem] border border-border bg-background p-8">
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Post new update</p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <AdminField label="Location">
@@ -80,7 +80,7 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
           ) : null}
           {updates.map((update) => (
             <article key={update.id} className="rounded-[1.75rem] border border-border bg-background p-6">
-              <form action={updateRideUpdate} encType="multipart/form-data">
+              <form action={updateRideUpdate}>
                 <input type="hidden" name="id" value={update.id} />
                 <input type="hidden" name="existingMediaUrl" value={update.mediaUrl ?? ""} />
                 <input type="hidden" name="existingMediaKind" value={update.mediaKind ?? ""} />

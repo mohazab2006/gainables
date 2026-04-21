@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -29,54 +28,35 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           const tl = gsap.timeline({
             defaults: { ease: "expo.out", duration: reduce ? 0 : 1.1 },
           });
-          tl.from("[data-hero-mark]", {
+
+          tl.from("[data-hero-bg]", {
             autoAlpha: 0,
-            scale: 0.7,
-            filter: "blur(14px)",
+            scale: 1.03,
             duration: reduce ? 0 : 1.2,
             ease: "expo.out",
           })
-            .from("[data-eyebrow]", { autoAlpha: 0, y: 10, duration: 0.6 }, "-=0.7")
-            .from(
-              "[data-wordmark-char]",
-              { yPercent: 110, autoAlpha: 0, stagger: reduce ? 0 : 0.04 },
-              "-=0.3",
-            )
-            .from("[data-tagline]", { autoAlpha: 0, y: 20, duration: 0.7 }, "-=0.6")
-            .from("[data-hero-cta]", { autoAlpha: 0, y: 14, stagger: 0.08, duration: 0.5 }, "-=0.4")
-            .from("[data-hero-meta]", { autoAlpha: 0, y: 10, duration: 0.5 }, "-=0.3");
-
-          if (!reduce) {
-            // Subtle endless glow pulse — quiet enough that you only notice
-            // it on a still frame, not while reading.
-            gsap.to("[data-hero-mark-glow]", {
-              opacity: 0.32,
-              scale: 1.05,
-              duration: 4,
-              ease: "sine.inOut",
-              yoyo: true,
-              repeat: -1,
-            });
-          }
+            .from("[data-hero-title]", { autoAlpha: 0, y: 16, duration: 0.6 }, "-=0.8")
+            .from("[data-tagline]", { autoAlpha: 0, y: 18, duration: 0.7 }, "-=0.35")
+            .from("[data-hero-cta]", { autoAlpha: 0, y: 12, stagger: 0.08, duration: 0.45 }, "-=0.3")
+            .from("[data-hero-meta]", { autoAlpha: 0, y: 10, duration: 0.45 }, "-=0.2");
         },
       );
+
       return () => mm.revert();
     },
     { scope: root },
   );
 
-  const wordmark = "GAINABLES";
-
   return (
     <section
       ref={root}
-      className="relative isolate flex min-h-svh flex-col justify-between overflow-hidden bg-background px-6 pt-10 pb-10 md:px-12 md:pt-12 md:pb-14 lg:px-20"
+      className="relative isolate flex min-h-svh flex-col justify-end overflow-hidden bg-neutral-950 px-6 pt-10 pb-10 text-white md:px-12 md:pt-12 md:pb-14 lg:px-20"
     >
       {hero.backgroundMedia ? (
-        <div aria-hidden className="absolute inset-0 -z-20 overflow-hidden">
+        <div aria-hidden data-hero-bg className="absolute inset-0 -z-20 overflow-hidden">
           {hero.backgroundMedia.kind === "video" ? (
             <video
-              className="h-full w-full object-cover opacity-30"
+              className="h-full w-full object-cover"
               autoPlay
               muted
               loop
@@ -86,138 +66,56 @@ export function GainablesHero({ hero, donationUrl }: Props) {
               <source src={hero.backgroundMedia.url} />
             </video>
           ) : (
-            <Image
+            <img
               src={hero.backgroundMedia.url}
-              alt={hero.backgroundMedia.alt ?? ""}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover opacity-24"
+              alt=""
+              className="h-full w-full object-cover"
             />
           )}
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.52),rgba(6,6,6,0.82))]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(200,226,92,0.16),transparent_38%)]" />
+          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.32)_40%,rgba(0,0,0,0.68)_100%)]" />
         </div>
-      ) : null}
+      ) : (
+        <div aria-hidden data-hero-bg className="absolute inset-0 -z-20">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(200,226,92,0.16),transparent_28%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,#1a1a1a_0%,#080808_100%)]" />
+        </div>
+      )}
 
-      {/* Ambient lift - soft radial glows so the page reads less "void" and
-          more "stage". Pure white + a touch of accent, very low opacity. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-10%] h-[70vh] w-[90vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_45%,transparent_75%)] blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[60vh] w-[70vw] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(closest-side,rgba(200,226,92,0.10),transparent_70%)] blur-3xl" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-background to-transparent" />
-      </div>
-
-      {/* Top bar: brand mark (centered) + flanking eyebrows.
-          3-column grid keeps the mark in the middle column so the side
-          eyebrows can never extend under it on narrow screens. */}
-      <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <span data-eyebrow className="eyebrow min-w-0 truncate text-foreground/80">
-          {hero.eyebrow ?? "Ride for Mental Health"}
-        </span>
-
-        {/* Centered brand mark. Transparent-bg PNG with a soft, understated
-            bloom from layered drop-shadows. */}
-        <div data-hero-mark className="pointer-events-none relative z-10" aria-hidden>
-          {/* Subtle ambient halo — well outside the mark's bounding box so
-              it stays a soft glow, not a hot ring around the logo. */}
-          <div
-            data-hero-mark-glow
-            className="absolute left-1/2 top-1/2 -z-10 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-3xl md:h-64 md:w-64"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(255,255,255,0.28), rgba(255,255,255,0.06) 45%, transparent 78%)",
-            }}
-          />
-          <div className="relative h-14 w-14 md:h-20 md:w-20">
-            <Image
-              src="/gainables-mark.png"
-              alt="Gainables"
-              fill
-              priority
-              sizes="(min-width: 768px) 80px, 56px"
-              className="object-contain"
-              style={{
-                filter:
-                  "drop-shadow(0 0 6px rgba(255,255,255,0.35)) drop-shadow(0 0 18px rgba(255,255,255,0.18))",
-              }}
-            />
+      <div className="relative z-10 mx-auto w-full max-w-6xl pb-10 md:pb-16">
+        <div className="max-w-5xl">
+          <h1 data-hero-title className="display-hero text-5xl text-white md:text-7xl lg:text-8xl">
+            Ride for Mental Health
+          </h1>
+          <p
+            data-tagline
+            className="mt-5 max-w-2xl font-serif text-xl leading-[1.15] text-white/88 md:text-2xl lg:text-3xl"
+          >
+            {hero.description}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              data-hero-cta
+              href={donationHref}
+              className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
+            >
+              Donate now
+            </Link>
+            <Link
+              data-hero-cta
+              href="#track"
+              className="pill-ghost border-white/25 bg-white/8 text-white hover:bg-white/14"
+            >
+              Track the ride
+            </Link>
+            <Link
+              data-hero-cta
+              href="#signup"
+              className="pill-ghost border-white/25 bg-white/8 text-white hover:bg-white/14"
+            >
+              Subscribe for updates
+            </Link>
           </div>
-        </div>
-
-        <span data-eyebrow className="eyebrow hidden text-right md:inline">
-          Ottawa → Montreal · 200 km
-        </span>
-      </div>
-
-      {/* The massive wordmark — edge to edge. The overflow-hidden mask gets
-          a tiny vertical pad so Anton's caps sit inside the mask cleanly. */}
-      <div className="relative flex flex-1 items-center justify-center py-10">
-        <h1
-          aria-label={wordmark}
-          className="display-mega select-none text-[22vw] md:text-[19vw]"
-        >
-          <span
-            aria-hidden
-            className="block overflow-hidden"
-            style={{ padding: "0.06em 0" }}
-          >
-            {wordmark.split("").map((ch, i) => (
-              <span
-                key={`${ch}-${i}`}
-                data-wordmark-char
-                className="inline-block"
-                style={{ willChange: "transform, opacity" }}
-              >
-                {ch}
-              </span>
-            ))}
-          </span>
-        </h1>
-      </div>
-
-      {/* Tagline + CTAs */}
-      <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end">
-        <p
-          data-tagline
-          className="max-w-xl font-serif text-2xl leading-[1.15] text-foreground md:text-3xl lg:text-4xl"
-        >
-          {hero.description}
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <Link data-hero-cta href={donationHref} className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
-            Donate now
-          </Link>
-          <Link data-hero-cta href="#track" className="pill-ghost">
-            Track the ride
-          </Link>
-        </div>
-      </div>
-
-      {/* Bottom meta row */}
-      <div data-hero-meta className="mt-12 border-t border-white/10 pt-6">
-        <div className="flex items-center justify-between gap-6 sm:gap-8 md:justify-end md:gap-6">
-          <Link
-            href={donationHref}
-            className="group inline-flex min-w-0 flex-1 items-center gap-2 whitespace-nowrap text-[0.64rem] font-medium uppercase tracking-[0.22em] text-foreground transition hover:text-accent sm:flex-none sm:text-[0.7rem] sm:tracking-[0.28em]"
-          >
-            Donate
-            <span
-              aria-hidden
-              className="inline-block h-px w-5 shrink-0 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent sm:w-6"
-            />
-          </Link>
-          <span aria-hidden className="hidden h-3 w-px bg-white/15 md:inline-block" />
-          <Link
-            href="#signup"
-            className="group inline-flex min-w-0 flex-1 items-center justify-end gap-2 whitespace-nowrap text-[0.64rem] font-medium uppercase tracking-[0.22em] text-foreground transition hover:text-accent sm:flex-none sm:text-[0.7rem] sm:tracking-[0.28em] md:justify-start"
-          >
-            Subscribe for updates
-            <span
-              aria-hidden
-              className="inline-block h-px w-5 shrink-0 bg-foreground transition-all duration-300 group-hover:w-10 group-hover:bg-accent sm:w-6"
-            />
-          </Link>
         </div>
       </div>
     </section>
