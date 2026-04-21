@@ -137,9 +137,20 @@ export default async function AdminContentSettingsPage({ searchParams }: Setting
   );
 }
 
+/**
+ * Format an ISO timestamp for `<input type="datetime-local">`.
+ *
+ * The input control both *displays* and *submits* values in the viewer's
+ * local timezone (no `Z` suffix). Using `toISOString()` here would show UTC
+ * in the picker, and every re-save would drift the stored timestamp by the
+ * local offset. We format in local time instead so the value round-trips.
+ */
 function toDateTimeLocal(iso: string): string {
   try {
-    return new Date(iso).toISOString().slice(0, 16);
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   } catch {
     return "";
   }

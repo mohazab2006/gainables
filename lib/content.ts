@@ -8,6 +8,7 @@ import {
   fallbackSiteContent,
   fallbackSponsors,
   type FaqItem,
+  type LiveMediaContent,
   type RidePosition,
   type RideUpdate,
   type RouteContent,
@@ -43,6 +44,7 @@ async function getCachedSiteContent(): Promise<SiteContent> {
       whyItMatters: readValue(map, "why_it_matters", fallbackSiteContent.whyItMatters),
       route: normalizeRouteContent(readValue(map, "route", fallbackSiteContent.route), fallbackSiteContent.route),
       media: readValue(map, "media", fallbackSiteContent.media),
+      liveMedia: normalizeLiveMediaContent(readValue(map, "live_media", fallbackSiteContent.liveMedia)),
       donate: readValue(map, "donate", fallbackSiteContent.donate),
       donationTotals: readValue(map, "donation_totals", fallbackSiteContent.donationTotals),
       donationUrl: readValue(map, "donation_url", fallbackSiteContent.donationUrl),
@@ -409,4 +411,26 @@ function normalizeRouteContent(input: unknown, fallback: RouteContent): RouteCon
 function parseDistanceLabel(value: string) {
   const numeric = Number.parseFloat(value.replace(/[^0-9.]/g, ""));
   return Number.isFinite(numeric) ? numeric : 0;
+}
+
+/**
+ * Guard the `live_media` JSONB blob. We only mount a card if we have both a
+ * supported `kind` and a non-empty `url` — anything else collapses to null
+ * so the public page silently hides the section instead of rendering a broken
+ * <img>/<video>. Optional fields (caption, posterUrl, updatedAt) are
+ * preserved when they're the right shape and discarded otherwise.
+ */
+function normalizeLiveMediaContent(input: unknown): LiveMediaContent | null {
+  if (!input || typeof input !== "object") return null;
+  const raw = input as Partial<LiveMediaContent>;
+  if (raw.kind !== "image" && raw.kind !== "video") return null;
+  if (typeof raw.url !== "string" || raw.url.length === 0) return null;
+
+  return {
+    kind: raw.kind,
+    url: raw.url,
+    caption: typeof raw.caption === "string" && raw.caption.length ? raw.caption : undefined,
+    posterUrl: typeof raw.posterUrl === "string" && raw.posterUrl.length ? raw.posterUrl : undefined,
+    updatedAt: typeof raw.updatedAt === "string" && raw.updatedAt.length ? raw.updatedAt : undefined,
+  };
 }

@@ -54,6 +54,13 @@ const sections: SectionCard[] = [
     appearsOn: "/track page + homepage timeline",
     status: "typed",
   },
+  {
+    href: "/admin/content/live-media",
+    title: "Live media",
+    summary: "Featured photo or video shown under the tracker state on the /track page. Only one item at a time - uploading a new one replaces the current.",
+    appearsOn: "/track page",
+    status: "typed",
+  },
 ];
 
 export default async function AdminContentHubPage({ searchParams }: AdminContentPageProps) {

@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { HeroContent } from "@/lib/fallback-content";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { SplitWords } from "@/components/gsap/split-words";
 
 type Props = {
   hero: HeroContent;
@@ -16,6 +18,80 @@ export function GainablesHero({ hero }: Props) {
   // /donate page — only the button on /donate itself uses the admin-
   // configured donation URL directly.
   const donationHref = "/donate";
+
+  useGSAP(
+    () => {
+      const el = root.current;
+      if (!el) return;
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          motionOk: "(prefers-reduced-motion: no-preference)",
+          reduce: "(prefers-reduced-motion: reduce)",
+        },
+        (ctx) => {
+          const bg = el.querySelector<HTMLElement>("[data-hero-bg]");
+          const mark = el.querySelector<HTMLElement>("[data-hero-mark]");
+          const words = el.querySelectorAll<HTMLElement>("[data-word]");
+          const tagline = el.querySelector<HTMLElement>("[data-tagline]");
+          const ctas = el.querySelectorAll<HTMLElement>("[data-hero-cta]");
+
+          if (ctx.conditions?.reduce) {
+            gsap.set([mark, tagline, ...Array.from(ctas), ...Array.from(words)], {
+              autoAlpha: 1,
+              y: 0,
+              yPercent: 0,
+              scale: 1,
+            });
+            return;
+          }
+
+          gsap.set(mark, { autoAlpha: 0, y: 24, scale: 0.9 });
+          gsap.set(words, { yPercent: 115 });
+          gsap.set(tagline, { autoAlpha: 0, y: 20 });
+          gsap.set(ctas, { autoAlpha: 0, y: 18 });
+
+          const tl = gsap.timeline({
+            defaults: { ease: "power4.out" },
+            delay: 0.15,
+          });
+
+          if (bg) {
+            tl.fromTo(
+              bg,
+              { scale: 1.12, filter: "blur(6px)" },
+              { scale: 1, filter: "blur(0px)", duration: 2.2, ease: "power2.out" },
+              0,
+            );
+          }
+
+          tl.to(
+            mark,
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.9, ease: "back.out(1.6)" },
+            0.1,
+          )
+            .to(
+              words,
+              { yPercent: 0, duration: 1.1, stagger: 0.07, ease: "power4.out" },
+              0.25,
+            )
+            .to(
+              tagline,
+              { autoAlpha: 1, y: 0, duration: 0.9 },
+              "-=0.55",
+            )
+            .to(
+              ctas,
+              { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.1 },
+              "-=0.5",
+            );
+        },
+      );
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
 
   return (
     <section
@@ -54,7 +130,10 @@ export function GainablesHero({ hero }: Props) {
 
       <div className="relative z-10 mx-auto w-full max-w-6xl pt-24 pb-10 md:pt-0 md:pb-16">
         <div className="max-w-5xl">
-          <div className="relative mb-6 h-14 w-14 md:mb-8 md:h-20 md:w-20">
+          <div
+            data-hero-mark
+            className="relative mb-6 h-14 w-14 md:mb-8 md:h-20 md:w-20"
+          >
             <Image
               src="/gainables-mark.png"
               alt="Gainables"
@@ -68,9 +147,12 @@ export function GainablesHero({ hero }: Props) {
               }}
             />
           </div>
-          <h1 data-hero-title className="display-hero text-5xl text-white md:text-7xl lg:text-8xl">
+          <SplitWords
+            as="h1"
+            className="display-hero text-5xl text-white md:text-7xl lg:text-8xl"
+          >
             Ride for Mental Health
-          </h1>
+          </SplitWords>
           <p
             data-tagline
             className="mt-5 max-w-2xl font-serif text-xl leading-[1.15] text-white/88 md:text-2xl lg:text-3xl"

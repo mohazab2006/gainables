@@ -96,8 +96,59 @@ export function Header() {
 
   useGSAP(
     () => {
-      if (!headerRef.current) return;
-      gsap.from(headerRef.current, { y: -24, autoAlpha: 0, duration: 0.7, ease: "power3.out", delay: 0.1 });
+      const header = headerRef.current;
+      if (!header) return;
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        {
+          motionOk: "(prefers-reduced-motion: no-preference)",
+          reduce: "(prefers-reduced-motion: reduce)",
+        },
+        (ctx) => {
+          const shell = header.querySelector<HTMLElement>("[data-header-shell]");
+          const brand = header.querySelector<HTMLElement>("[data-header-brand]");
+          const items = header.querySelectorAll<HTMLElement>("[data-header-nav-item]");
+          const donate = header.querySelector<HTMLElement>("[data-header-donate]");
+          const mobileToggle = header.querySelector<HTMLElement>("[data-header-mobile-toggle]");
+
+          if (ctx.conditions?.reduce) {
+            gsap.set(
+              [shell, brand, ...Array.from(items), donate, mobileToggle].filter(Boolean),
+              { autoAlpha: 1, y: 0, x: 0, scale: 1 },
+            );
+            return;
+          }
+
+          const tl = gsap.timeline({ defaults: { ease: "power3.out" }, delay: 0.05 });
+
+          tl.fromTo(
+            shell,
+            { autoAlpha: 0, y: -32, scale: 0.96 },
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.85 },
+          )
+            .fromTo(
+              brand,
+              { autoAlpha: 0, x: -12 },
+              { autoAlpha: 1, x: 0, duration: 0.55 },
+              "-=0.45",
+            )
+            .fromTo(
+              items,
+              { autoAlpha: 0, y: -10 },
+              { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.07 },
+              "-=0.4",
+            )
+            .fromTo(
+              [donate, mobileToggle].filter(Boolean) as HTMLElement[],
+              { autoAlpha: 0, scale: 0.75 },
+              { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(2)" },
+              "-=0.3",
+            );
+        },
+      );
+
+      return () => mm.revert();
     },
     { scope: headerRef },
   );
@@ -190,6 +241,7 @@ export function Header() {
         className="pointer-events-auto w-full max-w-5xl will-change-transform transition-[transform,opacity] duration-500 data-[hidden=true]:-translate-y-[180%] data-[hidden=true]:opacity-0"
       >
         <div
+          data-header-shell
           className={`relative flex items-center justify-between rounded-full pl-4 pr-2 py-2 transition-all duration-300 ${
             isScrolled
               ? "border border-border bg-background/85 shadow-[0_18px_50px_rgba(14,14,12,0.07)] backdrop-blur-lg"
@@ -198,6 +250,7 @@ export function Header() {
         >
           {/* Brand */}
           <Link
+            data-header-brand
             href="/"
             onClick={handleNavClick("/")}
             className="flex items-center pl-1 pr-3 font-display text-xl tracking-tight text-foreground"
@@ -232,6 +285,7 @@ export function Header() {
                   ref={(el) => {
                     itemRefs.current[idx] = el;
                   }}
+                  data-header-nav-item
                   href={item.href}
                   onClick={handleNavClick(item.href)}
                   onMouseEnter={() => setHoveredIndex(idx)}
@@ -253,7 +307,7 @@ export function Header() {
           </nav>
 
           {/* Donate */}
-          <div className="hidden items-center gap-3 md:flex">
+          <div data-header-donate className="hidden items-center gap-3 md:flex">
             <Link
               href="/donate"
               className="group inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(14,14,12,0.18)]"
@@ -269,6 +323,7 @@ export function Header() {
           {/* Mobile toggle */}
           <button
             type="button"
+            data-header-mobile-toggle
             onClick={() => setIsMenuOpen((v) => !v)}
             className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-secondary md:hidden"
             aria-label="Toggle menu"

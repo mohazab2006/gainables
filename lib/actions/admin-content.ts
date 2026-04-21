@@ -4,7 +4,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { CACHE_TAGS, PUBLIC_CACHE_TAGS } from "@/lib/cache-tags";
-import { uploadCampaignAsset } from "@/lib/admin/media";
+import { removeCampaignAsset, uploadCampaignAsset } from "@/lib/admin/media";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -164,6 +164,91 @@ export async function saveMedia(formData: FormData) {
     })),
   };
   await persistSection("media", value, path, "media");
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Live media                                                                */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Saves the single featured live-media item shown under the tracker status
+ * card. Only one slot exists — uploading a new file replaces the previous
+ * one and removes the old asset from storage.
+ *
+ * "Clear" is modeled as a row deletion rather than a null upsert because the
+ * `site_content.value` JSONB column is `NOT NULL`; upserting `null` there
+ * raises `23502`. Public code treats a missing row the same as "no live
+ * media", so deletion is the correct no-op.
+ */
+export async function saveLiveMedia(formData: FormData) {
+  const path = "/admin/content/live-media";
+  await requireAuthorizedAdmin(path);
+
+  const clear = formData.get("clear") === "on";
+  const file = formData.get("media") as File | null;
+  const caption = str(formData, "caption");
+  const existingUrl = str(formData, "existingUrl");
+  const existingKind = str(formData, "existingKind");
+  const existingPosterUrl = str(formData, "existingPosterUrl");
+
+  type Payload = {
+    kind: "image" | "video";
+    url: string;
+    caption?: string;
+    posterUrl?: string;
+    updatedAt?: string;
+  };
+  let value: Payload | null = null;
+
+  if (clear) {
+    // Remove the on-disk asset first; ignore failure, the DB delete is what
+    // drives the public UI.
+    await removeCampaignAsset(existingUrl);
+    value = null;
+  } else if (file && file.size > 0) {
+    try {
+      const uploaded = await uploadCampaignAsset(file, "live-media");
+      // Best-effort cleanup of the replaced file.
+      if (existingUrl && existingUrl !== uploaded.publicUrl) {
+        await removeCampaignAsset(existingUrl);
+      }
+      value = {
+        kind: uploaded.kind,
+        url: uploaded.publicUrl,
+        caption: caption || undefined,
+        updatedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to upload media.";
+      redirectWithMessage(path, "error", message);
+    }
+  } else if (existingUrl && (existingKind === "image" || existingKind === "video")) {
+    // Caption-only edit on an existing item.
+    value = {
+      kind: existingKind,
+      url: existingUrl,
+      caption: caption || undefined,
+      posterUrl: existingPosterUrl || undefined,
+      updatedAt: new Date().toISOString(),
+    };
+  } else {
+    redirectWithMessage(path, "error", "Upload a photo or video to feature.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+
+  if (value === null) {
+    const { error } = await supabase.from("site_content").delete().eq("key", "live_media");
+    if (error) {
+      redirectWithMessage(path, "error", `Unable to clear live media: ${error.message}`);
+    }
+    updateTag(CACHE_TAGS.siteContent);
+    refreshPublicSite();
+    revalidatePath(path);
+    redirectWithMessage(path, "success", "Cleared live media.");
+  }
+
+  await persistSection("live_media", value, path, "live media");
 }
 
 /* -------------------------------------------------------------------------- */

@@ -22,16 +22,28 @@ type BikerTimelineProps = {
 
 // Single source of truth for the route curve. Used by the SVG <path>,
 // by milestone dots (via getPointAtLength), and by the biker's motion.
-// Three uniform half-periods (up → down → up) with a tight ±12 amplitude.
-// Endpoints at x=95/835 — asymmetric because OTTAWA is visually narrower
-// than MONTREAL, so this gives both dots a comparable perceived gap from
-// their label. Each half-period is 250 units wide; C + S + S keeps tangents
-// continuous so the biker leans through the waves cleanly.
+// Three uniform half-periods (up → down → up) with a ±30 amplitude so the
+// road actually *feels* like a road instead of a flat line. Endpoints at
+// x=140/860 keep the curve symmetrically centred in the 1000-wide viewBox
+// while reserving enough horizontal room for the OTTAWA / MONTREAL
+// endpoint labels that sit outside the SVG (MONTREAL is the wider of the
+// two, so we need ~14% padding per side to avoid the finish dot
+// overlapping the "M"). Each half-period is 240 units wide; C + S + S
+// keeps tangents continuous so the biker leans through the waves cleanly.
+// Route geometry is a 1.2× horizontal stretch of the original curve. The
+// viewBox widens from 1000→1200 (aspect goes ~4.17:1 → 5:1) and every X
+// coordinate is scaled by 1.2 so the curve traces the same shape, just
+// with longer wavelengths — the whole path feels more like an open road
+// than a compressed signal trace. Y control points are pushed further
+// from the baseline (65 / 195 instead of 90 / 170) so the peaks and
+// valleys read as real rolling terrain rather than a gentle ripple,
+// while still leaving breathing room under the above-curve labels and
+// above the below-curve label.
 const ROUTE_PATH_D =
-  "M 95 130 C 178 118, 262 118, 345 130 S 512 142, 595 130 S 752 118, 835 130";
-const ROUTE_START = { x: 95, y: 130 };
-const ROUTE_END = { x: 835, y: 130 };
-const VIEWBOX_W = 1000;
+  "M 168 130 C 264 65, 360 65, 456 130 S 648 195, 744 130 S 936 65, 1032 130";
+const ROUTE_START = { x: 168, y: 130 };
+const ROUTE_END = { x: 1032, y: 130 };
+const VIEWBOX_W = 1200;
 const VIEWBOX_H = 240;
 const LABEL_BASELINE_Y = 210;
 
@@ -68,12 +80,13 @@ export function BikerTimelineSection({
 
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
-        // Start scrubbing as the section enters the lower third of the
-        // viewport, and complete as its top reaches the upper quarter —
-        // so the cyclist hits Montreal while the section is fully in view,
-        // not as it's about to scroll off the top.
-        start: "top 80%",
-        end: "top 20%",
+        // Hold the cyclist at 0 until the section's top edge is well past
+        // the top of the viewport — i.e. the user has actually scrolled
+        // into the section rather than the animation finishing before
+        // they even see it. We then scrub across the full visible height
+        // so the biker reaches Montreal just as the section exits.
+        start: "top 30%",
+        end: "bottom 70%",
         scrub: 0.6,
         onUpdate: (self) => {
           setProgress(self.progress * 100);
@@ -192,12 +205,19 @@ export function BikerTimelineSection({
           </div>
           <div>
             <p className="eyebrow">{stats.distance.label}</p>
-            <p className="mt-3 font-display text-6xl leading-none tracking-tight md:mt-4 md:text-8xl">
-              {stats.distance.main}
+            <div className="mt-3 flex items-baseline gap-x-3 font-display leading-none tracking-tight md:mt-4">
+              <span className="text-6xl md:text-8xl">{stats.distance.main}</span>
               {stats.distance.suffix ? (
-                <span className="text-muted-foreground text-3xl md:text-5xl"> {stats.distance.suffix}</span>
+                <span className="text-3xl text-muted-foreground md:text-5xl">
+                  {stats.distance.suffix}
+                </span>
               ) : null}
-            </p>
+            </div>
+            {stats.distance.footnote ? (
+              <p className="mt-2 font-display text-xl uppercase tracking-wide text-muted-foreground md:text-2xl">
+                {stats.distance.footnote}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col justify-between gap-6">
             <div>
@@ -270,7 +290,7 @@ function describePanel(args: {
 
 type StatCopy = {
   progress: { label: string; main: string; suffix?: string };
-  distance: { label: string; main: string; suffix?: string };
+  distance: { label: string; main: string; suffix?: string; footnote?: string };
   status: { main: string; detail?: string };
 };
 
@@ -314,7 +334,8 @@ function describeStats(args: {
     distance: {
       label: "Route",
       main: String(totalDistanceKm),
-      suffix: `km · ${checkpointCount} checkpoints`,
+      suffix: "km",
+      footnote: `${checkpointCount} checkpoint${checkpointCount === 1 ? "" : "s"}`,
     },
     status: {
       main: "Pre-ride",
@@ -387,7 +408,7 @@ export function RouteCurve({
   }, [midCheckpoints]);
 
   return (
-    <div className="relative aspect-1000/240 w-full">
+    <div className="relative aspect-1200/240 w-full">
       <svg
         viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
         className="absolute inset-0 h-full w-full"
@@ -400,7 +421,7 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="2.5"
+          strokeWidth="3"
           strokeLinecap="round"
         />
 
@@ -409,30 +430,30 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="white"
-          strokeWidth="2.5"
+          strokeWidth="3"
           strokeLinecap="round"
           pathLength={100}
           strokeDasharray={`${progressPercent} 100`}
         />
 
-        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="6" fill="white" />
-        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="6" fill="white" />
+        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="7" fill="white" />
+        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="7" fill="white" />
 
         {dots.map((d, index) => {
           const reached = progressPercent >= d.pct;
           const placeAbove = index === 0 || index === dots.length - 1;
-          const lineStartY = placeAbove ? d.y - 6 : d.y + 6;
-          const lineEndY = placeAbove ? 56 : LABEL_BASELINE_Y - 14;
-          const labelY = placeAbove ? 42 : LABEL_BASELINE_Y;
+          const lineStartY = placeAbove ? d.y - 7 : d.y + 7;
+          const lineEndY = placeAbove ? 50 : LABEL_BASELINE_Y - 17;
+          const labelY = placeAbove ? 36 : LABEL_BASELINE_Y;
           return (
             <g key={d.name}>
               <circle
                 cx={d.x}
                 cy={d.y}
-                r="5"
+                r="6"
                 fill={reached ? "#C8E25C" : "#3A3A3A"}
                 stroke={reached ? "#C8E25C" : "rgba(255,255,255,0.25)"}
-                strokeWidth="1.5"
+                strokeWidth="1.8"
                 style={{ transition: "fill 700ms ease, stroke 700ms ease" }}
               />
               <line
@@ -441,7 +462,7 @@ export function RouteCurve({
                 x2={d.x}
                 y2={lineEndY}
                 stroke="rgba(255,255,255,0.12)"
-                strokeWidth="1"
+                strokeWidth="1.2"
                 strokeDasharray="2 3"
               />
               <text
@@ -450,9 +471,9 @@ export function RouteCurve({
                 textAnchor="middle"
                 fill={reached ? "#FFFFFF" : "rgba(255,255,255,0.45)"}
                 fontFamily="var(--font-sans)"
-                fontSize="22"
+                fontSize="26"
                 fontWeight="500"
-                letterSpacing="3"
+                letterSpacing="3.5"
                 style={{ textTransform: "uppercase", transition: "fill 700ms ease" }}
               >
                 {d.name.toUpperCase()}

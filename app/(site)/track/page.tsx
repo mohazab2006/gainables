@@ -63,35 +63,35 @@ export default async function TrackPage() {
           route={content.route}
           routeFeature={routeFeature}
           trackerStatus={content.trackerStatus}
+          liveMedia={content.liveMedia}
+          mediaLinks={content.media.links}
         />
 
         <section className="mt-16 grid gap-6 md:mt-20 lg:grid-cols-[1.1fr_0.9fr]">
-          {!isPreRide ? (
-            <article className="rounded-4xl border border-border bg-surface p-8 md:p-10">
-              <p className="eyebrow">Why we ride</p>
-              <h2 className="mt-5 font-display text-3xl leading-[1.05] tracking-tight md:text-4xl">
-                Mental health affects everyone.
-              </h2>
-              <p className="mt-5 text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
-                Many people are dealing with stress, burnout, anxiety, and other challenges, often without visible support. This ride represents discipline, consistency, and pushing through difficulty — values that reflect the mental health journey.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/donate"
-                  className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(200,226,92,0.35)]"
-                >
-                  <HeartHandshake size={16} />
-                  Donate to the cause
-                </Link>
-                <Link
-                  href="/faq"
-                  className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:border-foreground"
-                >
-                  FAQ
-                </Link>
-              </div>
-            </article>
-          ) : null}
+          <article className="rounded-4xl border border-border bg-surface p-8 md:p-10">
+            <p className="eyebrow">Why we ride</p>
+            <h2 className="mt-5 font-display text-3xl leading-[1.05] tracking-tight md:text-4xl">
+              Mental health affects everyone.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+              Many people are dealing with stress, burnout, anxiety, and other challenges, often without visible support. This ride represents discipline, consistency, and pushing through difficulty — values that reflect the mental health journey.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/donate"
+                className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(200,226,92,0.35)]"
+              >
+                <HeartHandshake size={16} />
+                Donate to the cause
+              </Link>
+              <Link
+                href="/faq"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:border-foreground"
+              >
+                FAQ
+              </Link>
+            </div>
+          </article>
 
           <article className="rounded-4xl border border-foreground/10 bg-foreground p-8 text-background md:p-10">
             <p className="ring-token border-white/15 bg-white/10 text-white/80">Stay close to the ride</p>

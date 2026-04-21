@@ -40,6 +40,14 @@ export type MediaContent = {
   links: { label: string; handle: string; href: string; description: string }[];
 };
 
+export type LiveMediaContent = {
+  kind: "image" | "video";
+  url: string;
+  caption?: string;
+  posterUrl?: string;
+  updatedAt?: string;
+};
+
 export type Sponsor = {
   id: string;
   name: string;
@@ -99,6 +107,7 @@ export type SiteContent = {
   whyItMatters: WhyItMattersContent;
   route: RouteContent;
   media: MediaContent;
+  liveMedia: LiveMediaContent | null;
   donate: DonateContent;
   donationTotals: DonationTotals;
   donationUrl: string;
@@ -172,6 +181,7 @@ export const fallbackSiteContent: SiteContent = {
       },
     ],
   },
+  liveMedia: null,
   donate: {
     story:
       "Donating here is the most direct way to stand with the campaign. All funds raised are directed to CHEO Foundation and go toward mental health services and support programs, helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
@@ -197,7 +207,7 @@ export const fallbackSiteContent: SiteContent = {
   donationUrl: "mailto:admin@gainables.ca?subject=Ride%20for%20Mental%20Health%20Donation",
   donationEmbedUrl: null,
   trackerStatus: "pre_ride",
-  rideDate: "2026-05-14T12:00:00.000Z",
+  rideDate: "2026-05-04T12:00:00.000Z",
 };
 
 export const fallbackSponsors: Sponsor[] = [];
@@ -205,7 +215,11 @@ export const fallbackSponsors: Sponsor[] = [];
 export const fallbackRideUpdates: RideUpdate[] = [
   {
     id: "update-initial",
-    createdAt: "2026-01-01T00:00:00.000Z",
+    // Keep this aligned with `fallbackSiteContent.rideDate` above. The
+    // tracker-shell filters this placeholder out of the updates list, but
+    // any code that still reads it (e.g. admin/raw tools) should see a
+    // sensible timestamp rather than a hardcoded 2026-01-01 value.
+    createdAt: "2026-05-04T12:00:00.000Z",
     createdAtLabel: "-",
     location: "Start line - Ottawa",
     kmCompleted: 0,
