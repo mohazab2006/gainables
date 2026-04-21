@@ -323,16 +323,12 @@ export function TrackerShell({
                       <span>{new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(update.createdAt))}</span>
                       <span className="h-1 w-1 rounded-full bg-border" />
                       <span>{update.location}</span>
-                      {/* km_completed is auto-captured from the latest GPS ping
-                          when the admin posts the update — each card carries
-                          its own snapshot. Falsy (0) means no GPS was
-                          available at post time, so hide the pip entirely. */}
-                      {update.kmCompleted > 0 ? (
-                        <>
-                          <span className="h-1 w-1 rounded-full bg-border" />
-                          <span>{update.kmCompleted.toFixed(1)} km</span>
-                        </>
-                      ) : null}
+                      {/* km_completed is auto-captured from the latest GPS
+                          ping at post time. When GPS hasn't started flowing
+                          yet, the value is 0 — we still render "0.0 km" so
+                          the row has a consistent shape pre- and post-GPS. */}
+                      <span className="h-1 w-1 rounded-full bg-border" />
+                      <span>{update.kmCompleted.toFixed(1)} km</span>
                     </div>
                     <p className="mt-4 text-xl font-medium tracking-tight">{update.message}</p>
                     {update.mediaUrl ? (
