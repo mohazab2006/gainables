@@ -51,7 +51,7 @@ export default async function HomePage() {
     },
     offers: {
       "@type": "Offer",
-      url: content.donationUrl,
+      url: `${siteUrl}/donate`,
       availability: "https://schema.org/InStock",
       price: "0",
       priceCurrency: content.donationTotals.currency,
@@ -63,7 +63,7 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
 
       {/* 1. Hero — massive wordmark + tagline + CTAs */}
-      <GainablesHero hero={content.hero} donationUrl={content.donationUrl} />
+      <GainablesHero hero={content.hero} />
 
       {/* 2. Live biker timeline — the centerpiece */}
       <BikerTimelineSection
@@ -71,14 +71,12 @@ export default async function HomePage() {
         progressPercent={snapshot?.progressPercent ?? 0}
         kmCompleted={snapshot?.kmCompleted ?? 0}
         currentLocation={snapshot?.locationLabel ?? latestUpdate.location}
-        donationUrl={content.donationUrl}
         trackerStatus={content.trackerStatus}
         rideDate={content.rideDate}
       />
 
       {/* 3. Donations — live counter + CTA */}
       <DonationsStrip
-        donationUrl={content.donationUrl}
         raisedAmount={content.donationTotals.raisedAmount}
         goalAmount={content.donationTotals.goalAmount}
         donorCount={content.donationTotals.donorCount}

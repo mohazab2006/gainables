@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useMemo, useState, startTransition } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { EndpointLabel, RouteCurve } from "@/components/sections/biker-timeline";
 import { LiveMap } from "@/components/track/live-map";
@@ -12,7 +13,6 @@ import { deriveTrackerState, formatCountdown, mapRidePosition, mapRideUpdate, re
 import type { Database } from "@/types/db";
 
 type TrackerShellProps = {
-  donationUrl: string;
   initialPositions: RidePosition[];
   initialUpdates: RideUpdate[];
   mapboxToken?: string;
@@ -33,7 +33,6 @@ type RideUpdateRow = Database["public"]["Tables"]["ride_updates"]["Row"];
 type RidePositionRow = Database["public"]["Tables"]["ride_positions"]["Row"];
 
 export function TrackerShell({
-  donationUrl,
   initialPositions,
   initialUpdates,
   mapboxToken,
@@ -231,7 +230,7 @@ export function TrackerShell({
             className={[
               "p-8 md:p-10",
               isPreRide
-                ? "rounded-[2.2rem] border border-white/8 bg-white/[0.03]"
+                ? "rounded-[2.2rem] border border-white/8 bg-white/3"
                 : "rounded-4xl border border-border bg-background shadow-[0_16px_60px_rgba(10,10,10,0.04)]",
             ].join(" ")}
           >
@@ -244,10 +243,8 @@ export function TrackerShell({
                     : "Each checkpoint advances as ride updates and Overland positions arrive."}
                 </h2>
               </div>
-              <a
-                href={donationUrl}
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href="/donate"
                 className={[
                   "rounded-full px-5 py-3 text-sm font-medium transition",
                   isPreRide
@@ -256,7 +253,7 @@ export function TrackerShell({
                 ].join(" ")}
               >
                 Donate now
-              </a>
+              </Link>
             </div>
 
             <div className="mt-8 grid gap-4">
@@ -276,7 +273,7 @@ export function TrackerShell({
                       isPreRide
                         ? active
                           ? "border-accent/35 bg-accent/10 text-foreground"
-                          : "border-white/10 bg-white/[0.04] text-foreground"
+                          : "border-white/10 bg-white/4 text-foreground"
                         : active
                           ? "border-foreground bg-foreground text-background"
                           : passed
@@ -290,7 +287,7 @@ export function TrackerShell({
                         isPreRide
                           ? active
                             ? "border-accent/40 bg-accent/15"
-                            : "border-white/12 bg-white/[0.03]"
+                            : "border-white/12 bg-white/3"
                           : "",
                       ].join(" ")}
                     >
@@ -348,7 +345,7 @@ export function TrackerShell({
                           isPreRide
                             ? active
                               ? "border border-accent/30 bg-accent/12 text-foreground"
-                              : "border border-white/12 bg-white/[0.03] text-foreground/70"
+                              : "border border-white/12 bg-white/3 text-foreground/70"
                             : "border border-current/15",
                         ].join(" ")}
                       >
@@ -404,13 +401,13 @@ export function TrackerShell({
                     <p className="mt-4 text-xl font-medium tracking-tight">{update.message}</p>
                     <p className="mt-3 text-sm leading-7 text-muted-foreground">Next checkpoint: {update.nextCheckpoint}</p>
                     {update.mediaUrl ? (
-                      <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-border/60 bg-background/60">
+                      <div className="mt-5 overflow-hidden rounded-3xl border border-border/60 bg-background/60">
                         {update.mediaKind === "video" ? (
                           <video className="h-auto w-full object-cover" controls playsInline preload="metadata">
                             <source src={update.mediaUrl} />
                           </video>
                         ) : (
-                          <div className="relative aspect-[16/10] w-full">
+                          <div className="relative aspect-16/10 w-full">
                             <Image
                               src={update.mediaUrl}
                               alt={update.mediaAlt ?? update.message}

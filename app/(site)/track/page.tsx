@@ -39,7 +39,7 @@ export default async function TrackPage() {
           {isPreRide ? (
             <div className="flex shrink-0 flex-wrap gap-3 lg:justify-end">
               <Link
-                href={content.donationUrl || "/donate"}
+                href="/donate"
                 className="group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-medium text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_50px_rgba(200,226,92,0.35)]"
               >
                 <HeartHandshake size={18} />
@@ -56,7 +56,6 @@ export default async function TrackPage() {
         </div>
 
         <TrackerShell
-          donationUrl={content.donationUrl}
           initialPositions={ridePositions}
           initialUpdates={rideUpdates}
           mapboxToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}

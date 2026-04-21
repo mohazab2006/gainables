@@ -20,9 +20,9 @@ export function Footer() {
 
         <nav
           aria-label="Footer"
-          className="flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.24em]"
+          className="grid grid-cols-3 gap-x-6 gap-y-3 text-xs uppercase tracking-[0.24em] md:flex md:gap-x-6 md:gap-y-0"
         >
-          {navLinks.map((link) => (
+          {navLinks.slice(0, 3).map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -31,6 +31,17 @@ export function Footer() {
               {link.label}
             </Link>
           ))}
+          <div className="col-span-3 flex justify-center gap-x-6 md:contents">
+            {navLinks.slice(3).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="transition-colors duration-200 hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </nav>
       </div>
     </footer>

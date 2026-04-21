@@ -8,12 +8,14 @@ import type { HeroContent } from "@/lib/fallback-content";
 
 type Props = {
   hero: HeroContent;
-  donationUrl: string;
 };
 
-export function GainablesHero({ hero, donationUrl }: Props) {
+export function GainablesHero({ hero }: Props) {
   const root = useRef<HTMLElement>(null);
-  const donationHref = donationUrl || "/donate";
+  // Every donate CTA on the marketing surface routes to the internal
+  // /donate page — only the button on /donate itself uses the admin-
+  // configured donation URL directly.
+  const donationHref = "/donate";
 
   return (
     <section

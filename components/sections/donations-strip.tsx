@@ -7,7 +7,6 @@ import { useReveal } from "@/hooks/use-reveal";
 import type { TrackerStatus } from "@/lib/fallback-content";
 
 type Props = {
-  donationUrl: string;
   raisedAmount: number;
   goalAmount: number;
   donorCount: number;
@@ -17,7 +16,6 @@ type Props = {
 };
 
 export function DonationsStrip({
-  donationUrl,
   raisedAmount,
   goalAmount,
   donorCount,
@@ -31,12 +29,11 @@ export function DonationsStrip({
   const promo = trackerStatus === "pre_ride" && raisedAmount <= 0;
 
   if (promo) {
-    return <DonationsPromo donationUrl={donationUrl} goalAmount={goalAmount} currency={currency} rideDate={rideDate} />;
+    return <DonationsPromo goalAmount={goalAmount} currency={currency} rideDate={rideDate} />;
   }
 
   return (
     <DonationsLive
-      donationUrl={donationUrl}
       raisedAmount={raisedAmount}
       goalAmount={goalAmount}
       donorCount={donorCount}
@@ -46,13 +43,11 @@ export function DonationsStrip({
 }
 
 function DonationsLive({
-  donationUrl,
   raisedAmount,
   goalAmount,
   donorCount,
   currency,
 }: {
-  donationUrl: string;
   raisedAmount: number;
   goalAmount: number;
   donorCount: number;
@@ -105,7 +100,7 @@ function DonationsLive({
           </div>
           <div data-reveal className="flex flex-wrap gap-3">
             <Link
-              href={donationUrl || "/donate"}
+              href="/donate"
               className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
             >
               Donate now
@@ -121,12 +116,10 @@ function DonationsLive({
 }
 
 function DonationsPromo({
-  donationUrl,
   goalAmount,
   currency,
   rideDate,
 }: {
-  donationUrl: string;
   goalAmount: number;
   currency: string;
   rideDate?: string;
@@ -172,7 +165,7 @@ function DonationsPromo({
           </div>
           <div data-reveal className="flex flex-wrap gap-3">
             <Link
-              href={donationUrl || "/donate"}
+              href="/donate"
               className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
             >
               Be the first to donate

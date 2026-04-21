@@ -15,7 +15,6 @@ type BikerTimelineProps = {
   kmCompleted?: number;
   /** Real-world "Currently X" label from the latest update. Live mode only. */
   currentLocation: string;
-  donationUrl: string;
   trackerStatus: TrackerStatus;
   /** ISO timestamp of ride day — drives the pre-ride countdown + "Ride day" label. */
   rideDate: string;
@@ -29,9 +28,9 @@ type BikerTimelineProps = {
 // their label. Each half-period is 250 units wide; C + S + S keeps tangents
 // continuous so the biker leans through the waves cleanly.
 const ROUTE_PATH_D =
-  "M 115 120 C 198 108, 282 108, 365 120 S 532 132, 615 120 S 772 108, 855 120";
-const ROUTE_START = { x: 115, y: 120 };
-const ROUTE_END = { x: 855, y: 120 };
+  "M 95 130 C 178 118, 262 118, 345 130 S 512 142, 595 130 S 752 118, 835 130";
+const ROUTE_START = { x: 95, y: 130 };
+const ROUTE_END = { x: 835, y: 130 };
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 240;
 const LABEL_BASELINE_Y = 210;
@@ -41,7 +40,6 @@ export function BikerTimelineSection({
   progressPercent,
   kmCompleted,
   currentLocation,
-  donationUrl,
   trackerStatus,
   rideDate,
 }: BikerTimelineProps) {
@@ -212,7 +210,7 @@ export function BikerTimelineSection({
             <div className="flex flex-wrap gap-3">
               <Link href="/track" className="pill-ghost">Full tracker</Link>
               <Link
-                href={donationUrl || "/donate"}
+                href="/donate"
                 className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]"
               >
                 Donate
@@ -389,7 +387,7 @@ export function RouteCurve({
   }, [midCheckpoints]);
 
   return (
-    <div className="relative aspect-[1000/190] w-full md:aspect-[1000/240]">
+    <div className="relative aspect-1000/240 w-full">
       <svg
         viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
         className="absolute inset-0 h-full w-full"
@@ -402,7 +400,7 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="1.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
 
@@ -411,14 +409,14 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="white"
-          strokeWidth="1.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
           pathLength={100}
           strokeDasharray={`${progressPercent} 100`}
         />
 
-        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="4" fill="white" />
-        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="4" fill="white" />
+        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="6" fill="white" />
+        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="6" fill="white" />
 
         {dots.map((d, index) => {
           const reached = progressPercent >= d.pct;
@@ -431,10 +429,10 @@ export function RouteCurve({
               <circle
                 cx={d.x}
                 cy={d.y}
-                r="4"
+                r="5"
                 fill={reached ? "#C8E25C" : "#3A3A3A"}
                 stroke={reached ? "#C8E25C" : "rgba(255,255,255,0.25)"}
-                strokeWidth="1"
+                strokeWidth="1.5"
                 style={{ transition: "fill 700ms ease, stroke 700ms ease" }}
               />
               <line
@@ -452,10 +450,9 @@ export function RouteCurve({
                 textAnchor="middle"
                 fill={reached ? "#FFFFFF" : "rgba(255,255,255,0.45)"}
                 fontFamily="var(--font-sans)"
-                fontSize="18"
+                fontSize="22"
                 fontWeight="500"
                 letterSpacing="3"
-                className="md:text-[13px]"
                 style={{ textTransform: "uppercase", transition: "fill 700ms ease" }}
               >
                 {d.name.toUpperCase()}
