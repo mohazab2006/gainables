@@ -389,7 +389,7 @@ export function RouteCurve({
   }, [midCheckpoints]);
 
   return (
-    <div className="relative aspect-[1000/190] w-full md:aspect-[1000/240]">
+    <div className="relative aspect-[1000/240] w-full">
       <svg
         viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
         className="absolute inset-0 h-full w-full"
@@ -402,7 +402,7 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="1.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
 
@@ -411,14 +411,14 @@ export function RouteCurve({
           d={ROUTE_PATH_D}
           fill="none"
           stroke="white"
-          strokeWidth="1.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
           pathLength={100}
           strokeDasharray={`${progressPercent} 100`}
         />
 
-        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="4" fill="white" />
-        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="4" fill="white" />
+        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="6" fill="white" />
+        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="6" fill="white" />
 
         {dots.map((d, index) => {
           const reached = progressPercent >= d.pct;
@@ -431,10 +431,10 @@ export function RouteCurve({
               <circle
                 cx={d.x}
                 cy={d.y}
-                r="4"
+                r="5"
                 fill={reached ? "#C8E25C" : "#3A3A3A"}
                 stroke={reached ? "#C8E25C" : "rgba(255,255,255,0.25)"}
-                strokeWidth="1"
+                strokeWidth="1.5"
                 style={{ transition: "fill 700ms ease, stroke 700ms ease" }}
               />
               <line
@@ -452,7 +452,7 @@ export function RouteCurve({
                 textAnchor="middle"
                 fill={reached ? "#FFFFFF" : "rgba(255,255,255,0.45)"}
                 fontFamily="var(--font-sans)"
-                fontSize="18"
+                fontSize="22"
                 fontWeight="500"
                 letterSpacing="3"
                 style={{ textTransform: "uppercase", transition: "fill 700ms ease" }}

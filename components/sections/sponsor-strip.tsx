@@ -64,7 +64,7 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
       className="relative bg-background px-6 py-24 md:px-12 md:py-28 lg:px-20"
     >
       <div className="container-shell">
-        <div ref={head} className="flex items-baseline justify-between gap-6">
+        <div ref={head} className="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-6">
           <p data-reveal className="eyebrow">Sponsors</p>
           <p data-reveal className="eyebrow text-foreground/50">A growing network of partners</p>
         </div>

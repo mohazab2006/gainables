@@ -20,7 +20,7 @@ export function Footer() {
 
         <nav
           aria-label="Footer"
-          className="flex flex-wrap gap-x-6 gap-y-2 text-xs uppercase tracking-[0.24em]"
+          className="grid grid-cols-3 gap-x-6 gap-y-3 text-xs uppercase tracking-[0.24em] md:flex md:gap-x-6 md:gap-y-0"
         >
           {navLinks.map((link) => (
             <Link
