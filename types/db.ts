@@ -33,6 +33,9 @@ export type Database = {
           message: string;
           lat: number | null;
           lng: number | null;
+          media_url: string | null;
+          media_kind: "image" | "video" | null;
+          media_alt: string | null;
         };
         Insert: {
           id?: string;
@@ -43,6 +46,9 @@ export type Database = {
           message: string;
           lat?: number | null;
           lng?: number | null;
+          media_url?: string | null;
+          media_kind?: "image" | "video" | null;
+          media_alt?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["ride_updates"]["Insert"]>;
         Relationships: [];

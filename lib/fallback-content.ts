@@ -1,6 +1,12 @@
 export type HeroContent = {
   eyebrow: string;
   description: string;
+  backgroundMedia?: {
+    kind: "image" | "video";
+    url: string;
+    alt?: string;
+    posterUrl?: string;
+  } | null;
 };
 
 export type WhyItMattersContent = {
@@ -55,6 +61,9 @@ export type RideUpdate = {
   message: string;
   lat: number;
   lng: number;
+  mediaUrl?: string | null;
+  mediaKind?: "image" | "video" | null;
+  mediaAlt?: string | null;
 };
 
 export type RidePosition = {
@@ -102,7 +111,12 @@ export const fallbackSiteContent: SiteContent = {
   hero: {
     eyebrow: "Presented by Gainables",
     description:
-      "A community-driven initiative from Gainables during Mental Health Month. The team is cycling Ottawa to Montreal to raise awareness and funds — and to create a moment that encourages connection, conversation, and support.",
+      "A community-driven initiative from Gainables during Mental Health Month. The team is cycling Ottawa to Montreal to raise awareness and funds, and to create a moment that encourages connection, conversation, and support.",
+    backgroundMedia: {
+      kind: "image",
+      url: "/images/hero-main.png",
+      alt: "Cyclist standing with a bike for the Gainables Ride for Mental Health campaign.",
+    },
   },
   whyItMatters: {
     title: "Mental health affects everyone.",
@@ -115,20 +129,20 @@ export const fallbackSiteContent: SiteContent = {
       { stage: "Start", name: "Ottawa", km: 0, distanceLabel: "0 km", lat: 45.4215, lng: -75.6972, note: "8:00 AM rollout from downtown Ottawa." },
       { stage: "25%", name: "Rockland", km: 50, distanceLabel: "50 km", lat: 45.5418, lng: -75.2921, note: "First support stop along the Ottawa River on Hwy 17." },
       { stage: "50%", name: "Hawkesbury", km: 100, distanceLabel: "100 km", lat: 45.6076, lng: -74.6058, note: "Halfway regroup before crossing into Quebec." },
-      { stage: "75%", name: "Rigaud", km: 150, distanceLabel: "150 km", lat: 45.4814, lng: -74.3030, note: "Final support stop before the push into Montreal." },
-      { stage: "Finish", name: "Montreal", km: 200, distanceLabel: "200 km", lat: 45.5017, lng: -73.5673, note: "Ride complete — final supporter update." },
+      { stage: "75%", name: "Rigaud", km: 150, distanceLabel: "150 km", lat: 45.4814, lng: -74.303, note: "Final support stop before the push into Montreal." },
+      { stage: "Finish", name: "Montreal", km: 200, distanceLabel: "200 km", lat: 45.5017, lng: -73.5673, note: "Ride complete - final supporter update." },
     ],
     polyline: [
       { lat: 45.4215, lng: -75.6972 },
-      { lat: 45.4571, lng: -75.5270 },
+      { lat: 45.4571, lng: -75.527 },
       { lat: 45.5418, lng: -75.2921 },
-      { lat: 45.5550, lng: -75.1150 },
-      { lat: 45.5750, lng: -74.8820 },
+      { lat: 45.555, lng: -75.115 },
+      { lat: 45.575, lng: -74.882 },
       { lat: 45.6076, lng: -74.6058 },
-      { lat: 45.5600, lng: -74.4000 },
-      { lat: 45.4814, lng: -74.3030 },
-      { lat: 45.4520, lng: -74.1350 },
-      { lat: 45.4001, lng: -74.0330 },
+      { lat: 45.56, lng: -74.4 },
+      { lat: 45.4814, lng: -74.303 },
+      { lat: 45.452, lng: -74.135 },
+      { lat: 45.4001, lng: -74.033 },
       { lat: 45.4472, lng: -73.8171 },
       { lat: 45.5017, lng: -73.5673 },
     ],
@@ -136,13 +150,13 @@ export const fallbackSiteContent: SiteContent = {
   },
   media: {
     body:
-      "The campaign is positioned for strong visibility across both social and traditional media — documented in real time through preparation, challenges, and the real moments behind the initiative.",
+      "The campaign is positioned for strong visibility across both social and traditional media, documented in real time through preparation, challenges, and the real moments behind the initiative.",
     links: [
       {
         label: "Instagram",
         handle: "gainables.ca",
         href: "https://www.instagram.com/gainables.ca/",
-        description: "Primary channel — daily updates before and during the ride.",
+        description: "Primary channel - daily updates before and during the ride.",
       },
       {
         label: "TikTok",
@@ -160,7 +174,7 @@ export const fallbackSiteContent: SiteContent = {
   },
   donate: {
     story:
-      "Donating here is the most direct way to stand with the campaign. All funds raised are directed to CHEO Foundation and go toward mental health services and support programs — helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
+      "Donating here is the most direct way to stand with the campaign. All funds raised are directed to CHEO Foundation and go toward mental health services and support programs, helping people who are dealing with stress, burnout, anxiety, and other challenges, often without visible support.",
     impact: [
       { title: "Care access", description: "Support programs, counselling access, and community-led mental health initiatives." },
       { title: "Awareness", description: "Keep the conversation active and visible before, during, and after ride day." },
@@ -192,13 +206,16 @@ export const fallbackRideUpdates: RideUpdate[] = [
   {
     id: "update-initial",
     createdAt: "2026-01-01T00:00:00.000Z",
-    createdAtLabel: "—",
-    location: "Start line · Ottawa",
+    createdAtLabel: "-",
+    location: "Start line - Ottawa",
     kmCompleted: 0,
     nextCheckpoint: "Rockland",
     message: "Ride hasn't started yet. Live updates will appear here on ride day.",
     lat: 45.4215,
     lng: -75.6972,
+    mediaUrl: null,
+    mediaKind: null,
+    mediaAlt: null,
   },
 ];
 
@@ -209,7 +226,7 @@ export const fallbackFaqs: FaqItem[] = [
     id: "faq-1",
     question: "Where do donations go?",
     answer:
-      "All funds raised are directed toward mental health services and support programs through the campaign’s confirmed cause partner.",
+      "All funds raised are directed toward mental health services and support programs through the campaign's confirmed cause partner.",
     sortOrder: 1,
     visible: true,
   },
@@ -217,7 +234,7 @@ export const fallbackFaqs: FaqItem[] = [
     id: "faq-2",
     question: "What is Ride for Mental Health?",
     answer:
-      "Ride for Mental Health is a community-driven initiative led by Gainables during Mental Health Month. The Gainables team is cycling ~200 km from Ottawa to Montreal to raise awareness and funds for mental health, while bringing people together through a shared experience.",
+      "Ride for Mental Health is a community-driven initiative led by Gainables during Mental Health Month. The Gainables team is cycling about 200 km from Ottawa to Montreal to raise awareness and funds for mental health while bringing people together through a shared experience.",
     sortOrder: 2,
     visible: true,
   },

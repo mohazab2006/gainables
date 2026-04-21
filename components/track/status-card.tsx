@@ -1,11 +1,12 @@
-import type { RidePosition, RideUpdate, RouteContent, TrackerStatus } from "@/lib/fallback-content";
-import { deriveSignalStatus, formatCountdown, formatRideUpdateDate, getTrackerSnapshot } from "@/lib/track";
+import type { RidePosition, RideUpdate, TrackerStatus } from "@/lib/fallback-content";
+import type { TrackerSnapshot } from "@/lib/track";
+import { deriveSignalStatus, formatCountdown, formatRideUpdateDate } from "@/lib/track";
 
 export function StatusCard({
   latestPosition,
   nowMs,
   rideDate,
-  route,
+  snapshot,
   state,
   trackerStatus,
   update,
@@ -13,12 +14,11 @@ export function StatusCard({
   latestPosition: RidePosition | null;
   nowMs: number | null;
   rideDate: string;
-  route: RouteContent;
+  snapshot: TrackerSnapshot | null;
   state: "pre_ride" | "live" | "finished";
   trackerStatus: TrackerStatus;
   update: RideUpdate | null;
 }) {
-  const snapshot = update ? getTrackerSnapshot(route, update) : null;
   const batteryLabel = latestPosition?.batteryPct !== null && latestPosition?.batteryPct !== undefined ? `${Math.round(latestPosition.batteryPct)}% battery` : "Battery unavailable";
   const speedLabel = latestPosition?.speedMps ? `${(latestPosition.speedMps * 3.6).toFixed(1)} km/h` : "Speed unavailable";
 
@@ -28,7 +28,7 @@ export function StatusCard({
         <div>
           <p className="text-sm uppercase tracking-[0.28em] text-background/60">Tracker state</p>
           <p className="mt-3 text-3xl font-medium tracking-tight">
-            {state === "pre_ride" ? "Countdown" : state === "finished" ? "Ride summary" : update?.location ?? "Live ride"}
+            {state === "pre_ride" ? "Countdown" : state === "finished" ? "Ride summary" : snapshot?.locationLabel ?? update?.location ?? "Live ride"}
           </p>
         </div>
         <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-right">
@@ -47,7 +47,7 @@ export function StatusCard({
         </div>
       ) : null}
 
-      {update && snapshot ? (
+      {snapshot ? (
         <div className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -55,14 +55,14 @@ export function StatusCard({
               <p className="mt-2 text-4xl font-medium tracking-tight">{Math.round(snapshot.progressPercent)}%</p>
             </div>
             <p className="text-sm text-background/65">
-              {update.kmCompleted} / {snapshot.totalDistanceKm} km
+              {snapshot.kmCompleted.toFixed(1)} / {snapshot.totalDistanceKm} km
             </p>
           </div>
           <div className="mt-4 h-2 rounded-full bg-white/10">
             <div className="h-full rounded-full bg-background transition-[width]" style={{ width: `${snapshot.progressPercent}%` }} />
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <Metric label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? update.nextCheckpoint} />
+            <Metric label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? update?.nextCheckpoint ?? "Awaiting checkpoint"} />
             <Metric label="Remaining distance" value={`${Math.round(snapshot.remainingKm)} km`} />
           </div>
         </div>
@@ -81,6 +81,7 @@ export function StatusCard({
       <div className="mt-8 space-y-6">
         <Item label="Latest message" value={update?.message ?? "Ride updates will appear here once the operator posts the first checkpoint note."} />
         <Item label="Current checkpoint" value={snapshot?.currentCheckpoint?.name ?? "Ottawa start"} />
+        <Item label="Progress source" value={snapshot?.source === "live" ? "Live GPS route sync" : "Manual admin update"} />
       </div>
     </aside>
   );

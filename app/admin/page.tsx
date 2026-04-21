@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import Link from "next/link";
-import { ArrowUpRight, FileText, HelpCircle, Mail, Radio, Sparkles, Users } from "lucide-react";
+import { ArrowUpRight, FileText, HelpCircle, Mail, Radio, Sparkles } from "lucide-react";
 
 import { AdminFlashBanner } from "@/components/admin/flash-banner";
 import { RideModeCard } from "@/components/admin/ride-mode-card";
@@ -157,8 +157,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-xs uppercase tracking-[0.28em] text-background/60">Signed in</p>
             <h2 className="mt-4 font-display text-2xl tracking-tight">{session.user.email}</h2>
             <p className="mt-3 max-w-md text-sm leading-7 text-background/70">
-              You're authorized to edit the public site. Use the nav above to jump to any editor. Sign out from the
-              top-right when you're done.
+              You&apos;re authorized to edit the public site. Use the nav above to jump to any editor. Sign out from the
+              top-right when you&apos;re done.
             </p>
             <form action={signOutAdmin} className="mt-6">
               <AdminSubmitButton idleLabel="Sign out" pendingLabel="Signing out..." variant="secondary" />
@@ -190,7 +190,7 @@ function SignInView({ message, type }: { message: string | null; type: string | 
             Sign in to the <span className="display-italic">control room</span>.
           </h1>
           <p className="mt-4 text-sm leading-7 text-muted-foreground">
-            We'll email a one-time magic link. Only addresses on the admin allowlist can complete sign-in.
+            We&apos;ll email a one-time magic link. Only addresses on the admin allowlist can complete sign-in.
           </p>
 
           <form action={signInAdmin} className="mt-6 space-y-4">
@@ -238,10 +238,10 @@ function ForbiddenView({
         <div className="rounded-4xl border border-red-200 bg-red-50 p-8 md:p-10">
           <p className="text-xs uppercase tracking-[0.28em] text-red-700/80">Access denied</p>
           <h1 className="mt-4 font-display text-3xl leading-tight tracking-tight text-red-900 md:text-4xl">
-            This email isn't on the allowlist.
+            This email isn&apos;t on the allowlist.
           </h1>
           <p className="mt-4 text-sm leading-7 text-red-900/85">
-            You're signed in as <span className="font-medium">{email}</span>, but that address hasn't been added to{" "}
+            You&apos;re signed in as <span className="font-medium">{email}</span>, but that address hasn&apos;t been added to{" "}
             <code className="font-mono text-xs">ADMIN_ALLOWED_EMAILS</code>. Ask an owner to add it, or sign out and try
             a different address.
           </p>

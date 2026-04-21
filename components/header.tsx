@@ -106,7 +106,6 @@ export function Header() {
 
   useEffect(() => {
     if (pathname !== "/") {
-      setActiveSection(null);
       return;
     }
 

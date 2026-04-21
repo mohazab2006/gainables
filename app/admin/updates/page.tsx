@@ -32,7 +32,7 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
           <AdminFlashBanner message={message} type={type} className="mt-6" />
         </section>
 
-        <form action={createRideUpdate} className="rounded-[2rem] border border-border bg-background p-8">
+        <form action={createRideUpdate} encType="multipart/form-data" className="rounded-[2rem] border border-border bg-background p-8">
           <p className="text-sm uppercase tracking-[0.24em] text-muted-foreground">Post new update</p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             <AdminField label="Location">
@@ -59,6 +59,14 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
               <input type="datetime-local" name="createdAt" disabled={!canEdit} className={adminFieldClassName} />
             </AdminField>
           </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px]">
+            <AdminField label="Photo or video">
+              <input type="file" name="media" accept="image/*,video/*" disabled={!canEdit} className={`${adminFieldClassName} h-11 py-2`} />
+            </AdminField>
+            <AdminField label="Media alt / caption">
+              <input name="mediaAlt" disabled={!canEdit} className={adminFieldClassName} placeholder="Rider rolling through Hawkesbury." />
+            </AdminField>
+          </div>
           <div className="mt-6">
             <AdminSubmitButton idleLabel="Post update" pendingLabel="Posting..." className="rounded-full px-5" disabled={!canEdit} />
           </div>
@@ -72,8 +80,10 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
           ) : null}
           {updates.map((update) => (
             <article key={update.id} className="rounded-[1.75rem] border border-border bg-background p-6">
-              <form action={updateRideUpdate}>
+              <form action={updateRideUpdate} encType="multipart/form-data">
                 <input type="hidden" name="id" value={update.id} />
+                <input type="hidden" name="existingMediaUrl" value={update.mediaUrl ?? ""} />
+                <input type="hidden" name="existingMediaKind" value={update.mediaKind ?? ""} />
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                   <AdminField label="Location">
                     <input name="location" defaultValue={update.location} required disabled={!canEdit} className={adminFieldClassName} />
@@ -99,6 +109,30 @@ export default async function AdminUpdatesPage({ searchParams }: AdminUpdatesPag
                     <input type="datetime-local" name="createdAt" defaultValue={toDateTimeLocal(update.createdAt)} disabled={!canEdit} className={adminFieldClassName} />
                   </AdminField>
                 </div>
+                <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_280px]">
+                  <AdminField label="Replace photo or video">
+                    <input type="file" name="media" accept="image/*,video/*" disabled={!canEdit} className={`${adminFieldClassName} h-11 py-2`} />
+                  </AdminField>
+                  <AdminField label="Media alt / caption">
+                    <input
+                      name="mediaAlt"
+                      defaultValue={update.mediaAlt ?? ""}
+                      disabled={!canEdit}
+                      className={adminFieldClassName}
+                      placeholder="Support crew update from the road."
+                    />
+                  </AdminField>
+                </div>
+                {update.mediaUrl ? (
+                  <div className="mt-4 rounded-2xl border border-border bg-secondary/30 p-4 text-sm">
+                    <p className="font-medium">Current media</p>
+                    <p className="mt-1 break-all text-muted-foreground">{update.mediaKind} - {update.mediaUrl}</p>
+                    <label className="mt-3 flex items-center gap-3">
+                      <input type="checkbox" name="clearMedia" className="h-4 w-4 rounded border-border" />
+                      Clear current media
+                    </label>
+                  </div>
+                ) : null}
                 <div className="mt-5 flex flex-wrap gap-3">
                   <AdminSubmitButton idleLabel="Save update" pendingLabel="Saving..." className="rounded-full px-5" disabled={!canEdit} />
                 </div>

@@ -137,14 +137,15 @@ export function SmartSponsorLogo({
   monochromeClassName = "opacity-60 brightness-0 invert group-hover:opacity-100",
   naturalClassName = "opacity-90 group-hover:opacity-100",
 }: SmartSponsorLogoProps) {
-  const [variant, setVariant] = useState<Variant>("loading");
-  const [resolvedSrc, setResolvedSrc] = useState<string>(src);
+  const [analysis, setAnalysis] = useState<{ source: string; variant: Variant; resolvedSrc: string }>({
+    source: src,
+    variant: "loading",
+    resolvedSrc: src,
+  });
   const dataUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setVariant("loading");
-    setResolvedSrc(src);
     dataUrlRef.current = null;
 
     const probe = new Image();
@@ -154,32 +155,33 @@ export function SmartSponsorLogo({
       if (cancelled) return;
       const result = detect(probe);
       if (!result) {
-        setVariant("natural");
+        setAnalysis({ source: src, variant: "natural", resolvedSrc: src });
         return;
       }
       switch (result.kind) {
         case "transparent":
         case "edge-to-edge":
-          setVariant("natural");
+          setAnalysis({ source: src, variant: "natural", resolvedSrc: src });
           return;
         case "solid":
-          setVariant("monochrome");
+          setAnalysis({ source: src, variant: "monochrome", resolvedSrc: src });
           return;
         case "background": {
           const dataUrl = knockoutBackground(probe, result.bg);
           if (cancelled) return;
           if (dataUrl) {
             dataUrlRef.current = dataUrl;
-            setResolvedSrc(dataUrl);
+            setAnalysis({ source: src, variant: "natural", resolvedSrc: dataUrl });
+            return;
           }
-          setVariant("natural");
+          setAnalysis({ source: src, variant: "natural", resolvedSrc: src });
           return;
         }
       }
     };
 
     probe.onerror = () => {
-      if (!cancelled) setVariant("natural");
+      if (!cancelled) setAnalysis({ source: src, variant: "natural", resolvedSrc: src });
     };
 
     probe.src = src;
@@ -191,16 +193,18 @@ export function SmartSponsorLogo({
     };
   }, [src]);
 
+  const display = analysis.source === src ? analysis : { source: src, variant: "loading" as const, resolvedSrc: src };
+
   const variantClass =
-    variant === "loading"
+    display.variant === "loading"
       ? "opacity-0"
-      : variant === "natural"
+      : display.variant === "natural"
         ? naturalClassName
         : monochromeClassName;
 
   return (
     <img
-      src={resolvedSrc}
+      src={display.resolvedSrc}
       alt={alt}
       loading="lazy"
       className={`${className} ${variantClass} transition duration-500`}

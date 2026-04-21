@@ -39,7 +39,7 @@ async function getCachedSiteContent(): Promise<SiteContent> {
 
     return {
       ...fallbackSiteContent,
-      hero: readValue(map, "hero", fallbackSiteContent.hero),
+      hero: normalizeHeroContent(readValue(map, "hero", fallbackSiteContent.hero), fallbackSiteContent.hero),
       whyItMatters: readValue(map, "why_it_matters", fallbackSiteContent.whyItMatters),
       route: normalizeRouteContent(readValue(map, "route", fallbackSiteContent.route), fallbackSiteContent.route),
       media: readValue(map, "media", fallbackSiteContent.media),
@@ -144,7 +144,7 @@ export async function getAdminRideUpdates(): Promise<RideUpdate[]> {
     const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("ride_updates")
-      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng")
+      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng, media_url, media_kind, media_alt")
       .order("created_at", { ascending: false });
 
     if (error || !data) return [];
@@ -164,7 +164,7 @@ async function getCachedRideUpdates(): Promise<RideUpdate[]> {
     const supabase = createSupabasePublicClient();
     const { data, error } = await supabase
       .from("ride_updates")
-      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng")
+      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng, media_url, media_kind, media_alt")
       .order("created_at", { ascending: false });
 
     if (error || !data?.length) {
@@ -324,6 +324,38 @@ async function getCachedSubscribers(limit = 200): Promise<SubscriberRecord[]> {
 
 function readValue<T>(map: Map<string, unknown>, key: string, fallback: T): T {
   return (map.get(key) as T | undefined) ?? fallback;
+}
+
+function normalizeHeroContent(input: unknown, fallback: SiteContent["hero"]): SiteContent["hero"] {
+  if (!input || typeof input !== "object") {
+    return fallback;
+  }
+
+  const hero = input as Partial<SiteContent["hero"]>;
+  const background = hero.backgroundMedia;
+  const normalizedBackground =
+    background === null
+      ? null
+      :
+    background &&
+    typeof background === "object" &&
+    (background.kind === "image" || background.kind === "video") &&
+    typeof background.url === "string" &&
+    background.url.length
+      ? {
+          kind: background.kind,
+          url: background.url,
+          alt: typeof background.alt === "string" ? background.alt : undefined,
+          posterUrl: typeof background.posterUrl === "string" ? background.posterUrl : undefined,
+        }
+      : fallback.backgroundMedia ?? null;
+
+  return {
+    eyebrow: typeof hero.eyebrow === "string" && hero.eyebrow.length ? hero.eyebrow : fallback.eyebrow,
+    description:
+      typeof hero.description === "string" && hero.description.length ? hero.description : fallback.description,
+    backgroundMedia: normalizedBackground,
+  };
 }
 
 function normalizeRouteContent(input: unknown, fallback: RouteContent): RouteContent {

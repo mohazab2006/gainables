@@ -4,6 +4,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { CACHE_TAGS, PUBLIC_CACHE_TAGS } from "@/lib/cache-tags";
+import { uploadCampaignAsset } from "@/lib/admin/media";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -70,9 +71,53 @@ async function persistSection(key: string, value: unknown, path: string, label: 
 
 export async function saveHero(formData: FormData) {
   const path = "/admin/content/hero";
+  const backgroundFile = formData.get("backgroundMedia") as File | null;
+  const posterFile = formData.get("backgroundPoster") as File | null;
+  const clearBackground = formData.get("clearBackground") === "on";
+  const existingKind = str(formData, "existingBackgroundKind");
+  const existingUrl = str(formData, "existingBackgroundUrl");
+  const existingPosterUrl = str(formData, "existingBackgroundPosterUrl");
+  let backgroundMedia: {
+    kind: "image" | "video";
+    url: string;
+    alt?: string;
+    posterUrl?: string;
+  } | null = clearBackground
+    ? null
+    : existingKind && existingUrl
+      ? {
+          kind: existingKind === "video" ? "video" : "image",
+          url: existingUrl,
+          alt: str(formData, "backgroundAlt") || undefined,
+          posterUrl: existingPosterUrl || undefined,
+        }
+      : null;
+
+  try {
+    if (backgroundFile && backgroundFile.size > 0) {
+      const uploaded = await uploadCampaignAsset(backgroundFile, "hero");
+      backgroundMedia = {
+        kind: uploaded.kind,
+        url: uploaded.publicUrl,
+        alt: str(formData, "backgroundAlt") || undefined,
+        posterUrl: uploaded.kind === "video" ? existingPosterUrl || undefined : undefined,
+      };
+    }
+    if (posterFile && posterFile.size > 0) {
+      const uploadedPoster = await uploadCampaignAsset(posterFile, "hero-posters");
+      if (backgroundMedia) {
+        backgroundMedia.posterUrl = uploadedPoster.publicUrl;
+      }
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to upload hero media.";
+    redirectWithMessage(path, "error", message);
+  }
+
   const value = {
     eyebrow: str(formData, "eyebrow"),
     description: str(formData, "description"),
+    backgroundMedia,
   };
   await persistSection("hero", value, path, "hero");
 }
@@ -95,6 +140,16 @@ export async function saveWhyItMatters(formData: FormData) {
 /* -------------------------------------------------------------------------- */
 
 type MediaLinkRow = { label: string; handle: string; href: string; description: string };
+type RouteCheckpointRow = {
+  stage: string;
+  name: string;
+  km: string;
+  distanceLabel: string;
+  lat: string;
+  lng: string;
+  note: string;
+};
+type RoutePointRow = { lat: string; lng: string };
 
 export async function saveMedia(formData: FormData) {
   const path = "/admin/content/media";
@@ -109,6 +164,38 @@ export async function saveMedia(formData: FormData) {
     })),
   };
   await persistSection("media", value, path, "media");
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Route                                                                     */
+/* -------------------------------------------------------------------------- */
+
+export async function saveRoute(formData: FormData) {
+  const path = "/admin/content/route";
+  const checkpoints = parseJsonArray<RouteCheckpointRow>(formData, "checkpoints", path);
+  const polyline = parseJsonArray<RoutePointRow>(formData, "polyline", path);
+  const value = {
+    totalDistanceKm: Number(str(formData, "totalDistanceKm") || "0"),
+    mapCenter: {
+      lat: Number(str(formData, "mapCenterLat") || "0"),
+      lng: Number(str(formData, "mapCenterLng") || "0"),
+      zoom: Number(str(formData, "mapCenterZoom") || "0"),
+    },
+    checkpoints: checkpoints.map((checkpoint, index) => ({
+      stage: String(checkpoint.stage ?? "").trim() || `Checkpoint ${index + 1}`,
+      name: String(checkpoint.name ?? "").trim() || `Checkpoint ${index + 1}`,
+      km: Number(checkpoint.km ?? 0),
+      distanceLabel: String(checkpoint.distanceLabel ?? "").trim() || `${Number(checkpoint.km ?? 0)} km`,
+      lat: Number(checkpoint.lat ?? 0),
+      lng: Number(checkpoint.lng ?? 0),
+      note: String(checkpoint.note ?? "").trim() || undefined,
+    })),
+    polyline: polyline.map((point) => ({
+      lat: Number(point.lat ?? 0),
+      lng: Number(point.lng ?? 0),
+    })),
+  };
+  await persistSection("route", value, path, "route");
 }
 
 /* -------------------------------------------------------------------------- */

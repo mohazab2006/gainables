@@ -6,6 +6,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { CACHE_TAGS, PUBLIC_CACHE_TAGS } from "@/lib/cache-tags";
+import { uploadCampaignAsset } from "@/lib/admin/media";
 import { adminJsonContentSections, adminScalarContentSections } from "@/lib/admin/content-sections";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -231,6 +232,24 @@ export async function deleteSponsor(formData: FormData) {
 export async function createRideUpdate(formData: FormData) {
   await requireAuthorizedAdmin("/admin/updates");
 
+  const file = formData.get("media") as File | null;
+  let media: { media_url: string | null; media_kind: "image" | "video" | null } = {
+    media_url: null,
+    media_kind: null,
+  };
+  if (file && file.size > 0) {
+    try {
+      const uploaded = await uploadCampaignAsset(file, "ride-updates");
+      media = {
+        media_url: uploaded.publicUrl,
+        media_kind: uploaded.kind,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to upload ride update media.";
+      redirectWithMessage("/admin/updates", "error", message);
+    }
+  }
+
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase.from("ride_updates").insert({
     location: String(formData.get("location") ?? "").trim(),
@@ -240,6 +259,8 @@ export async function createRideUpdate(formData: FormData) {
     lat: toNullableString(formData.get("lat")) ? toNumber(formData.get("lat")) : null,
     lng: toNullableString(formData.get("lng")) ? toNumber(formData.get("lng")) : null,
     created_at: toNullableString(formData.get("createdAt")) ?? new Date().toISOString(),
+    media_alt: toNullableString(formData.get("mediaAlt")),
+    ...media,
   });
 
   if (error) {
@@ -256,6 +277,29 @@ export async function updateRideUpdate(formData: FormData) {
   await requireAuthorizedAdmin("/admin/updates");
 
   const id = String(formData.get("id") ?? "");
+  const file = formData.get("media") as File | null;
+  const clearMedia = formData.get("clearMedia") === "on";
+  let media: { media_url?: string | null; media_kind?: "image" | "video" | null } = {};
+  if (clearMedia) {
+    media = { media_url: null, media_kind: null };
+  } else if (file && file.size > 0) {
+    try {
+      const uploaded = await uploadCampaignAsset(file, "ride-updates");
+      media = {
+        media_url: uploaded.publicUrl,
+        media_kind: uploaded.kind,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to upload ride update media.";
+      redirectWithMessage("/admin/updates", "error", message);
+    }
+  } else {
+    media = {
+      media_url: toNullableString(formData.get("existingMediaUrl")),
+      media_kind: (toNullableString(formData.get("existingMediaKind")) as "image" | "video" | null) ?? null,
+    };
+  }
+
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase
     .from("ride_updates")
@@ -267,6 +311,8 @@ export async function updateRideUpdate(formData: FormData) {
       lat: toNullableString(formData.get("lat")) ? toNumber(formData.get("lat")) : null,
       lng: toNullableString(formData.get("lng")) ? toNumber(formData.get("lng")) : null,
       created_at: toNullableString(formData.get("createdAt")) ?? new Date().toISOString(),
+      media_alt: clearMedia ? null : toNullableString(formData.get("mediaAlt")),
+      ...media,
     })
     .eq("id", id);
 

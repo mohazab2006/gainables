@@ -13,11 +13,8 @@ type AdminContentPageProps = {
 type SectionCard = {
   href: string;
   title: string;
-  /** Plain-English explanation of what the editor controls. */
   summary: string;
-  /** Where this appears on the public site. */
   appearsOn: string;
-  /** Badge shown when there's no typed editor yet. */
   status?: "typed" | "raw";
 };
 
@@ -25,22 +22,22 @@ const sections: SectionCard[] = [
   {
     href: "/admin/content/hero",
     title: "Hero",
-    summary: "Top of the homepage — the small eyebrow label and the description paragraph under the wordmark.",
+    summary: "Top of the homepage - the small eyebrow label, description paragraph, and background photo or video.",
     appearsOn: "Homepage top",
     status: "typed",
   },
   {
     href: "/admin/content/why-it-matters",
     title: "Mission",
-    summary: "The mission block — headline and body paragraph explaining why the ride exists.",
-    appearsOn: "Homepage · mid-page",
+    summary: "The mission block - headline and body paragraph explaining why the ride exists.",
+    appearsOn: "Homepage mid-page",
     status: "typed",
   },
   {
     href: "/admin/content/media",
     title: "Contact",
-    summary: "The 'Stay close to the ride' block — intro body copy and the list of social / contact links.",
-    appearsOn: "Homepage · bottom",
+    summary: "The 'Stay close to the ride' block - intro body copy and the list of social and contact links.",
+    appearsOn: "Homepage bottom",
     status: "typed",
   },
   {
@@ -51,11 +48,11 @@ const sections: SectionCard[] = [
     status: "typed",
   },
   {
-    href: "/admin/content/raw?section=route",
+    href: "/admin/content/route",
     title: "Route",
-    summary: "Total distance, checkpoints, polyline, and map centre. Advanced — edit as JSON.",
+    summary: "Total distance, checkpoints, map centre, and the route polyline used for live GPS sync.",
     appearsOn: "/track page + homepage timeline",
-    status: "raw",
+    status: "typed",
   },
 ];
 
@@ -71,8 +68,7 @@ export default async function AdminContentHubPage({ searchParams }: AdminContent
           <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Content</p>
           <h1 className="mt-4 text-3xl font-medium tracking-tight">Edit what appears on the public site.</h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">
-            Pick a section below. Each one opens a plain-English form — no JSON — with hints describing what every
-            field controls and where it appears. Saves publish immediately.
+            Pick a section below. Each one opens a plain-English form with hints describing what every field controls and where it appears. Saves publish immediately.
           </p>
           <AdminFlashBanner message={message} type={type} className="mt-6" />
           <div className="mt-6 flex flex-wrap gap-3">
@@ -80,7 +76,7 @@ export default async function AdminContentHubPage({ searchParams }: AdminContent
               href="/admin/content/settings"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition hover:border-foreground"
             >
-              Donation &amp; tracker settings
+              Donation and tracker settings
               <ArrowRight size={14} />
             </Link>
             <Link
@@ -88,7 +84,7 @@ export default async function AdminContentHubPage({ searchParams }: AdminContent
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:border-foreground hover:text-foreground"
             >
               <Code2 size={14} />
-              Advanced · raw JSON
+              Advanced - raw JSON
             </Link>
           </div>
         </section>

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState, startTransition } from "react";
+import Image from "next/image";
 
 import { LiveMap } from "@/components/track/live-map";
 import { StatusCard } from "@/components/track/status-card";
 import type { RidePosition, RideUpdate, RouteContent, TrackerStatus } from "@/lib/fallback-content";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { deriveTrackerState, formatCountdown, getTrackerSnapshot, mapRidePosition, mapRideUpdate } from "@/lib/track";
+import { deriveTrackerState, formatCountdown, mapRidePosition, mapRideUpdate, resolveTrackerSnapshot } from "@/lib/track";
 import type { Database } from "@/types/db";
 
 type TrackerShellProps = {
@@ -46,6 +47,12 @@ export function TrackerShell({
   const latestUpdate = updates[0] ?? null;
   const latestPosition = positions.at(-1) ?? null;
   const experienceState = deriveTrackerState({ trackerStatus, latestPosition });
+  const trackerSnapshot = resolveTrackerSnapshot({
+    route,
+    latestPosition,
+    latestUpdate,
+    nowMs: nowMs ?? undefined,
+  });
 
   useEffect(() => {
     const interval = window.setInterval(() => setNowMs(Date.now()), 60_000);
@@ -60,7 +67,7 @@ export function TrackerShell({
     const supabase = createSupabaseBrowserClient();
     const { data, error } = await supabase
       .from("ride_updates")
-      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng")
+      .select("id, created_at, location, km_completed, next_checkpoint, message, lat, lng, media_url, media_kind, media_alt")
       .order("created_at", { ascending: false })
       .limit(8);
 
@@ -115,9 +122,6 @@ export function TrackerShell({
   }, []);
 
   const checkpoints = route.checkpoints;
-  const trackerSnapshot = latestUpdate
-    ? getTrackerSnapshot(route, latestUpdate)
-    : null;
   const progressPercent =
     experienceState === "finished"
       ? 100
@@ -142,7 +146,7 @@ export function TrackerShell({
           latestPosition={latestPosition}
           nowMs={nowMs}
           rideDate={rideDate}
-          route={route}
+          snapshot={trackerSnapshot}
           state={experienceState}
           trackerStatus={trackerStatus}
           update={latestUpdate}
@@ -176,10 +180,10 @@ export function TrackerShell({
                 const isStart = index === 0;
                 const isFinish = index === checkpoints.length - 1;
                 const active =
-                  latestUpdate?.nextCheckpoint === checkpoint.name ||
+                  trackerSnapshot?.nextCheckpoint?.name === checkpoint.name ||
                   (experienceState === "pre_ride" && isStart) ||
                   (experienceState === "finished" && isFinish);
-                const passed = latestUpdate ? latestUpdate.kmCompleted >= checkpoint.km : false;
+                const passed = trackerSnapshot ? trackerSnapshot.kmCompleted >= checkpoint.km : false;
 
                 return (
                   <div
@@ -256,10 +260,29 @@ export function TrackerShell({
                     <span className="h-1 w-1 rounded-full bg-border" />
                     <span>{update.location}</span>
                     <span className="h-1 w-1 rounded-full bg-border" />
-                    <span>{update.kmCompleted} km complete</span>
+                    <span>{(trackerSnapshot?.source === "live" && index === 0 ? trackerSnapshot.kmCompleted : update.kmCompleted).toFixed(1)} km complete</span>
                   </div>
                   <p className="mt-4 text-xl font-medium tracking-tight">{update.message}</p>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">Next checkpoint: {update.nextCheckpoint}</p>
+                  {update.mediaUrl ? (
+                    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-border/60 bg-background/60">
+                      {update.mediaKind === "video" ? (
+                        <video className="h-auto w-full object-cover" controls playsInline preload="metadata">
+                          <source src={update.mediaUrl} />
+                        </video>
+                      ) : (
+                        <div className="relative aspect-[16/10] w-full">
+                          <Image
+                            src={update.mediaUrl}
+                            alt={update.mediaAlt ?? update.message}
+                            fill
+                            sizes="(min-width: 1280px) 780px, 100vw"
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
                 </article>
               ))}
             </div>

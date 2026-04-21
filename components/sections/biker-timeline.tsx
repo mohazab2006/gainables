@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import type { RouteContent, TrackerStatus } from "@/lib/fallback-content";
 
 type BikerTimelineProps = {
@@ -23,13 +23,18 @@ type BikerTimelineProps = {
 
 // Single source of truth for the route curve. Used by the SVG <path>,
 // by milestone dots (via getPointAtLength), and by the biker's motion.
-const ROUTE_PATH_D = "M 40 110 C 260 110, 380 260, 520 180 S 820 40, 960 130";
+// Three uniform half-periods (up → down → up) with a tight ±12 amplitude.
+// Endpoints at x=110/860 — asymmetric because OTTAWA is visually narrower
+// than MONTREAL, so this gives both dots a comparable perceived gap from
+// their label. Each half-period is 250 units wide; C + S + S keeps tangents
+// continuous so the biker leans through the waves cleanly.
+const ROUTE_PATH_D =
+  "M 110 130 C 193 118, 277 118, 360 130 S 527 142, 610 130 S 777 118, 860 130";
+const ROUTE_START = { x: 110, y: 130 };
+const ROUTE_END = { x: 860, y: 130 };
 const VIEWBOX_W = 1000;
 const VIEWBOX_H = 240;
-const LABEL_BASELINE_Y = 220;
-
-const PRE_RIDE_LOOP_SECONDS = 8;
-const PRE_RIDE_HOLD_SECONDS = 1;
+const LABEL_BASELINE_Y = 210;
 
 export function BikerTimelineSection({
   route,
@@ -48,12 +53,12 @@ export function BikerTimelineSection({
     return 0;
   });
 
-  // Pre-ride: run a looping GSAP timeline that drives a local 0 -> 100
-  // value, holds at the end, resets, repeats. Respects reduced motion
-  // (falls back to a static mid-route preview).
+  // Pre-ride: scroll-scrubbed. As the user scrolls through the section the
+  // cyclist rides 0 → 100 across the route. Reduced-motion viewers see a
+  // static mid-route preview instead of a scrubbed animation.
   useGSAP(
     () => {
-      if (trackerStatus !== "pre_ride") return;
+      if (trackerStatus !== "pre_ride" || !sectionRef.current) return;
 
       const mediaQuery =
         typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -63,20 +68,22 @@ export function BikerTimelineSection({
         return;
       }
 
-      const state = { value: 0 };
-      setProgress(0);
-      const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
-      tl.to(state, {
-        value: 100,
-        duration: PRE_RIDE_LOOP_SECONDS,
-        ease: "power2.inOut",
-        onUpdate: () => setProgress(state.value),
-      })
-        .to(state, { value: 100, duration: PRE_RIDE_HOLD_SECONDS })
-        .set(state, { value: 0, onComplete: () => setProgress(0) });
+      const st = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        // Start scrubbing as the section enters the lower third of the
+        // viewport, and complete as its top reaches the upper quarter —
+        // so the cyclist hits Montreal while the section is fully in view,
+        // not as it's about to scroll off the top.
+        start: "top 80%",
+        end: "top 20%",
+        scrub: 0.6,
+        onUpdate: (self) => {
+          setProgress(self.progress * 100);
+        },
+      });
 
       return () => {
-        tl.kill();
+        st.kill();
       };
     },
     { scope: sectionRef, dependencies: [trackerStatus] },
@@ -102,12 +109,7 @@ export function BikerTimelineSection({
     { scope: sectionRef, dependencies: [trackerStatus, progressPercent] },
   );
 
-  // Finished: pin to 100.
-  useEffect(() => {
-    if (trackerStatus === "finished") setProgress(100);
-  }, [trackerStatus]);
-
-  const clamped = Math.max(0, Math.min(100, progress));
+  const clamped = trackerStatus === "finished" ? 100 : Math.max(0, Math.min(100, progress));
 
   const startCp = route.checkpoints[0];
   const endCp = route.checkpoints.at(-1);
@@ -415,8 +417,8 @@ function RouteCurve({
           strokeDasharray={`${progressPercent} 100`}
         />
 
-        <circle cx="40" cy="110" r="4" fill="white" />
-        <circle cx="960" cy="130" r="4" fill="white" />
+        <circle cx={ROUTE_START.x} cy={ROUTE_START.y} r="4" fill="white" />
+        <circle cx={ROUTE_END.x} cy={ROUTE_END.y} r="4" fill="white" />
 
         {dots.map((d) => {
           const reached = progressPercent >= d.pct;
@@ -463,7 +465,14 @@ function RouteCurve({
   );
 }
 
+// The cyclist rides the route via CSS offset-path. Two key details:
+// - `offset-anchor: 50% 100%` pins the bottom-center of the SVG (right where
+//   the wheels touch the ground) onto the path, so wheels stay on the line.
+// - `offset-rotate: auto` rotates the element to match the path's tangent,
+//   so the bike tilts up/down with the gentle hill instead of sitting flat.
 function Cyclist({ progressPercent }: { progressPercent: number }) {
+  // Tie the bike's drawn size to the container so it scales with the curve.
+  // A single CSS var (used both for width and margin offsets) keeps it tidy.
   return (
     <div
       className="pointer-events-none absolute inset-0"
@@ -475,11 +484,12 @@ function Cyclist({ progressPercent }: { progressPercent: number }) {
           position: "absolute",
           left: 0,
           top: 0,
+          width: "7cqw",
+          height: "calc(7cqw * 46 / 80)",
           offsetPath: `path("${ROUTE_PATH_D}")`,
           offsetDistance: `${progressPercent}%`,
-          offsetRotate: "0deg",
-          transform: `translate(-50%, -50%) scale(calc(100cqw / ${VIEWBOX_W}))`,
-          transformOrigin: "0 0",
+          offsetRotate: "auto",
+          offsetAnchor: "50% 100%",
         }}
       >
         <CyclistIcon />
@@ -488,33 +498,37 @@ function Cyclist({ progressPercent }: { progressPercent: number }) {
   );
 }
 
+// Side-view bicycle. ViewBox is 80x46 but the wheels are drawn with their
+// hubs at y=38 so the tire strokes reach y=49 — 3 units *below* the viewBox
+// bottom. Combined with `overflow: visible`, this makes the tires visibly
+// sink onto the route line instead of merely being tangent to it.
 function CyclistIcon() {
   return (
     <svg
-      width="72"
-      height="72"
-      viewBox="0 0 64 64"
-      className="drop-shadow-[0_8px_24px_rgba(200,226,92,0.35)]"
+      viewBox="0 0 80 46"
+      preserveAspectRatio="xMidYMax meet"
+      overflow="visible"
+      style={{ overflow: "visible" }}
+      className="block h-full w-full drop-shadow-[0_6px_20px_rgba(200,226,92,0.35)]"
       aria-hidden
     >
-      <circle cx="48" cy="46" r="8" fill="none" stroke="white" strokeWidth="2" />
-      <circle cx="14" cy="46" r="8" fill="none" stroke="white" strokeWidth="2" />
+      {/* Wheels — centered at y=38, r=9 + stroke 2 → tire bottom at y=49,
+          i.e. 3 units below the viewBox so they overlap the route line. */}
+      <circle cx="16" cy="38" r="9" fill="none" stroke="white" strokeWidth="2" />
+      <circle cx="64" cy="38" r="9" fill="none" stroke="white" strokeWidth="2" />
+      <circle cx="16" cy="38" r="1.2" fill="white" />
+      <circle cx="64" cy="38" r="1.2" fill="white" />
+
+      {/* Frame + forward handlebar stub. Nothing protrudes above y=18 so the
+          silhouette reads as a pure bike — no upward stems that could be
+          mistaken for a rider's neck/head. */}
       <path
-        d="M 14 46 L 26 30 L 42 30 L 48 46 M 26 30 L 36 46 M 36 18 L 32 30"
+        d="M 16 38 L 40 38 L 34 20 L 16 38 M 34 20 L 54 18 L 40 38 M 54 18 L 64 38 M 50 18 L 60 18"
         fill="none"
-        stroke="white"
+        stroke="#C8E25C"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-      <path d="M 36 18 L 42 18" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="32" cy="10" r="4" fill="#C8E25C" />
-      <path
-        d="M 32 14 L 30 26 L 26 30 M 30 26 L 36 18"
-        fill="none"
-        stroke="#C8E25C"
-        strokeWidth="2.5"
-        strokeLinecap="round"
       />
     </svg>
   );

@@ -15,6 +15,7 @@ type Props = {
 
 export function GainablesHero({ hero, donationUrl }: Props) {
   const root = useRef<HTMLElement>(null);
+  const donationHref = donationUrl || "/donate";
 
   useGSAP(
     () => {
@@ -72,7 +73,35 @@ export function GainablesHero({ hero, donationUrl }: Props) {
       ref={root}
       className="relative isolate flex min-h-svh flex-col justify-between overflow-hidden bg-background px-6 pt-10 pb-10 md:px-12 md:pt-12 md:pb-14 lg:px-20"
     >
-      {/* Ambient lift — soft radial glows so the page reads less "void" and
+      {hero.backgroundMedia ? (
+        <div aria-hidden className="absolute inset-0 -z-20 overflow-hidden">
+          {hero.backgroundMedia.kind === "video" ? (
+            <video
+              className="h-full w-full object-cover opacity-30"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={hero.backgroundMedia.posterUrl}
+            >
+              <source src={hero.backgroundMedia.url} />
+            </video>
+          ) : (
+            <Image
+              src={hero.backgroundMedia.url}
+              alt={hero.backgroundMedia.alt ?? ""}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-24"
+            />
+          )}
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,6,6,0.52),rgba(6,6,6,0.82))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(200,226,92,0.16),transparent_38%)]" />
+        </div>
+      ) : null}
+
+      {/* Ambient lift - soft radial glows so the page reads less "void" and
           more "stage". Pure white + a touch of accent, very low opacity. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[-10%] h-[70vh] w-[90vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_45%,transparent_75%)] blur-3xl" />
@@ -157,7 +186,7 @@ export function GainablesHero({ hero, donationUrl }: Props) {
           {hero.description}
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <Link data-hero-cta href="/donate" className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
+          <Link data-hero-cta href={donationHref} className="pill-cta bg-accent text-accent-foreground hover:shadow-[0_18px_60px_rgba(200,226,92,0.3)]">
             Donate now
           </Link>
           <Link data-hero-cta href="#track" className="pill-ghost">
@@ -174,7 +203,7 @@ export function GainablesHero({ hero, donationUrl }: Props) {
         </div>
         <div className="flex items-center gap-4 md:gap-6">
           <Link
-            href="/donate"
+            href={donationHref}
             className="group inline-flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-foreground transition hover:text-accent"
           >
             Donate

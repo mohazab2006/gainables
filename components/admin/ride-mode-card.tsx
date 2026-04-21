@@ -60,7 +60,7 @@ export function RideModeCard({ current, action }: RideModeCardProps) {
             One button flips the whole site into live mode.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-            This controls the biker animation on the homepage, the donations strip, and the /track page. Pre-ride it's
+            This controls the biker animation on the homepage, the donations strip, and the /track page. Pre-ride it&apos;s
             promotional; tap <span className="font-medium text-foreground">Go live</span> on ride day and everything
             starts reflecting real progress.
           </p>

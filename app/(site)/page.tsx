@@ -7,9 +7,9 @@ import { GainablesHero } from "@/components/sections/gainables-hero";
 import { MissionStrip } from "@/components/sections/mission-strip";
 import { SignupStrip } from "@/components/sections/signup-strip";
 import { SponsorStrip } from "@/components/sections/sponsor-strip";
-import { getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
+import { getLatestRidePosition, getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
 import { getSiteUrl } from "@/lib/env";
-import { getTrackerSnapshot } from "@/lib/track";
+import { resolveTrackerSnapshot } from "@/lib/track";
 
 export const metadata: Metadata = {
   description:
@@ -17,13 +17,18 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [content, sponsors, latestUpdate] = await Promise.all([
+  const [content, sponsors, latestUpdate, latestPosition] = await Promise.all([
     getSiteContent(),
     getSponsors(),
     getLatestRideUpdate(),
+    getLatestRidePosition(),
   ]);
   const siteUrl = getSiteUrl();
-  const snapshot = getTrackerSnapshot(content.route, latestUpdate);
+  const snapshot = resolveTrackerSnapshot({
+    route: content.route,
+    latestPosition,
+    latestUpdate,
+  });
 
   const eventSchema = {
     "@context": "https://schema.org",
@@ -63,9 +68,9 @@ export default async function HomePage() {
       {/* 2. Live biker timeline — the centerpiece */}
       <BikerTimelineSection
         route={content.route}
-        progressPercent={snapshot.progressPercent}
-        kmCompleted={latestUpdate.kmCompleted}
-        currentLocation={latestUpdate.location}
+        progressPercent={snapshot?.progressPercent ?? 0}
+        kmCompleted={snapshot?.kmCompleted ?? 0}
+        currentLocation={snapshot?.locationLabel ?? latestUpdate.location}
         donationUrl={content.donationUrl}
         trackerStatus={content.trackerStatus}
         rideDate={content.rideDate}
