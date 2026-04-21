@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { hasSupabaseEnv } from "@/lib/env";
@@ -21,7 +22,10 @@ export async function signInAdmin(formData: FormData) {
   }
 
   const supabase = await createSupabaseServerClient();
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const headersList = await headers();
+  const host = headersList.get("x-forwarded-host") ?? headersList.get("host") ?? "localhost:3000";
+  const proto = headersList.get("x-forwarded-proto") ?? "http";
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? `${proto}://${host}`;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,

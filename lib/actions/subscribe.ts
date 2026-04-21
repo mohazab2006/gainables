@@ -137,7 +137,10 @@ async function sendConfirmationEmail(email: string) {
   }
 
   const resend = new Resend(apiKey);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const headersList = await headers();
+  const host = headersList.get("x-forwarded-host") ?? headersList.get("host") ?? "localhost:3000";
+  const proto = headersList.get("x-forwarded-proto") ?? "http";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? `${proto}://${host}`;
 
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? "Ride for Mental Health <onboarding@resend.dev>",
