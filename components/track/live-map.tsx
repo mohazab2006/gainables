@@ -284,16 +284,30 @@ export function LiveMap({ checkpoints, mapboxToken, positions, progressPercent, 
         });
 
         // Custom bike marker — themed circle with a bike icon.
+        // Marker placement priority:
+        //   1. Real GPS ping (`latestPosition`) — exact rider location.
+        //   2. Progress-along-route interpolation — so manual progress
+        //      advances (admin testing, pre-GPS warmup, dashboard sim)
+        //      actually walk the bike down the route instead of leaving
+        //      it stuck at the start.
+        //   3. Start of the drawn route polyline.
+        //   4. First checkpoint / route map center as final fallbacks.
         const markerEl = buildBikeMarkerElement();
         const startOfRoute = routeFeature.geometry.coordinates[0];
         const firstCheckpoint = checkpoints[0];
+        const interpolated =
+          !latestPosition && progressPercent > 0
+            ? interpolateAlongCoordinates(routeFeature.geometry.coordinates, progressPercent / 100)
+            : null;
         const markerPoint: [number, number] = latestPosition
           ? [latestPosition.lon, latestPosition.lat]
-          : startOfRoute
-            ? [startOfRoute[0], startOfRoute[1]]
-            : firstCheckpoint
-              ? [firstCheckpoint.lng, firstCheckpoint.lat]
-              : [route.mapCenter.lng, route.mapCenter.lat];
+          : interpolated
+            ? interpolated
+            : startOfRoute
+              ? [startOfRoute[0], startOfRoute[1]]
+              : firstCheckpoint
+                ? [firstCheckpoint.lng, firstCheckpoint.lat]
+                : [route.mapCenter.lng, route.mapCenter.lat];
 
         markerRef.current = new mapboxgl.Marker({ element: markerEl, anchor: "center" })
           .setLngLat(markerPoint)
@@ -342,6 +356,10 @@ export function LiveMap({ checkpoints, mapboxToken, positions, progressPercent, 
   }, [checkpoints, mapboxToken, route.mapCenter.lat, route.mapCenter.lng, route.mapCenter.zoom, routeFeature]);
 
   // Keep the live trail + progress gradient in sync with streaming positions.
+  // Also: if there's no GPS fix yet but progress has advanced (manual
+  // admin update, pre-ride testing, replay), interpolate the bike along
+  // the drawn route at the current percent so the marker actually tracks
+  // forward motion instead of staying at the start.
   useEffect(() => {
     if (!instanceRef.current) {
       return;
@@ -357,21 +375,27 @@ export function LiveMap({ checkpoints, mapboxToken, positions, progressPercent, 
       }
     }
 
-    if (!latestPosition) {
+    const targetPoint: [number, number] | null = latestPosition
+      ? [latestPosition.lon, latestPosition.lat]
+      : progressPercent > 0
+        ? interpolateAlongCoordinates(routeFeature.geometry.coordinates, progressPercent / 100)
+        : null;
+
+    if (!targetPoint) {
       return;
     }
 
-    markerRef.current?.setLngLat([latestPosition.lon, latestPosition.lat]);
+    markerRef.current?.setLngLat(targetPoint);
 
     if (followRef.current) {
       map.easeTo({
-        center: [latestPosition.lon, latestPosition.lat],
+        center: targetPoint,
         duration: 900,
         zoom: Math.max(map.getZoom(), route.mapCenter.zoom),
         pitch: 55,
       });
     }
-  }, [latestPosition, progressPercent, route.mapCenter.zoom]);
+  }, [latestPosition, progressPercent, route.mapCenter.zoom, routeFeature]);
 
   // Keep the trail data pushing through — separate from progress so replays
   // of historical positions rebuild the polyline without re-triggering camera.
@@ -486,6 +510,57 @@ function estimateZoomForBounds(
   const lngZoom = Math.log2((widthPx * 360) / (lngSpan * 512));
   const latZoom = Math.log2((heightPx * 360) / (latSpan * 512 * Math.cos(latRad)));
   return Math.min(Math.max(Math.min(lngZoom, latZoom) - 0.1, 6), 11);
+}
+
+/**
+ * Walks the drawn route polyline segment-by-segment and returns the [lng, lat]
+ * point sitting at the given fraction (0..1) of the total path length.
+ * Uses an equirectangular flat projection anchored at the first coordinate's
+ * latitude — plenty accurate over a ~200 km Ottawa → Montreal hop and
+ * consistent with how `projectPositionOntoRoute` measures progress, so the
+ * bike lands on the exact line that Mapbox is rendering.
+ */
+function interpolateAlongCoordinates(
+  coords: [number, number][],
+  fraction: number,
+): [number, number] | null {
+  if (coords.length === 0) return null;
+  if (coords.length === 1) return [coords[0][0], coords[0][1]];
+
+  const clamped = Math.max(0, Math.min(1, fraction));
+  const refLat = coords[0][1];
+  const metersPerDegLat = 111_320;
+  const metersPerDegLng = Math.cos((refLat * Math.PI) / 180) * metersPerDegLat;
+
+  const segmentLengths: number[] = [];
+  let total = 0;
+  for (let i = 0; i < coords.length - 1; i += 1) {
+    const dx = (coords[i + 1][0] - coords[i][0]) * metersPerDegLng;
+    const dy = (coords[i + 1][1] - coords[i][1]) * metersPerDegLat;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    segmentLengths.push(len);
+    total += len;
+  }
+
+  if (total === 0) {
+    return [coords[0][0], coords[0][1]];
+  }
+
+  const targetMeters = clamped * total;
+  let cumulative = 0;
+  for (let i = 0; i < segmentLengths.length; i += 1) {
+    const nextCumulative = cumulative + segmentLengths[i];
+    if (nextCumulative >= targetMeters) {
+      const segFrac = segmentLengths[i] === 0 ? 0 : (targetMeters - cumulative) / segmentLengths[i];
+      const lng = coords[i][0] + (coords[i + 1][0] - coords[i][0]) * segFrac;
+      const lat = coords[i][1] + (coords[i + 1][1] - coords[i][1]) * segFrac;
+      return [lng, lat];
+    }
+    cumulative = nextCumulative;
+  }
+
+  const last = coords[coords.length - 1];
+  return [last[0], last[1]];
 }
 
 function buildTrailFeature(positions: RidePosition[]) {

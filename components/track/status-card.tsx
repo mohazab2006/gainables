@@ -24,10 +24,13 @@ export function StatusCard({
   // layout doesn't shift when the ride flips on. Pre-ride values fall back
   // to "Awaiting feed" / placeholder copy; once positions stream in the
   // same markup lights up with real data.
+  // Tracker headline is GPS-derived. We deliberately don't fall back to
+  // `update.location` (a feed label) — the tracker should read "Awaiting
+  // signal" rather than borrow a manual post's location as ground truth.
   const headline =
     state === "finished"
       ? "Ride summary"
-      : snapshot?.locationLabel ?? update?.location ?? "Live ride";
+      : snapshot?.locationLabel ?? "Awaiting signal";
 
   return (
     <aside className="rounded-4xl border border-white/8 bg-surface p-7 text-foreground md:p-8">
@@ -59,7 +62,7 @@ export function StatusCard({
             <div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${snapshot.progressPercent}%` }} />
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <Metric label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? update?.nextCheckpoint ?? "Awaiting checkpoint"} />
+            <Metric label="Next checkpoint" value={snapshot.nextCheckpoint?.name ?? "Awaiting checkpoint"} />
             <Metric label="Remaining distance" value={`${Math.round(snapshot.remainingKm)} km`} />
           </div>
         </div>

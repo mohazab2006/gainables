@@ -9,7 +9,9 @@ import { CACHE_TAGS, PUBLIC_CACHE_TAGS } from "@/lib/cache-tags";
 import { uploadCampaignAsset } from "@/lib/admin/media";
 import { adminJsonContentSections, adminScalarContentSections } from "@/lib/admin/content-sections";
 import { requireAuthorizedAdmin } from "@/lib/admin/guards";
+import { getSiteContent } from "@/lib/content";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { mapRidePosition, resolveTrackerSnapshot } from "@/lib/track";
 
 const editableJsonKeys = new Set<string>(adminJsonContentSections.map((section) => section.key));
 const editableScalarKeys = new Set<string>(adminScalarContentSections.map((section) => section.key));
@@ -229,6 +231,44 @@ export async function deleteSponsor(formData: FormData) {
   redirectWithMessage("/admin/sponsors", "success", "Sponsor deleted.");
 }
 
+/**
+ * Reads the latest GPS ping from `ride_positions` and projects it onto the
+ * route to derive km-completed. Used by `createRideUpdate` so each feed post
+ * gets stamped with "the rider was at X km when this was posted" — without
+ * the admin having to type it. Returns null if no GPS data is available yet
+ * (in which case the feed post is stored with km_completed = 0).
+ */
+async function captureKmFromLatestPosition(): Promise<{
+  km: number;
+  lat: number | null;
+  lng: number | null;
+} | null> {
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("ride_positions")
+      .select("id, recorded_at, lon, lat, accuracy_m, speed_mps, battery_pct, source, raw")
+      .order("recorded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) return null;
+
+    const position = mapRidePosition(data);
+    const content = await getSiteContent();
+    const snapshot = resolveTrackerSnapshot({
+      route: content.route,
+      latestPosition: position,
+    });
+
+    if (!snapshot) return null;
+
+    return { km: snapshot.kmCompleted, lat: position.lat, lng: position.lon };
+  } catch {
+    return null;
+  }
+}
+
 export async function createRideUpdate(formData: FormData) {
   await requireAuthorizedAdmin("/admin/updates");
 
@@ -250,14 +290,20 @@ export async function createRideUpdate(formData: FormData) {
     }
   }
 
+  // Auto-capture km / lat / lng from the latest GPS ping at post time, so
+  // each feed card stamps the rider's exact position without admin input.
+  // Tracker state itself is still GPS-only — this just immortalizes the
+  // km-at-the-moment onto the individual feed entry.
+  const gps = await captureKmFromLatestPosition();
+
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase.from("ride_updates").insert({
     location: String(formData.get("location") ?? "").trim(),
-    km_completed: toNumber(formData.get("kmCompleted"), 0),
-    next_checkpoint: String(formData.get("nextCheckpoint") ?? "").trim(),
+    km_completed: gps?.km ?? 0,
+    next_checkpoint: "",
     message: String(formData.get("message") ?? "").trim(),
-    lat: toNullableString(formData.get("lat")) ? toNumber(formData.get("lat")) : null,
-    lng: toNullableString(formData.get("lng")) ? toNumber(formData.get("lng")) : null,
+    lat: gps?.lat ?? null,
+    lng: gps?.lng ?? null,
     created_at: toNullableString(formData.get("createdAt")) ?? new Date().toISOString(),
     media_alt: toNullableString(formData.get("mediaAlt")),
     ...media,
@@ -300,16 +346,16 @@ export async function updateRideUpdate(formData: FormData) {
     };
   }
 
+  // Feed-only edit: touch location/message/media/created_at. The km_completed
+  // / lat / lng fields were auto-captured from GPS at post time and are NOT
+  // part of the edit form — leave those columns untouched so re-editing a
+  // post doesn't wipe the rider's captured km.
   const supabase = createSupabaseAdminClient();
   const { error } = await supabase
     .from("ride_updates")
     .update({
       location: String(formData.get("location") ?? "").trim(),
-      km_completed: toNumber(formData.get("kmCompleted"), 0),
-      next_checkpoint: String(formData.get("nextCheckpoint") ?? "").trim(),
       message: String(formData.get("message") ?? "").trim(),
-      lat: toNullableString(formData.get("lat")) ? toNumber(formData.get("lat")) : null,
-      lng: toNullableString(formData.get("lng")) ? toNumber(formData.get("lng")) : null,
       created_at: toNullableString(formData.get("createdAt")) ?? new Date().toISOString(),
       media_alt: clearMedia ? null : toNullableString(formData.get("mediaAlt")),
       ...media,

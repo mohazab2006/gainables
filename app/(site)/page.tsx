@@ -7,7 +7,7 @@ import { GainablesHero } from "@/components/sections/gainables-hero";
 import { MissionStrip } from "@/components/sections/mission-strip";
 import { SignupStrip } from "@/components/sections/signup-strip";
 import { SponsorStrip } from "@/components/sections/sponsor-strip";
-import { getLatestRidePosition, getLatestRideUpdate, getSiteContent, getSponsors } from "@/lib/content";
+import { getLatestRidePosition, getSiteContent, getSponsors } from "@/lib/content";
 import { getSiteUrl } from "@/lib/env";
 import { resolveTrackerSnapshot } from "@/lib/track";
 
@@ -17,17 +17,17 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [content, sponsors, latestUpdate, latestPosition] = await Promise.all([
+  const [content, sponsors, latestPosition] = await Promise.all([
     getSiteContent(),
     getSponsors(),
-    getLatestRideUpdate(),
     getLatestRidePosition(),
   ]);
   const siteUrl = getSiteUrl();
+  // Tracker progress is GPS-only. Manual ride updates are a separate feed —
+  // they no longer influence km / progressPercent / location on the tracker.
   const snapshot = resolveTrackerSnapshot({
     route: content.route,
     latestPosition,
-    latestUpdate,
   });
 
   const eventSchema = {
@@ -70,7 +70,7 @@ export default async function HomePage() {
         route={content.route}
         progressPercent={snapshot?.progressPercent ?? 0}
         kmCompleted={snapshot?.kmCompleted ?? 0}
-        currentLocation={snapshot?.locationLabel ?? latestUpdate.location}
+        currentLocation={snapshot?.locationLabel ?? "Awaiting signal"}
         trackerStatus={content.trackerStatus}
         rideDate={content.rideDate}
       />

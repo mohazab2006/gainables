@@ -66,63 +66,28 @@ export function mapRidePosition(row: RidePositionRow): RidePosition {
   };
 }
 
-export function getTrackerSnapshot(route: RouteContent, update: Pick<RideUpdate, "kmCompleted" | "nextCheckpoint" | "location">): TrackerSnapshot {
-  const totalDistanceKm = Math.max(route.totalDistanceKm, 1);
-  const kmCompleted = Math.max(0, Math.min(totalDistanceKm, update.kmCompleted));
-  const progressPercent = Math.max(0, Math.min(100, (kmCompleted / totalDistanceKm) * 100));
-  const checkpoints = route.checkpoints.map((checkpoint) => ({
-    ...checkpoint,
-    km: checkpoint.km,
-  }));
-  const completedCheckpointCount = checkpoints.filter((checkpoint) => kmCompleted >= checkpoint.km).length;
-  const currentCheckpoint =
-    [...checkpoints].reverse().find((checkpoint) => kmCompleted >= checkpoint.km) ?? checkpoints[0] ?? null;
-  const nextCheckpoint =
-    checkpoints.find((checkpoint) => checkpoint.name === update.nextCheckpoint) ??
-    checkpoints.find((checkpoint) => checkpoint.km > kmCompleted) ??
-    checkpoints.at(-1) ??
-    null;
-
-  return {
-    progressPercent,
-    remainingKm: Math.max(0, totalDistanceKm - kmCompleted),
-    totalDistanceKm,
-    completedCheckpointCount,
-    checkpointCount: checkpoints.length,
-    currentCheckpoint,
-    nextCheckpoint,
-    checkpoints,
-    kmCompleted,
-    locationLabel: update.location,
-    source: "manual",
-  };
-}
-
+/**
+ * Live tracker snapshot — derived exclusively from GPS telemetry
+ * (`ride_positions`). Manual `ride_updates` rows are feed posts (photos,
+ * notes, location labels) and deliberately do NOT drive progress, km, or
+ * checkpoint state on the tracker. If GPS is missing, we return null and
+ * the UI falls back to a pre-ride / waiting state.
+ */
 export function resolveTrackerSnapshot({
   route,
   latestPosition,
-  latestUpdate,
-  nowMs = Date.now(),
 }: {
   route: RouteContent;
   latestPosition: RidePosition | null;
-  latestUpdate: RideUpdate | null;
+  /** @deprecated Manual updates no longer influence tracker state. Kept for callers still passing it. */
+  latestUpdate?: RideUpdate | null;
+  /** @deprecated No longer read — staleness is purely a UI concern now. */
   nowMs?: number;
 }): TrackerSnapshot | null {
-  const liveUsable = isLiveTelemetryUsable(latestPosition, nowMs);
-  if (latestPosition && (liveUsable || !latestUpdate)) {
-    return getLiveTrackerSnapshot(route, latestPosition);
+  if (!latestPosition) {
+    return null;
   }
-
-  if (latestUpdate) {
-    return getTrackerSnapshot(route, latestUpdate);
-  }
-
-  if (latestPosition) {
-    return getLiveTrackerSnapshot(route, latestPosition);
-  }
-
-  return null;
+  return getLiveTrackerSnapshot(route, latestPosition);
 }
 
 export function formatCountdown(rideDate: string, nowMs?: number | null) {

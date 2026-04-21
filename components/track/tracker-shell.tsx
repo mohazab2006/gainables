@@ -65,11 +65,12 @@ export function TrackerShell({
   const latestUpdate = realUpdates[0] ?? updates[0] ?? null;
   const latestPosition = positions.at(-1) ?? null;
   const experienceState = deriveTrackerState({ trackerStatus, latestPosition });
+  // Tracker snapshot is derived purely from GPS telemetry. Manual ride
+  // updates (`latestUpdate`) are feed posts — displayed below — but they no
+  // longer drive progress, km, or checkpoint state on the tracker.
   const trackerSnapshot = resolveTrackerSnapshot({
     route,
     latestPosition,
-    latestUpdate,
-    nowMs: nowMs ?? undefined,
   });
 
   useEffect(() => {
@@ -195,12 +196,19 @@ export function TrackerShell({
               </Link>
             </div>
 
+            {/* Pre-ride has no snapshot (GPS hasn't started) but we still
+                want the "up next" card highlighted — default to the first
+                checkpoint (Ottawa) in that case so the rider's starting
+                point reads as the current focus. Once the snapshot exists,
+                `nextCheckpoint` takes over naturally. */}
             <div className="mt-8 grid gap-4">
               {checkpoints.map((checkpoint, index) => {
                 const isStart = index === 0;
                 const isFinish = index === checkpoints.length - 1;
+                const nextUpName =
+                  trackerSnapshot?.nextCheckpoint?.name ?? checkpoints[0]?.name ?? null;
                 const active =
-                  trackerSnapshot?.nextCheckpoint?.name === checkpoint.name ||
+                  (experienceState !== "finished" && nextUpName === checkpoint.name) ||
                   (experienceState === "finished" && isFinish);
                 const passed = trackerSnapshot ? trackerSnapshot.kmCompleted >= checkpoint.km : false;
 
@@ -315,11 +323,18 @@ export function TrackerShell({
                       <span>{new Intl.DateTimeFormat("en-CA", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(update.createdAt))}</span>
                       <span className="h-1 w-1 rounded-full bg-border" />
                       <span>{update.location}</span>
-                      <span className="h-1 w-1 rounded-full bg-border" />
-                      <span>{(trackerSnapshot?.source === "live" && index === 0 ? trackerSnapshot.kmCompleted : update.kmCompleted).toFixed(1)} km complete</span>
+                      {/* km_completed is auto-captured from the latest GPS ping
+                          when the admin posts the update — each card carries
+                          its own snapshot. Falsy (0) means no GPS was
+                          available at post time, so hide the pip entirely. */}
+                      {update.kmCompleted > 0 ? (
+                        <>
+                          <span className="h-1 w-1 rounded-full bg-border" />
+                          <span>{update.kmCompleted.toFixed(1)} km</span>
+                        </>
+                      ) : null}
                     </div>
                     <p className="mt-4 text-xl font-medium tracking-tight">{update.message}</p>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">Next checkpoint: {update.nextCheckpoint}</p>
                     {update.mediaUrl ? (
                       <div className="mt-5 overflow-hidden rounded-3xl border border-border/60 bg-background/60">
                         {update.mediaKind === "video" ? (

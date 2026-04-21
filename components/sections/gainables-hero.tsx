@@ -169,7 +169,7 @@ export function GainablesHero({ hero }: Props) {
             </Link>
             <Link
               data-hero-cta
-              href="#track"
+              href="/track"
               className="inline-flex items-center justify-center rounded-full border border-white/35 bg-black/30 px-7 py-4 text-sm font-semibold uppercase tracking-[0.18em] text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/16"
             >
               Track the ride
