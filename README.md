@@ -16,7 +16,6 @@ Next.js 16 campaign site for Gainables' Ottawa-to-Montréal Ride for Mental Heal
 <br />
 
 <p>
-  <a href="#-quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick%20start-5%20min-22c55e?style=for-the-badge" /></a>
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16.2-000?style=for-the-badge&logo=nextdotjs" />
   <img alt="React" src="https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react&logoColor=000" />
   <img alt="Tailwind" src="https://img.shields.io/badge/Tailwind-v4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=fff" />
@@ -33,11 +32,7 @@ Next.js 16 campaign site for Gainables' Ottawa-to-Montréal Ride for Mental Heal
 - [Highlights](#-highlights)
 - [Screenshots](#-screenshots)
 - [Tech stack](#-tech-stack)
-- [Quick start](#-quick-start)
-- [Environment variables](#-environment-variables)
-- [Database & Edge Functions](#-database--edge-functions)
 - [Ride-day operations](#-ride-day-operations)
-- [Useful commands](#-useful-commands)
 - [Project structure](#-project-structure)
 
 ---
@@ -113,95 +108,11 @@ Tip: PNG for crisp UI screenshots, WEBP if you want smaller files. Keep filename
 
 ---
 
-## Quick start
-
-```bash
-# 1. Install dependencies
-pnpm install
-
-# 2. Configure environment
-cp .env.example .env.local
-#    then fill in the values below
-
-# 3. Run the app
-pnpm dev
-```
-
-Then open [http://localhost:3000](http://localhost:3000).
-
-### First-run checklist
-
-1. Copy `.env.example` → `.env.local`.
-2. Fill in the Supabase URL, publishable key, and service-role key.
-3. Set `ADMIN_ALLOWED_EMAILS` to the comma-separated admin allowlist.
-4. Add `NEXT_PUBLIC_MAPBOX_TOKEN` for the branded live map on `/track` (otherwise a fallback tracker panel is shown).
-5. Set `RIDER_TOKEN` before generating the Overland setup link for the lead rider.
-6. Optional: add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to send signup confirmation emails.
-
----
-
-## Environment variables
-
-| Variable                              | Required | Purpose                                                           |
-| ------------------------------------- | :------: | ----------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`                | ✅       | Canonical site URL used by metadata and auth callbacks.           |
-| `NEXT_PUBLIC_SUPABASE_URL`            | ✅       | Supabase project URL.                                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`| ✅       | Browser-safe key for public reads and Realtime.                   |
-| `SUPABASE_SERVICE_ROLE_KEY`           | ✅       | Server-only key for admin writes and Edge Function ingestion.     |
-| `NEXT_PUBLIC_MAPBOX_TOKEN`            | ✅       | Public Mapbox token for the `/track` map.                         |
-| `ADMIN_ALLOWED_EMAILS`                | ✅       | Comma-separated allowlist for `/admin` access.                    |
-| `RIDER_TOKEN`                         | ✅       | Bearer token validated by `supabase/functions/ingest-position`.   |
-| `RESEND_API_KEY`                      |    –     | Optional API key for signup confirmation emails.                  |
-| `RESEND_FROM_EMAIL`                   |    –     | Optional sender. Defaults to `onboarding@resend.dev`.             |
-
----
-
-## Database & Edge Functions
-
-Run the initial schema:
-
-```bash
-# Applies tables, policies, and indexes for content, sponsors, FAQs,
-# subscribers, ride updates, and rider positions.
-psql "$SUPABASE_DB_URL" -f supabase/migrations/0001_init.sql
-```
-
-Deploy the GPS ingest function:
-
-```bash
-supabase functions deploy ingest-position
-```
-
-Set its secrets:
-
-```bash
-supabase secrets set \
-  SUPABASE_URL=... \
-  SUPABASE_SERVICE_ROLE_KEY=... \
-  RIDER_TOKEN=...
-```
-
-See [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) for the full schema.
-
----
-
 ## Ride-day operations
 
 - **Overland setup & rider link format** → [`docs/overland-setup.md`](./docs/overland-setup.md)
 - **Deployment & support workflow** → [`docs/ride-day-runbook.md`](./docs/ride-day-runbook.md)
 - **Subscriber export & follow-up** → visit `/admin/subscribers`
-
----
-
-## Useful commands
-
-```bash
-pnpm dev                  # start the dev server
-pnpm build                # production build
-pnpm start                # run the production build
-pnpm lint                 # eslint
-pnpm exec tsc --noEmit    # type-check the project
-```
 
 ---
 
