@@ -38,14 +38,6 @@ export const metadata: Metadata = {
   description:
     "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. Cycling Ottawa to Montreal to raise awareness and funds, with live tracking, donations, and sponsor partners.",
   applicationName: "Ride for Mental Health",
-  icons: {
-    icon: [
-      { url: "/icon-light-32x32.png", media: "(prefers-color-scheme: light)" },
-      { url: "/icon-dark-32x32.png", media: "(prefers-color-scheme: dark)" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-icon.png",
-  },
   openGraph: {
     title: "Ride for Mental Health | Gainables",
     description:

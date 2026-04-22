@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "generate-favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
