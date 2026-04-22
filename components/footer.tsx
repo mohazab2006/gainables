@@ -14,15 +14,15 @@ export function Footer() {
   return (
     <footer className="bg-background px-6 py-10 text-muted-foreground md:px-12 lg:px-20">
       <div className="container-shell flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
-        <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground/80">
+        <p className="whitespace-nowrap text-xs uppercase tracking-[0.28em] text-muted-foreground/80">
           © {COPYRIGHT_YEAR} Gainables · Ottawa → Montreal
         </p>
 
         <nav
           aria-label="Footer"
-          className="grid grid-cols-3 gap-x-6 gap-y-3 text-xs uppercase tracking-[0.24em] md:flex md:gap-x-6 md:gap-y-0"
+          className="flex flex-wrap gap-x-6 gap-y-3 text-xs uppercase tracking-[0.24em] md:flex md:gap-x-6 md:gap-y-0"
         >
-          {navLinks.slice(0, 3).map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -31,17 +31,6 @@ export function Footer() {
               {link.label}
             </Link>
           ))}
-          <div className="col-span-3 flex justify-center gap-x-6 md:contents">
-            {navLinks.slice(3).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="transition-colors duration-200 hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
         </nav>
       </div>
     </footer>
