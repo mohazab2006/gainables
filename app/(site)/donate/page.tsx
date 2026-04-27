@@ -4,6 +4,8 @@ import { ArrowUpRight, HeartHandshake } from "lucide-react";
 
 import { getSiteContent } from "@/lib/content";
 
+const DONATION_CAMPAIGN_URL = "https://cheofoundation.donordrive.com/campaigns/Ride-For-Mental-Health";
+
 export const metadata: Metadata = {
   title: "Donate",
   description:
@@ -12,8 +14,9 @@ export const metadata: Metadata = {
 
 export default async function DonatePage() {
   const content = await getSiteContent();
-  const { donate, donationUrl, donationEmbedUrl } = content;
-  const isPlaceholderDonationUrl = !donationUrl || donationUrl.startsWith("mailto:");
+  const { donate, donationEmbedUrl } = content;
+  const donationUrl = DONATION_CAMPAIGN_URL;
+  const isPlaceholderDonationUrl = donationUrl.startsWith("mailto:");
 
   return (
     <main className="bg-background pb-24 pt-36 md:pt-44">
