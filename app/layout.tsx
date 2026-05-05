@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     template: "%s | Ride for Mental Health",
   },
   description:
-    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. Cycling Ottawa to Montreal to raise awareness and funds, with live tracking, donations, and sponsor partners.",
+    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. Cycling Montreal to Ottawa to raise awareness and funds, with live tracking, donations, and sponsor partners.",
   applicationName: "Ride for Mental Health",
   openGraph: {
     title: "Ride for Mental Health | Gainables",
     description:
-      "A community-driven initiative from Gainables during Mental Health Month. Follow the Ottawa to Montreal ride, support the cause, and stay close in real time.",
+      "A community-driven initiative from Gainables during Mental Health Month. Follow the Montreal to Ottawa ride, support the cause, and stay close in real time.",
     type: "website",
     url: metadataBase,
     images: [
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ride for Mental Health | Gainables",
     description:
-      "Support the cause, track the ride, and stay close to the campaign as the Gainables team moves from Ottawa to Montreal.",
+      "Support the cause, track the ride, and stay close to the campaign as the Gainables team moves from Montreal to Ottawa.",
     images: ["/opengraph-image"],
   },
 };

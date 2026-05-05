@@ -80,7 +80,7 @@ export function StatusCard({
 
       <div className="mt-8 space-y-6">
         <Item label="Latest message" value={update?.message ?? "Ride updates will appear here once the operator posts the first checkpoint note."} />
-        <Item label="Current checkpoint" value={snapshot?.currentCheckpoint?.name ?? "Ottawa start"} />
+        <Item label="Current checkpoint" value={snapshot?.currentCheckpoint?.name ?? "Montreal start"} />
         <Item label="Tracking via" value={snapshot?.source === "live" ? "Live GPS signal" : "Team check-ins"} />
       </div>
     </aside>

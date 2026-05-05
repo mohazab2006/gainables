@@ -516,7 +516,7 @@ function estimateZoomForBounds(
  * Walks the drawn route polyline segment-by-segment and returns the [lng, lat]
  * point sitting at the given fraction (0..1) of the total path length.
  * Uses an equirectangular flat projection anchored at the first coordinate's
- * latitude — plenty accurate over a ~200 km Ottawa → Montreal hop and
+ * latitude — plenty accurate over a ~200 km Montreal → Ottawa hop and
  * consistent with how `projectPositionOntoRoute` measures progress, so the
  * bike lands on the exact line that Mapbox is rendering.
  */

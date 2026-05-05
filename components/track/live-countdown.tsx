@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
-  /** ISO timestamp of the ride start (e.g. "2026-05-04T12:00:00.000Z"). */
+  /** ISO timestamp of the ride start (e.g. "2026-05-23T12:00:00.000Z"). */
   rideDate: string;
   className?: string;
 };
@@ -30,9 +30,12 @@ export function LiveCountdown({ rideDate, className }: Props) {
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    setNow(Date.now());
+    const frame = window.requestAnimationFrame(() => setNow(Date.now()));
     const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(id);
+    };
   }, []);
 
   const formattedTarget = useMemo(() => {
@@ -67,7 +70,7 @@ export function LiveCountdown({ rideDate, className }: Props) {
         <div>
           <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">Rollout in</p>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Counting down to the Ottawa start · {formattedTarget}
+            Counting down to the Montreal start · {formattedTarget}
           </p>
         </div>
         {hasArrived ? (

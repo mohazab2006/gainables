@@ -198,7 +198,7 @@ export function TrackerShell({
 
             {/* Pre-ride has no snapshot (GPS hasn't started) but we still
                 want the "up next" card highlighted — default to the first
-                checkpoint (Ottawa) in that case so the rider's starting
+                checkpoint (Montreal) in that case so the rider's starting
                 point reads as the current focus. Once the snapshot exists,
                 `nextCheckpoint` takes over naturally. */}
             <div className="mt-8 grid gap-4">

@@ -13,7 +13,7 @@ import { resolveTrackerSnapshot } from "@/lib/track";
 
 export const metadata: Metadata = {
   description:
-    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. A ~200 km ride from Ottawa to Montreal with live tracking, donations, and sponsor partners.",
+    "Ride for Mental Health — a community-driven initiative from Gainables during Mental Health Month. A ~200 km ride from Montreal to Ottawa with live tracking, donations, and sponsor partners.",
 };
 
 export default async function HomePage() {
@@ -46,8 +46,8 @@ export default async function HomePage() {
     organizer: { "@type": "Organization", name: "Gainables", url: siteUrl },
     location: {
       "@type": "Place",
-      name: "Ottawa to Montreal Route",
-      address: { "@type": "PostalAddress", addressLocality: "Ottawa to Montreal", addressCountry: "CA" },
+      name: "Montreal to Ottawa Route",
+      address: { "@type": "PostalAddress", addressLocality: "Montreal to Ottawa", addressCountry: "CA" },
     },
     offers: {
       "@type": "Offer",

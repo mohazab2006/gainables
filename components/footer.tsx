@@ -15,7 +15,7 @@ export function Footer() {
     <footer className="bg-background px-6 py-10 text-muted-foreground md:px-12 lg:px-20">
       <div className="container-shell flex flex-col gap-6 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
         <p className="whitespace-nowrap text-xs uppercase tracking-[0.28em] text-muted-foreground/80">
-          © {COPYRIGHT_YEAR} Gainables · Ottawa → Montreal
+          © {COPYRIGHT_YEAR} Gainables · Montreal → Ottawa
         </p>
 
         <nav

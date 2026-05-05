@@ -116,7 +116,7 @@ export default async function AdminContentSettingsPage({ searchParams }: Setting
           <form action={saveRideDate} className="rounded-[1.75rem] border border-border bg-background p-6">
             <ContentField
               label="Ride start date &amp; time"
-              hint="Used for the pre-ride countdown. Pick the time the ride rolls out of Ottawa. Saved as ISO 8601."
+              hint="Used for the pre-ride countdown. Pick the time the ride rolls out of Montreal. Saved as ISO 8601."
               required
             >
               <input

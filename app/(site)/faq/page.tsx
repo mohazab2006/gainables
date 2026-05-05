@@ -9,7 +9,7 @@ import { getSiteUrl } from "@/lib/env";
 export const metadata: Metadata = {
   title: "FAQ",
   description:
-    "Answers to common questions about Gainables' Ride for Mental Health — the ~200 km Ottawa to Montreal ride, donations, sponsors, and how to follow along.",
+    "Answers to common questions about Gainables' Ride for Mental Health — the ~200 km Montreal to Ottawa ride, donations, sponsors, and how to follow along.",
 };
 
 export default async function FaqPage() {

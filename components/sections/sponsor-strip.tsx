@@ -38,7 +38,7 @@ export function SponsorStrip({ sponsors }: { sponsors: Sponsor[] }) {
             className="mt-8 max-w-2xl font-serif text-xl leading-[1.4] text-muted-foreground md:text-2xl"
           >
             This campaign is supported by a growing network of partners.
-            Sponsors are integrated across jerseys, the website, social media content, and campaign materials — from Ottawa to Montreal.
+            Sponsors are integrated across jerseys, the website, social media content, and campaign materials — from Montreal to Ottawa.
           </p>
 
           <div data-reveal className="mt-10 flex flex-wrap gap-3">

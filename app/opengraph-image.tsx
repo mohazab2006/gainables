@@ -37,7 +37,7 @@ export default function OpenGraphImage() {
           >
             Gainables
           </div>
-          <div style={{ fontSize: 24, opacity: 0.65 }}>Ottawa to Montreal</div>
+          <div style={{ fontSize: 24, opacity: 0.65 }}>Montreal to Ottawa</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 880 }}>

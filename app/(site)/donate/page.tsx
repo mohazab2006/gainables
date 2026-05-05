@@ -9,7 +9,7 @@ const DONATION_CAMPAIGN_URL = "https://cheofoundation.donordrive.com/campaigns/R
 export const metadata: Metadata = {
   title: "Donate",
   description:
-    "Support Ride for Mental Health and help turn the Ottawa to Montreal campaign into direct mental health impact, in partnership with CHEO Foundation.",
+    "Support Ride for Mental Health and help turn the Montreal to Ottawa campaign into direct mental health impact, in partnership with CHEO Foundation.",
 };
 
 export default async function DonatePage() {
@@ -27,7 +27,7 @@ export default async function DonatePage() {
               <HeartHandshake size={14} className="text-accent" /> Donate · CHEO Foundation
             </div>
             <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6.5vw]">
-              Turn an Ottawa → Montreal ride into <span className="display-italic">direct</span> mental health support.
+              Turn a Montreal → Ottawa ride into <span className="display-italic">direct</span> mental health support.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">{donate.story}</p>
             <p className="max-w-2xl text-sm uppercase tracking-[0.28em] text-foreground/60">

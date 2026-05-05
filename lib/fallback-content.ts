@@ -120,7 +120,7 @@ export const fallbackSiteContent: SiteContent = {
   hero: {
     eyebrow: "Presented by Gainables",
     description:
-      "A community-driven initiative from Gainables during Mental Health Month. The team is cycling Ottawa to Montreal to raise awareness and funds, and to create a moment that encourages connection, conversation, and support.",
+      "A community-driven initiative from Gainables during Mental Health Month. The team is cycling Montreal to Ottawa to raise awareness and funds, and to create a moment that encourages connection, conversation, and support.",
     backgroundMedia: {
       kind: "image",
       url: "/images/hero-main.png",
@@ -135,25 +135,25 @@ export const fallbackSiteContent: SiteContent = {
   route: {
     totalDistanceKm: 200,
     checkpoints: [
-      { stage: "Start", name: "Ottawa", km: 0, distanceLabel: "0 km", lat: 45.4215, lng: -75.6972, note: "8:00 AM rollout from downtown Ottawa." },
-      { stage: "25%", name: "Rockland", km: 50, distanceLabel: "50 km", lat: 45.5418, lng: -75.2921, note: "First support stop along the Ottawa River on Hwy 17." },
-      { stage: "50%", name: "Hawkesbury", km: 100, distanceLabel: "100 km", lat: 45.6076, lng: -74.6058, note: "Halfway regroup before crossing into Quebec." },
-      { stage: "75%", name: "Rigaud", km: 150, distanceLabel: "150 km", lat: 45.4814, lng: -74.303, note: "Final support stop before the push into Montreal." },
-      { stage: "Finish", name: "Montreal", km: 200, distanceLabel: "200 km", lat: 45.5017, lng: -73.5673, note: "Ride complete - final supporter update." },
+      { stage: "Start", name: "Montreal", km: 0, distanceLabel: "0 km", lat: 45.5017, lng: -73.5673, note: "8:00 AM rollout from Montreal." },
+      { stage: "25%", name: "Rigaud", km: 50, distanceLabel: "50 km", lat: 45.4814, lng: -74.303, note: "First support stop before crossing deeper into Ontario." },
+      { stage: "50%", name: "Hawkesbury", km: 100, distanceLabel: "100 km", lat: 45.6076, lng: -74.6058, note: "Halfway regroup after crossing from Quebec." },
+      { stage: "75%", name: "Rockland", km: 150, distanceLabel: "150 km", lat: 45.5418, lng: -75.2921, note: "Final support stop along the Ottawa River on Hwy 17." },
+      { stage: "Finish", name: "Ottawa", km: 200, distanceLabel: "200 km", lat: 45.4215, lng: -75.6972, note: "Ride complete - final supporter update." },
     ],
     polyline: [
-      { lat: 45.4215, lng: -75.6972 },
-      { lat: 45.4571, lng: -75.527 },
-      { lat: 45.5418, lng: -75.2921 },
-      { lat: 45.555, lng: -75.115 },
-      { lat: 45.575, lng: -74.882 },
-      { lat: 45.6076, lng: -74.6058 },
-      { lat: 45.56, lng: -74.4 },
-      { lat: 45.4814, lng: -74.303 },
-      { lat: 45.452, lng: -74.135 },
-      { lat: 45.4001, lng: -74.033 },
-      { lat: 45.4472, lng: -73.8171 },
       { lat: 45.5017, lng: -73.5673 },
+      { lat: 45.4472, lng: -73.8171 },
+      { lat: 45.4001, lng: -74.033 },
+      { lat: 45.452, lng: -74.135 },
+      { lat: 45.4814, lng: -74.303 },
+      { lat: 45.56, lng: -74.4 },
+      { lat: 45.6076, lng: -74.6058 },
+      { lat: 45.575, lng: -74.882 },
+      { lat: 45.555, lng: -75.115 },
+      { lat: 45.5418, lng: -75.2921 },
+      { lat: 45.4571, lng: -75.527 },
+      { lat: 45.4215, lng: -75.6972 },
     ],
     mapCenter: { lat: 45.5, lng: -74.65, zoom: 7.5 },
   },
@@ -200,14 +200,14 @@ export const fallbackSiteContent: SiteContent = {
   },
   donationTotals: {
     raisedAmount: 0,
-    goalAmount: 25000,
+    goalAmount: 10000,
     donorCount: 0,
     currency: "CAD",
   },
   donationUrl: "mailto:admin@gainables.ca?subject=Ride%20for%20Mental%20Health%20Donation",
   donationEmbedUrl: null,
   trackerStatus: "pre_ride",
-  rideDate: "2026-05-04T12:00:00.000Z",
+  rideDate: "2026-05-23T12:00:00.000Z",
 };
 
 export const fallbackSponsors: Sponsor[] = [];
@@ -219,14 +219,14 @@ export const fallbackRideUpdates: RideUpdate[] = [
     // tracker-shell filters this placeholder out of the updates list, but
     // any code that still reads it (e.g. admin/raw tools) should see a
     // sensible timestamp rather than a hardcoded 2026-01-01 value.
-    createdAt: "2026-05-04T12:00:00.000Z",
+    createdAt: "2026-05-23T12:00:00.000Z",
     createdAtLabel: "-",
-    location: "Start line - Ottawa",
+    location: "Start line - Montreal",
     kmCompleted: 0,
-    nextCheckpoint: "Rockland",
+    nextCheckpoint: "Rigaud",
     message: "Ride hasn't started yet. Live updates will appear here on ride day.",
-    lat: 45.4215,
-    lng: -75.6972,
+    lat: 45.5017,
+    lng: -73.5673,
     mediaUrl: null,
     mediaKind: null,
     mediaAlt: null,
@@ -248,7 +248,7 @@ export const fallbackFaqs: FaqItem[] = [
     id: "faq-2",
     question: "What is Ride for Mental Health?",
     answer:
-      "Ride for Mental Health is a community-driven initiative led by Gainables during Mental Health Month. The Gainables team is cycling about 200 km from Ottawa to Montreal to raise awareness and funds for mental health while bringing people together through a shared experience.",
+      "Ride for Mental Health is a community-driven initiative led by Gainables during Mental Health Month. The Gainables team is cycling about 200 km from Montreal to Ottawa to raise awareness and funds for mental health while bringing people together through a shared experience.",
     sortOrder: 2,
     visible: true,
   },

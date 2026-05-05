@@ -84,7 +84,7 @@ export function BikerTimelineSection({
         // the top of the viewport — i.e. the user has actually scrolled
         // into the section rather than the animation finishing before
         // they even see it. We then scrub across the full visible height
-        // so the biker reaches Montreal just as the section exits.
+        // so the biker reaches Ottawa just as the section exits.
         start: "top 30%",
         end: "bottom 70%",
         scrub: 0.6,
@@ -172,7 +172,7 @@ export function BikerTimelineSection({
           <div>
             <p className="eyebrow">{panel.eyebrow}</p>
             <h2 className="mt-4 display-hero text-5xl md:mt-5 md:text-8xl lg:text-[9rem]">
-              Ottawa <span className="display-italic text-muted-foreground">to</span> Montreal
+              Montreal <span className="display-italic text-muted-foreground">to</span> Ottawa
             </h2>
           </div>
           <div className="flex flex-col gap-1 font-sans text-sm text-muted-foreground md:max-w-xs md:text-right">
@@ -185,9 +185,9 @@ export function BikerTimelineSection({
         <div className="relative mt-14 md:mt-28">
           <RouteCurve progressPercent={clamped} midCheckpoints={midWithPercent} />
 
-          <EndpointLabel name={startCp?.name ?? "Ottawa"} km={startCp?.km ?? 0} align="left" />
+          <EndpointLabel name={startCp?.name ?? "Montreal"} km={startCp?.km ?? 0} align="left" />
           <EndpointLabel
-            name={endCp?.name ?? "Montreal"}
+            name={endCp?.name ?? "Ottawa"}
             km={endCp?.km ?? route.totalDistanceKm}
             align="right"
           />
@@ -275,7 +275,7 @@ function describePanel(args: {
     return {
       eyebrow: "Ride complete",
       label: "Finished",
-      primary: "Montreal",
+      primary: "Ottawa",
       secondary: `${totalDistanceKm} km · thank you`,
     };
   }
@@ -413,7 +413,7 @@ export function RouteCurve({
         viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
         className="absolute inset-0 h-full w-full"
         role="img"
-        aria-label="Route curve from Ottawa to Montreal"
+        aria-label="Route curve from Montreal to Ottawa"
       >
         {/* Faint full path */}
         <path

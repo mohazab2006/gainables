@@ -2,9 +2,9 @@
 
 # Ride for Mental Health
 
-**Ottawa → Montréal. One ride. One cause.**
+**Montréal → Ottawa. One ride. One cause.**
 
-Next.js 16 campaign site for Gainables' Ottawa-to-Montréal Ride for Mental Health — with live GPS tracking, editable Supabase-backed content, and a sponsor-ready presence.
+Next.js 16 campaign site for Gainables' Montréal-to-Ottawa Ride for Mental Health — with live GPS tracking, editable Supabase-backed content, and a sponsor-ready presence.
 
 <!--
   HERO IMAGE
@@ -138,6 +138,6 @@ Tip: PNG for crisp UI screenshots, WEBP if you want smaller files. Keep filename
 
 <div align="center">
 
-Built with care for <b>Gainables</b> · Ottawa → Montréal
+Built with care for <b>Gainables</b> · Montréal → Ottawa
 
 </div>

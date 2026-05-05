@@ -10,7 +10,7 @@ import { getRouteGeoJson } from "@/lib/route-geojson";
 export const metadata: Metadata = {
   title: "Live tracker",
   description:
-    "Follow the Gainables Ride for Mental Health in real time — live location, checkpoint progress, and ride-day updates from Ottawa to Montreal.",
+    "Follow the Gainables Ride for Mental Health in real time — live location, checkpoint progress, and ride-day updates from Montreal to Ottawa.",
 };
 
 export default async function TrackPage() {
@@ -29,10 +29,10 @@ export default async function TrackPage() {
           <div className="flex flex-col gap-5">
             <p className="ring-token w-fit">Live tracker</p>
             <h1 className="max-w-4xl font-display text-5xl leading-[0.96] tracking-[-0.03em] md:text-7xl lg:text-[6vw]">
-              Follow the Ottawa → Montreal ride <span className="display-italic">in real time</span>.
+              Follow the Montreal → Ottawa ride <span className="display-italic">in real time</span>.
             </h1>
             <p className="max-w-3xl text-lg leading-8 text-muted-foreground">
-              Real-time location updates from the Gainables team as they cycle ~200 km from Ottawa to Montreal — with checkpoint progress, ride-day updates, and a live route map.
+              Real-time location updates from the Gainables team as they cycle ~200 km from Montreal to Ottawa — with checkpoint progress, ride-day updates, and a live route map.
             </p>
           </div>
 

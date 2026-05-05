@@ -18,7 +18,7 @@ type FeatureCollection = {
 };
 
 export async function getRouteGeoJson() {
-  const routePath = path.join(process.cwd(), "public", "route", "ottawa-montreal.geojson");
+  const routePath = path.join(process.cwd(), "public", "route", "montreal-ottawa.geojson");
   const raw = await readFile(routePath, "utf8");
   const parsed = JSON.parse(raw) as FeatureCollection;
   const feature = parsed.features.find((item) => item.geometry.type === "LineString");
